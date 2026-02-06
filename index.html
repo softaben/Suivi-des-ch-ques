@@ -1,1 +1,2451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#337ea9">
+    <title>CheckFlow Pro - إدارة الشيكات</title>
+    
+    <!-- PWA Support -->
+    <meta name="apple-mobile-web-app-title" content="CheckFlow">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    
+    <style>
+        :root {
+            /* ألوان التطبيق */
+            --primary-color: #337ea9;
+            --primary-dark: #2a6496;
+            --primary-light: #4a90e2;
+            
+            --secondary-color: #0f7b6c;
+            --danger-color: #d1453b;
+            --warning-color: #ffb800;
+            --success-color: #27ae60;
+            
+            --background-color: #ffffff;
+            --surface-color: #f8f9fa;
+            --card-color: #ffffff;
+            
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            
+            --status-pending: #ffb800;
+            --status-cleared: #0f7b6c;
+            --status-bounced: #d1453b;
+            
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            
+            /* Safe Areas */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
 
+        /* الوضع الداكن */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #121212;
+                --surface-color: #1e1e1e;
+                --card-color: #2d2d2d;
+                
+                --text-primary: #ffffff;
+                --text-secondary: #b0b0b0;
+                --text-tertiary: #808080;
+                
+                --border-color: #404040;
+                --shadow-color: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        .dark-mode {
+            --background-color: #121212;
+            --surface-color: #1e1e1e;
+            --card-color: #2d2d2d;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            
+            --border-color: #404040;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color var(--transition-normal);
+            min-height: 100vh;
+            padding-top: var(--safe-top);
+            padding-bottom: calc(80px + var(--safe-bottom));
+            overflow-x: hidden;
+            direction: rtl;
+        }
+
+        /* رأس التطبيق */
+        .app-header {
+            position: fixed;
+            top: var(--safe-top);
+            right: 0;
+            left: 0;
+            height: 56px;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+            z-index: 1000;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .header-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        /* التنقل السفلي */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            height: 80px;
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            padding-bottom: var(--safe-bottom);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-xs);
+            color: var(--text-tertiary);
+            text-decoration: none;
+            transition: var(--transition-fast);
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: 12px;
+            left: 30px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* المحتوى الرئيسي */
+        .main-content {
+            padding: calc(56px + var(--spacing-lg)) var(--spacing-md) var(--spacing-xl);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* لوحة التحكم */
+        .dashboard {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-md);
+            text-align: right;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .welcome-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* الإجراءات السريعة */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .quick-action-btn {
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: var(--transition-fast);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .quick-action-btn:active {
+            transform: scale(0.98);
+            background: var(--surface-color);
+        }
+
+        .quick-action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .quick-action-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* بطاقات الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* الشيكات الحديثة */
+        .recent-section {
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .see-all-btn {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        /* قائمة الشيكات */
+        .check-list {
+            display: grid;
+            gap: var(--spacing-sm);
+        }
+
+        .check-item {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            border-right: 4px solid var(--status-pending);
+            transition: var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .check-item:active {
+            background: var(--card-color);
+        }
+
+        .check-item.cleared {
+            border-right-color: var(--status-cleared);
+        }
+
+        .check-item.bounced {
+            border-right-color: var(--status-bounced);
+        }
+
+        .check-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .check-info {
+            flex: 1;
+            text-align: right;
+        }
+
+        .check-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .check-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .check-amount {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* عرض جميع الشيكات */
+        .checks-view {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .view-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-btn {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            cursor: pointer;
+        }
+
+        /* شريط البحث */
+        .search-container {
+            position: relative;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 48px 14px 16px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+            text-align: right;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--card-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 16px;
+        }
+
+        /* حالة فارغة */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            color: var(--text-tertiary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
+        }
+
+        .empty-description {
+            font-size: 14px;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* نظام النوافذ المنبثقة */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: var(--spacing-md);
+            animation: fadeIn var(--transition-normal);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--background-color);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: slideUp var(--transition-normal);
+            box-shadow: 0 20px 60px var(--shadow-color);
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-color);
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        /* عناصر النموذج */
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+            text-align: right;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--card-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-select {
+            appearance: none;
+            background: var(--surface-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E") no-repeat left 16px center;
+            padding-left: 40px;
+        }
+
+        /* الأزرار */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: var(--primary-dark);
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:active {
+            background: var(--border-color);
+        }
+
+        /* علامات الحالة */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending-badge {
+            background: rgba(255, 184, 0, 0.1);
+            color: var(--status-pending);
+            border: 1px solid rgba(255, 184, 0, 0.2);
+        }
+
+        .status-cleared-badge {
+            background: rgba(15, 123, 108, 0.1);
+            color: var(--status-cleared);
+            border: 1px solid rgba(15, 123, 108, 0.2);
+        }
+
+        .status-bounced-badge {
+            background: rgba(209, 69, 59, 0.1);
+            color: var(--status-bounced);
+            border: 1px solid rgba(209, 69, 59, 0.2);
+        }
+
+        /* الحركات */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn var(--transition-normal);
+        }
+
+        .slide-in {
+            animation: slideIn var(--transition-normal);
+        }
+
+        /* حالات التحميل */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-xl);
+            color: var(--text-tertiary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: var(--spacing-md);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* تصميم متجاوب */
+        @media (min-width: 768px) {
+            .main-content {
+                padding-right: 24px;
+                padding-left: 24px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* مطالبة التثبيت */
+        .install-prompt {
+            position: fixed;
+            bottom: 90px;
+            right: var(--spacing-md);
+            left: var(--spacing-md);
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            box-shadow: 0 10px 40px var(--shadow-color);
+            display: none;
+            z-index: 1500;
+            animation: slideUp var(--transition-normal);
+            text-align: right;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .install-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .install-text {
+            flex: 1;
+        }
+
+        .install-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .install-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .install-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* شاشة البداية */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            background: var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            transition: opacity var(--transition-normal);
+        }
+
+        .splash-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-lg);
+            animation: bounce 1s infinite alternate;
+        }
+
+        .splash-logo i {
+            font-size: 40px;
+            color: var(--primary-color);
+        }
+
+        .splash-title {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .splash-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        /* إخفاء شريط التمرير */
+        .modal-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .modal-body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* شريط تمرير مخصص */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* التحديد */
+        ::selection {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* الأزرار الصغيرة */
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .icon-button:hover {
+            background: var(--surface-color);
+        }
+
+        /* اللغة والعملة */
+        .lang-selector, .currency-selector {
+            position: relative;
+        }
+
+        .lang-btn, .currency-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-color) 0 4px 12px;
+            min-width: 120px;
+            z-index: 1001;
+            margin-top: 4px;
+        }
+
+        .dropdown.show {
+            display: block;
+            animation: fadeIn var(--transition-fast);
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            border-bottom: 1px solid var(--border-color);
+            text-align: right;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--surface-color);
+        }
+
+        .dropdown-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* شاشة تسجيل الدخول */
+        .login-modal {
+            background: var(--background-color);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 400px;
+            padding: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-color);
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* تقدم المزامنة */
+        .sync-status {
+            position: fixed;
+            top: 56px;
+            right: 0;
+            left: 0;
+            padding: 8px 16px;
+            background: var(--success-color);
+            color: white;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 999;
+            animation: slideIn 0.3s ease;
+        }
+
+        .sync-status.error {
+            background: var(--danger-color);
+        }
+
+        .sync-status.syncing {
+            background: var(--warning-color);
+        }
+
+        /* إدارة المستخدمين */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- شاشة البداية -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">
+            <i class="fas fa-money-check-alt"></i>
+        </div>
+        <div class="splash-title">CheckFlow Pro</div>
+        <div class="splash-subtitle">إدارة الشيكات الاحترافية</div>
+    </div>
+
+    <!-- حالة المزامنة -->
+    <div class="sync-status" id="syncStatus">
+        <i class="fas fa-sync-alt"></i>
+        <span id="syncMessage">جاري المزامنة...</span>
+    </div>
+
+    <!-- مطالبة التثبيت -->
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-content">
+            <div class="install-icon">
+                <i class="fas fa-download"></i>
+            </div>
+            <div class="install-text">
+                <div class="install-title">تثبيت CheckFlow</div>
+                <div class="install-description">أضف إلى الشاشة الرئيسية لتجربة أفضل</div>
+            </div>
+            <div class="install-actions">
+                <button class="btn btn-secondary" onclick="hideInstallPrompt()">
+                    لاحقاً
+                </button>
+                <button class="btn btn-primary" onclick="installApp()">
+                    تثبيت
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- رأس التطبيق -->
+    <header class="app-header" id="appHeader" style="display: none;">
+        <div class="header-right">
+            <div class="app-title">
+                <i class="fas fa-money-check-alt"></i>
+                <span id="pageTitle">لوحة التحكم</span>
+            </div>
+        </div>
+        <div class="header-left">
+            <div class="user-menu">
+                <div class="user-avatar" id="userAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <button class="icon-button" id="syncButton" style="background: rgba(255,255,255,0.2); color: white;">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="currency-selector">
+                <button class="currency-btn" id="currencyBtn">
+                    <span id="currencySymbol">د.م</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown" id="currencyDropdown">
+                    <div class="dropdown-item active" data-currency="MAD">
+                        <span>درهم مغربي (د.م)</span>
+                    </div>
+                    <div class="dropdown-item" data-currency="EUR">
+                        <span>يورو (€)</span>
+                    </div>
+                    <div class="dropdown-item" data-currency="USD">
+                        <span>دولار ($)</span>
+                    </div>
+                </div>
+            </div>
+            <button class="icon-button" id="addButton" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content" id="mainContent" style="display: none;">
+        <!-- لوحة التحكم -->
+        <div class="dashboard" id="dashboardView">
+            <div class="welcome-section">
+                <div class="welcome-title" id="welcomeTitle">مرحباً بك</div>
+                <div class="welcome-subtitle" id="welcomeSubtitle">إدارة وتتبع الشيكات بكل سهولة</div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="openNewCheckModal()">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="quick-action-label">إضافة شيك</div>
+                </div>
+                <div class="quick-action-btn" onclick="showAllChecks()">
+                    <div class="quick-action-icon" style="background: var(--secondary-color);">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="quick-action-label">جميع الشيكات</div>
+                </div>
+                <div class="quick-action-btn" onclick="showPendingChecks()">
+                    <div class="quick-action-icon" style="background: var(--warning-color);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="quick-action-label">قيد الانتظار</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalAmount">0 د.م</div>
+                    <div class="stat-label">إجمالي المبلغ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalChecks">0</div>
+                    <div class="stat-label">عدد الشيكات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingChecks">0</div>
+                    <div class="stat-label">قيد الانتظار</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="clearedChecks">0</div>
+                    <div class="stat-label">تم الصرف</div>
+                </div>
+            </div>
+
+            <div class="recent-section">
+                <div class="section-header">
+                    <div class="section-title">الشيكات الحديثة</div>
+                    <a href="javascript:void(0)" class="see-all-btn" onclick="showAllChecks()">عرض الكل</a>
+                </div>
+                <div class="check-list" id="recentChecksList">
+                    <!-- الشيكات الحديثة سيتم تحميلها هنا -->
+                </div>
+            </div>
+        </div>
+
+        <!-- عرض جميع الشيكات -->
+        <div class="checks-view" id="allChecksView" style="display: none;">
+            <div class="view-header">
+                <div class="view-title" id="checksViewTitle">جميع الشيكات</div>
+                <div class="view-controls">
+                    <button class="filter-btn" id="filterButton">
+                        <i class="fas fa-filter"></i>
+                        <span>تصفية</span>
+                    </button>
+                    <button class="filter-btn" onclick="exportData()">
+                        <i class="fas fa-download"></i>
+                        <span>تصدير</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="بحث في الشيكات...">
+            </div>
+
+            <div class="check-list" id="allChecksList">
+                <!-- جميع الشيكات سيتم تحميلها هنا -->
+            </div>
+        </div>
+    </main>
+
+    <!-- التنقل السفلي -->
+    <nav class="bottom-nav" id="bottomNav" style="display: none;">
+        <a href="javascript:void(0)" class="nav-item active" onclick="showDashboard()">
+            <i class="fas fa-home"></i>
+            <span class="nav-label">الرئيسية</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showAllChecks()">
+            <i class="fas fa-receipt"></i>
+            <span class="nav-label">الشيكات</span>
+            <span class="nav-badge" id="checksBadge">0</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showAnalytics()">
+            <i class="fas fa-chart-bar"></i>
+            <span class="nav-label">إحصائيات</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showSettings()">
+            <i class="fas fa-cog"></i>
+            <span class="nav-label">الإعدادات</span>
+        </a>
+    </nav>
+
+    <!-- نافذة تسجيل الدخول -->
+    <div class="modal-overlay" id="loginModal" style="display: flex;">
+        <div class="login-modal">
+            <div class="login-title">CheckFlow Pro</div>
+            <div class="login-subtitle">تسجيل الدخول لإدارة الشيكات</div>
+            
+            <div class="form-group">
+                <input type="text" class="form-input" id="userId" placeholder="أدخل اسم المستخدم" value="user1">
+            </div>
+            
+            <div class="form-group">
+                <input type="password" class="form-input" id="userPassword" placeholder="كلمة المرور (اختياري)" value="password123">
+            </div>
+            
+            <div class="form-group" style="text-align: left; font-size: 14px; color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="rememberMe" checked>
+                    <span>تذكرني</span>
+                </label>
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i>
+                تسجيل الدخول
+            </button>
+            
+            <div style="margin-top: var(--spacing-lg); font-size: 12px; color: var(--text-tertiary);">
+                سيتم إنشاء حساب تلقائياً إذا كان أول استخدام
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة شيك -->
+    <div class="modal-overlay" id="addCheckModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">إضافة شيك جديد</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="checkForm" onsubmit="saveCheck(event)">
+                    <input type="hidden" id="checkId">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="checkName">اسم الشيك *</label>
+                        <input type="text" class="form-input" id="checkName" placeholder="مثال: راتب موظفين - يناير" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="checkAmount">المبلغ (د.م) *</label>
+                            <input type="number" class="form-input" id="checkAmount" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="checkNumber">رقم الشيك *</label>
+                            <input type="text" class="form-input" id="checkNumber" placeholder="CHK-2024-001" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="bankName">البنك *</label>
+                            <input type="text" class="form-input" id="bankName" placeholder="البنك المغربي للتجارة الخارجية" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="checkStatus">الحالة</label>
+                            <select class="form-input form-select" id="checkStatus">
+                                <option value="pending">قيد الانتظار</option>
+                                <option value="cleared">تم الصرف</option>
+                                <option value="bounced">مرتجع</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="recipient">المستلم *</label>
+                            <input type="text" class="form-input" id="recipient" placeholder="اسم المستلم" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="issuer">المعطي *</label>
+                            <input type="text" class="form-input" id="issuer" placeholder="اسم المعطي" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="issueDate">تاريخ الإصدار</label>
+                            <input type="date" class="form-input" id="issueDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="dueDate">تاريخ الاستحقاق</label>
+                            <input type="date" class="form-input" id="dueDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="notes">ملاحظات</label>
+                        <textarea class="form-input" id="notes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        حفظ الشيك
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإعدادات -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">الإعدادات</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">المظهر</label>
+                    <select class="form-input form-select" id="themeSelect">
+                        <option value="auto">تلقائي (حسب النظام)</option>
+                        <option value="light">فاتح</option>
+                        <option value="dark">داكن</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">العملة</label>
+                    <select class="form-input form-select" id="currencySelect">
+                        <option value="MAD">درهم مغربي (د.م)</option>
+                        <option value="EUR">يورو (€)</option>
+                        <option value="USD">دولار أمريكي ($)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">اللغة</label>
+                    <select class="form-input form-select" id="languageSelect">
+                        <option value="ar">العربية</option>
+                        <option value="fr">Français</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i>
+                        تصدير البيانات
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="showAbout()">
+                        <i class="fas fa-info-circle"></i>
+                        حول التطبيق
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-secondary" onclick="syncData()">
+                        <i class="fas fa-sync-alt"></i>
+                        مزامنة البيانات
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-danger" onclick="logout()" style="background: var(--danger-color);">
+                        <i class="fas fa-sign-out-alt"></i>
+                        تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkOHV0LJojUSdUYUPvI3FJsLJ0Vct9HvY",
+            authDomain: "taoufik-65d14.firebaseapp.com",
+            projectId: "taoufik-65d14",
+            storageBucket: "taoufik-65d14.firebasestorage.app",
+            messagingSenderId: "1045546827276",
+            appId: "1:1045546827276:web:88f426e425ac031a407829",
+            measurementId: "G-3EE6KJ1KNZ",
+            databaseURL: "https://taoufik-65d14-default-rtdb.firebaseio.com/"
+        };
+
+        // حالة التطبيق
+        let checks = [];
+        let currentView = 'dashboard';
+        let deferredPrompt = null;
+        let isInstalled = false;
+        let currentLanguage = 'ar';
+        let currentCurrency = 'MAD';
+        let currentUserId = null;
+        let isOnline = navigator.onLine;
+        let pendingSync = [];
+        let firebaseApp = null;
+        let database = null;
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', async function() {
+            // إخفاء شاشة البداية بعد 1.5 ثانية
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splashScreen').style.display = 'none';
+                    
+                    // التحقق من تسجيل الدخول السابق
+                    const savedUserId = localStorage.getItem('checkflow_userId');
+                    const rememberMe = localStorage.getItem('checkflow_rememberMe') === 'true';
+                    
+                    if (savedUserId && rememberMe) {
+                        document.getElementById('userId').value = savedUserId;
+                        document.getElementById('rememberMe').checked = true;
+                        loginWithSavedUser(savedUserId);
+                    } else {
+                        document.getElementById('loginModal').style.display = 'flex';
+                    }
+                }, 300);
+            }, 1500);
+
+            // تهيئة Firebase
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Firebase:', error);
+                showSyncStatus('خطأ في الاتصال بالسحابة، يتم العمل محلياً', 'error');
+            }
+
+            // طلب إذن الإشعارات
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+
+            // مراقبة حالة الاتصال
+            window.addEventListener('online', () => {
+                isOnline = true;
+                showSyncStatus('تم استعادة الاتصال', 'success');
+                setTimeout(() => syncPendingData(), 2000);
+            });
+
+            window.addEventListener('offline', () => {
+                isOnline = false;
+                showSyncStatus('أنت غير متصل - وضع العمل المحلي مفعل', 'error');
+            });
+        });
+
+        // دوال تسجيل الدخول
+        function login() {
+            const userId = document.getElementById('userId').value.trim();
+            const password = document.getElementById('userPassword').value.trim();
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (!userId) {
+                alert('الرجاء إدخال اسم المستخدم');
+                return;
+            }
+            
+            loginWithSavedUser(userId, password, rememberMe);
+        }
+
+        function loginWithSavedUser(userId, password = '', rememberMe = true) {
+            currentUserId = userId;
+            
+            if (rememberMe) {
+                localStorage.setItem('checkflow_userId', userId);
+                localStorage.setItem('checkflow_rememberMe', 'true');
+            } else {
+                localStorage.removeItem('checkflow_userId');
+                localStorage.removeItem('checkflow_rememberMe');
+            }
+            
+            // تحديث صورة المستخدم
+            updateUserAvatar();
+            
+            // إخفاء شاشة تسجيل الدخول
+            document.getElementById('loginModal').style.display = 'none';
+            
+            // إظهار التطبيق
+            document.getElementById('appHeader').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('bottomNav').style.display = 'flex';
+            
+            // تهيئة التطبيق
+            initApp();
+            loadData();
+            updateUI();
+            setupEventListeners();
+            checkPWAInstallation();
+            
+            showNotification('تم تسجيل الدخول بنجاح');
+        }
+
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                currentUserId = null;
+                checks = [];
+                pendingSync = [];
+                
+                localStorage.removeItem('checkflow_userId');
+                localStorage.removeItem('checkflow_rememberMe');
+                
+                // إخفاء التطبيق
+                document.getElementById('appHeader').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+                
+                // إظهار شاشة تسجيل الدخول
+                document.getElementById('loginModal').style.display = 'flex';
+                
+                showNotification('تم تسجيل الخروج');
+            }
+        }
+
+        function updateUserAvatar() {
+            if (!currentUserId) return;
+            
+            const avatar = document.getElementById('userAvatar');
+            const firstLetter = currentUserId.charAt(0).toUpperCase();
+            avatar.innerHTML = `<span>${firstLetter}</span>`;
+        }
+
+        function initApp() {
+            // تعيين تاريخ اليوم
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('issueDate').value = today;
+            
+            // تعيين تاريخ الشهر القادم للاستحقاق
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
+            
+            // تحميل الإعدادات
+            loadSettings();
+            
+            // التحقق إذا كان التطبيق مثبتاً
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                isInstalled = true;
+                console.log('التطبيق مثبت كـ PWA');
+            }
+        }
+
+        // دوال قاعدة البيانات
+        async function loadData() {
+            if (!currentUserId || !database) {
+                loadLocalData();
+                return;
+            }
+            
+            try {
+                showSyncStatus('جاري تحميل البيانات...', 'syncing');
+                
+                const userRef = database.ref('users/' + currentUserId + '/checks');
+                const snapshot = await userRef.once('value');
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    checks = Object.values(data || {});
+                    
+                    // حفظ محلياً للعمل بدون اتصال
+                    localStorage.setItem('checkflow_checks_' + currentUserId, JSON.stringify(checks));
+                    
+                    showSyncStatus('تم تحميل البيانات من السحابة', 'success');
+                } else {
+                    loadLocalData();
+                    showSyncStatus('تم تحميل البيانات المحلية', 'success');
+                }
+                
+                // مراقبة التغييرات في الوقت الحقيقي
+                userRef.on('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        const newChecks = Object.values(data || {});
+                        
+                        // تحديث فقط إذا كان هناك تغيير
+                        if (JSON.stringify(checks) !== JSON.stringify(newChecks)) {
+                            checks = newChecks;
+                            updateUI();
+                            showSyncStatus('تم تحديث البيانات تلقائياً', 'success');
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading data from Firebase:', error);
+                loadLocalData();
+                showSyncStatus('خطأ في التحميل، استخدام البيانات المحلية', 'error');
+            }
+        }
+
+        function loadLocalData() {
+            if (!currentUserId) return;
+            
+            const savedChecks = localStorage.getItem('checkflow_checks_' + currentUserId);
+            if (savedChecks) {
+                checks = JSON.parse(savedChecks);
+            } else {
+                loadSampleData();
+            }
+        }
+
+        async function saveCheckToDatabase(check) {
+            if (!currentUserId || !database) {
+                return false;
+            }
+            
+            try {
+                const checkRef = database.ref('users/' + currentUserId + '/checks/' + check.id);
+                await checkRef.set(check);
+                return true;
+            } catch (error) {
+                console.error('Error saving to Firebase:', error);
+                return false;
+            }
+        }
+
+        async function deleteCheckFromDatabase(checkId) {
+            if (!currentUserId || !database) {
+                return false;
+            }
+            
+            try {
+                const checkRef = database.ref('users/' + currentUserId + '/checks/' + checkId);
+                await checkRef.remove();
+                return true;
+            } catch (error) {
+                console.error('Error deleting from Firebase:', error);
+                return false;
+            }
+        }
+
+        async function syncPendingData() {
+            if (!isOnline || !currentUserId || pendingSync.length === 0) {
+                return;
+            }
+            
+            showSyncStatus('جاري مزامنة البيانات...', 'syncing');
+            
+            const failedSyncs = [];
+            
+            for (const action of pendingSync) {
+                try {
+                    if (action.type === 'save') {
+                        await saveCheckToDatabase(action.data);
+                    } else if (action.type === 'delete') {
+                        await deleteCheckFromDatabase(action.checkId);
+                    }
+                } catch (error) {
+                    failedSyncs.push(action);
+                    console.error('Sync failed for action:', action, error);
+                }
+            }
+            
+            pendingSync = failedSyncs;
+            
+            if (failedSyncs.length === 0) {
+                showSyncStatus('تمت المزامنة بنجاح', 'success');
+            } else {
+                showSyncStatus(`فشل في مزامنة ${failedSyncs.length} عنصر`, 'error');
+            }
+        }
+
+        function syncData() {
+            if (!isOnline) {
+                showNotification('غير متصل بالإنترنت، لا يمكن المزامنة');
+                return;
+            }
+            
+            // مزامنة جميع البيانات المحلية
+            const localChecks = JSON.parse(localStorage.getItem('checkflow_checks_' + currentUserId) || '[]');
+            
+            if (database && currentUserId) {
+                showSyncStatus('جاري مزامنة جميع البيانات...', 'syncing');
+                
+                // حفظ جميع الشيكات إلى Firebase
+                const updates = {};
+                localChecks.forEach(check => {
+                    updates[check.id] = check;
+                });
+                
+                database.ref('users/' + currentUserId + '/checks').update(updates)
+                    .then(() => {
+                        showSyncStatus('تمت المزامنة بنجاح', 'success');
+                        showNotification('تم مزامنة جميع البيانات مع السحابة');
+                    })
+                    .catch(error => {
+                        console.error('Sync error:', error);
+                        showSyncStatus('خطأ في المزامنة', 'error');
+                    });
+            }
+        }
+
+        function showSyncStatus(message, type = 'success') {
+            const syncStatus = document.getElementById('syncStatus');
+            const syncMessage = document.getElementById('syncMessage');
+            
+            syncMessage.textContent = message;
+            syncStatus.className = 'sync-status ' + type;
+            syncStatus.style.display = 'flex';
+            
+            // إخفاء الرسالة بعد 3 ثواني
+            setTimeout(() => {
+                syncStatus.style.display = 'none';
+            }, 3000);
+        }
+
+        function loadSampleData() {
+            if (checks.length === 0) {
+                const sampleChecks = [
+                    {
+                        id: 'check_' + Date.now() + '_1',
+                        name: 'رواتب الموظفين - يناير',
+                        amount: 85000,
+                        number: 'CHK-2024-001',
+                        bank: 'البنك المغربي للتجارة الخارجية',
+                        recipient: 'شركة التقنية المحدودة',
+                        issuer: 'إدارة الموارد البشرية',
+                        status: 'cleared',
+                        issueDate: '2024-01-05',
+                        dueDate: '2024-01-20',
+                        notes: 'دفعة رواتب شهر يناير',
+                        createdAt: new Date().toISOString(),
+                        important: true
+                    },
+                    {
+                        id: 'check_' + Date.now() + '_2',
+                        name: 'فاتورة مقاول البناء',
+                        amount: 125000,
+                        number: 'CHK-2024-002',
+                        bank: 'البنك الشعبي المركزي',
+                        recipient: 'مقاولات البناء المتحدة',
+                        issuer: 'قسم المشتريات',
+                        status: 'pending',
+                        issueDate: '2024-01-10',
+                        dueDate: '2024-02-10',
+                        notes: 'الدفعة الثانية لمشروع المباني الجديدة',
+                        createdAt: new Date().toISOString(),
+                        important: true
+                    }
+                ];
+                
+                checks = sampleChecks;
+                saveChecksLocally();
+            }
+        }
+
+        // إدارة العروض
+        function showDashboard() {
+            currentView = 'dashboard';
+            document.getElementById('dashboardView').style.display = 'grid';
+            document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('pageTitle').textContent = 'لوحة التحكم';
+            updateNav('home');
+            updateStats();
+            updateRecentChecks();
+        }
+
+        function showAllChecks() {
+            currentView = 'allChecks';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('allChecksView').style.display = 'grid';
+            document.getElementById('pageTitle').textContent = 'جميع الشيكات';
+            updateNav('checks');
+            updateAllChecks();
+        }
+
+        function showPendingChecks() {
+            showAllChecks();
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = 'قيد الانتظار';
+            searchInput.dispatchEvent(new Event('input'));
+        }
+
+        function showAnalytics() {
+            alert('الإحصائيات - قريباً في التحديث القادم!');
+            updateNav('stats');
+        }
+
+        function showSettings() {
+            openModal('settingsModal');
+            updateNav('settings');
+        }
+
+        function updateNav(active) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navIndex = ['home', 'checks', 'stats', 'settings'].indexOf(active);
+            document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+        }
+
+        // إدارة الشيكات
+        function openNewCheckModal() {
+            document.getElementById('checkForm').reset();
+            document.getElementById('checkId').value = '';
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('issueDate').value = today;
+            
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
+            
+            openModal('addCheckModal');
+        }
+
+        function editCheck(checkId) {
+            const check = checks.find(c => c.id === checkId);
+            if (!check) return;
+            
+            document.getElementById('checkId').value = check.id;
+            document.getElementById('checkName').value = check.name;
+            document.getElementById('checkAmount').value = check.amount;
+            document.getElementById('checkNumber').value = check.number;
+            document.getElementById('bankName').value = check.bank;
+            document.getElementById('recipient').value = check.recipient;
+            document.getElementById('issuer').value = check.issuer;
+            document.getElementById('checkStatus').value = check.status;
+            document.getElementById('issueDate').value = check.issueDate;
+            document.getElementById('dueDate').value = check.dueDate || '';
+            document.getElementById('notes').value = check.notes || '';
+            
+            openModal('addCheckModal');
+        }
+
+        async function saveCheck(event) {
+            event.preventDefault();
+            
+            const checkId = document.getElementById('checkId').value;
+            const isEdit = !!checkId;
+            
+            const checkData = {
+                id: isEdit ? checkId : 'check_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                name: document.getElementById('checkName').value,
+                amount: parseFloat(document.getElementById('checkAmount').value),
+                number: document.getElementById('checkNumber').value,
+                bank: document.getElementById('bankName').value,
+                recipient: document.getElementById('recipient').value,
+                issuer: document.getElementById('issuer').value,
+                status: document.getElementById('checkStatus').value,
+                issueDate: document.getElementById('issueDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                notes: document.getElementById('notes').value,
+                createdAt: isEdit ? checks.find(c => c.id === checkId)?.createdAt || new Date().toISOString() : new Date().toISOString(),
+                important: isEdit ? checks.find(c => c.id === checkId)?.important || false : false,
+                userId: currentUserId,
+                updatedAt: new Date().toISOString()
+            };
+            
+            if (isEdit) {
+                const index = checks.findIndex(c => c.id === checkId);
+                if (index !== -1) {
+                    checks[index] = checkData;
+                }
+            } else {
+                checks.unshift(checkData);
+            }
+            
+            // حفظ محلياً
+            saveChecksLocally();
+            
+            // محاولة الحفظ في قاعدة البيانات
+            if (isOnline && database) {
+                const success = await saveCheckToDatabase(checkData);
+                if (!success) {
+                    // إضافة إلى قائمة الانتظار للمزامنة لاحقاً
+                    pendingSync.push({ type: 'save', data: checkData });
+                    showSyncStatus('تم الحفظ محلياً، جاري المزامنة لاحقاً', 'syncing');
+                } else {
+                    showSyncStatus('تم الحفظ في السحابة', 'success');
+                }
+            } else {
+                pendingSync.push({ type: 'save', data: checkData });
+                showSyncStatus('تم الحفظ محلياً، جاري المزامنة عند الاتصال', 'syncing');
+            }
+            
+            closeModal();
+            updateUI();
+            showNotification(isEdit ? 'تم تحديث الشيك' : 'تم إضافة الشيك');
+            
+            // عرض لوحة التحكم بعد الإضافة
+            if (!isEdit) {
+                setTimeout(() => showDashboard(), 500);
+            }
+        }
+
+        async function deleteCheck(checkId) {
+            if (!confirm('هل تريد حذف هذا الشيك؟')) return;
+            
+            checks = checks.filter(c => c.id !== checkId);
+            saveChecksLocally();
+            
+            // محاولة الحذف من قاعدة البيانات
+            if (isOnline && database) {
+                const success = await deleteCheckFromDatabase(checkId);
+                if (!success) {
+                    pendingSync.push({ type: 'delete', checkId: checkId });
+                    showSyncStatus('تم الحذف محلياً، جاري المزامنة لاحقاً', 'syncing');
+                }
+            } else {
+                pendingSync.push({ type: 'delete', checkId: checkId });
+                showSyncStatus('تم الحذف محلياً، جاري المزامنة عند الاتصال', 'syncing');
+            }
+            
+            updateUI();
+            showNotification('تم حذف الشيك');
+        }
+
+        function toggleImportant(checkId) {
+            const index = checks.findIndex(c => c.id === checkId);
+            if (index !== -1) {
+                checks[index].important = !checks[index].important;
+                saveChecksLocally();
+                updateUI();
+                
+                // مزامنة التغيير
+                if (isOnline && database) {
+                    saveCheckToDatabase(checks[index]);
+                } else {
+                    pendingSync.push({ type: 'save', data: checks[index] });
+                }
+            }
+        }
+
+        // تحديثات الواجهة
+        function updateUI() {
+            updateStats();
+            updateRecentChecks();
+            updateAllChecks();
+            updateBadges();
+        }
+
+        function updateStats() {
+            const total = checks.length;
+            const totalAmount = checks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const pending = checks.filter(c => c.status === 'pending').length;
+            const cleared = checks.filter(c => c.status === 'cleared').length;
+            
+            document.getElementById('totalChecks').textContent = total;
+            document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
+            document.getElementById('pendingChecks').textContent = pending;
+            document.getElementById('clearedChecks').textContent = cleared;
+        }
+
+        function updateRecentChecks() {
+            const container = document.getElementById('recentChecksList');
+            const recentChecks = checks.slice(0, 5);
+            
+            if (recentChecks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px 0;">
+                        <div class="empty-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="empty-title">لا توجد شيكات</div>
+                        <div class="empty-description">أضف شيكك الأول</div>
+                        <button class="btn btn-primary" onclick="openNewCheckModal()" style="margin-top: 16px;">
+                            <i class="fas fa-plus"></i>
+                            إضافة شيك
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = recentChecks.map(check => {
+                const statusClass = check.status === 'pending' ? '' : 
+                                   check.status === 'cleared' ? 'cleared' : 'bounced';
+                
+                const statusIcon = check.status === 'pending' ? 'clock' :
+                                  check.status === 'cleared' ? 'check-circle' : 'times-circle';
+                
+                const statusColor = check.status === 'pending' ? 'var(--warning-color)' :
+                                   check.status === 'cleared' ? 'var(--secondary-color)' : 'var(--danger-color)';
+                
+                return `
+                    <div class="check-item ${statusClass}" onclick="editCheck('${check.id}')">
+                        <div class="check-icon" style="background: ${statusColor};">
+                            <i class="fas fa-${statusIcon}"></i>
+                        </div>
+                        <div class="check-info">
+                            <div class="check-name">${check.name}</div>
+                            <div class="check-details">
+                                <span>${check.number}</span>
+                                <span class="check-amount">${formatCurrency(check.amount)}</span>
+                                <span>${formatDate(check.issueDate)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateAllChecks() {
+            const container = document.getElementById('allChecksList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filteredChecks = checks.filter(check => {
+                if (!searchTerm) return true;
+                
+                return check.name.toLowerCase().includes(searchTerm) ||
+                       check.number.toLowerCase().includes(searchTerm) ||
+                       check.recipient.toLowerCase().includes(searchTerm) ||
+                       check.issuer.toLowerCase().includes(searchTerm) ||
+                       check.bank.toLowerCase().includes(searchTerm) ||
+                       check.status.toLowerCase().includes(searchTerm);
+            });
+            
+            if (filteredChecks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="empty-title">لا توجد شيكات</div>
+                        <div class="empty-description">${searchTerm ? 'جرب بحثاً آخر' : 'ابدأ بإضافة شيك جديد'}</div>
+                        <button class="btn btn-primary" onclick="openNewCheckModal()" style="margin-top: 16px;">
+                            <i class="fas fa-plus"></i>
+                            إضافة شيك
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredChecks.map(check => {
+                const statusClass = check.status === 'pending' ? '' : 
+                                   check.status === 'cleared' ? 'cleared' : 'bounced';
+                
+                const statusBadge = check.status === 'pending' ? 
+                    '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
+                    check.status === 'cleared' ?
+                    '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
+                    '<span class="status-badge status-bounced-badge">مرتجع</span>';
+                
+                return `
+                    <div class="check-item ${statusClass} fade-in" onclick="editCheck('${check.id}')">
+                        <div class="check-icon" style="background: ${check.important ? 'var(--warning-color)' : 'var(--primary-color)'};">
+                            <i class="fas fa-${check.important ? 'star' : 'money-check'}"></i>
+                        </div>
+                        <div class="check-info">
+                            <div class="check-name">${check.name}</div>
+                            <div class="check-details">
+                                <span>${check.number}</span>
+                                <span class="check-amount">${formatCurrency(check.amount)}</span>
+                                ${statusBadge}
+                            </div>
+                        </div>
+                        <button class="icon-button" onclick="event.stopPropagation(); deleteCheck('${check.id}')" 
+                                style="background: none; border: none; color: var(--danger-color); font-size: 18px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateBadges() {
+            const pendingCount = checks.filter(c => c.status === 'pending').length;
+            const badge = document.getElementById('checksBadge');
+            
+            if (pendingCount > 0) {
+                badge.textContent = pendingCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // دوال مساعدة
+        function formatCurrency(amount) {
+            const formatters = {
+                'MAD': new Intl.NumberFormat('ar-MA', {
+                    style: 'currency',
+                    currency: 'MAD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }),
+                'EUR': new Intl.NumberFormat('ar-MA', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }),
+                'USD': new Intl.NumberFormat('ar-MA', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })
+            };
+            
+            return formatters[currentCurrency].format(amount || 0);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString('ar-MA', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function saveChecksLocally() {
+            if (currentUserId) {
+                localStorage.setItem('checkflow_checks_' + currentUserId, JSON.stringify(checks));
+            }
+        }
+
+        function loadSettings() {
+            const theme = localStorage.getItem('theme') || 'auto';
+            const currency = localStorage.getItem('currency') || 'MAD';
+            const language = localStorage.getItem('language') || 'ar';
+            
+            document.getElementById('themeSelect').value = theme;
+            document.getElementById('currencySelect').value = currency;
+            document.getElementById('languageSelect').value = language;
+            
+            currentCurrency = currency;
+            currentLanguage = language;
+            
+            applyTheme(theme);
+            updateCurrencySymbol();
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        function updateCurrencySymbol() {
+            const symbols = {
+                'MAD': 'د.م',
+                'EUR': '€',
+                'USD': '$'
+            };
+            document.getElementById('currencySymbol').textContent = symbols[currentCurrency];
+        }
+
+        // دوال النوافذ المنبثقة
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        // دوال الإعدادات
+        function showAbout() {
+            alert('CheckFlow Pro الإصدار 1.1.0\nتطبيق إدارة الشيكات مع تخزين سحابي\n© 2024 جميع الحقوق محفوظة');
+        }
+
+        // تصدير البيانات
+        function exportData() {
+            const data = {
+                version: '1.1',
+                exportDate: new Date().toISOString(),
+                userId: currentUserId,
+                currency: currentCurrency,
+                language: currentLanguage,
+                checks: checks
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `نسخة-احتياطية-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير البيانات');
+        }
+
+        // الإشعارات
+        function showNotification(message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('CheckFlow Pro', {
+                    body: message,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+                });
+            }
+            
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="position: fixed; top: 80px; left: 20px; background: var(--primary-color); color: white; padding: 12px 20px; border-radius: var(--radius-md); box-shadow: 0 4px 12px var(--shadow-color); z-index: 1001; animation: slideIn 0.3s ease;">
+                    <i class="fas fa-check-circle" style="margin-left: 8px;"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // دوال PWA
+        function checkPWAInstallation() {
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                isInstalled = true;
+                return;
+            }
+            
+            const hasDismissed = localStorage.getItem('installPromptDismissed');
+            if (hasDismissed) {
+                const dismissedDate = new Date(hasDismissed);
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                
+                if (dismissedDate < oneWeekAgo) {
+                    localStorage.removeItem('installPromptDismissed');
+                }
+            }
+        }
+
+        function hideInstallPrompt() {
+            document.getElementById('installPrompt').classList.remove('show');
+            localStorage.setItem('installPromptDismissed', new Date().toISOString());
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('وافق المستخدم على التثبيت');
+                        isInstalled = true;
+                        document.getElementById('installPrompt').classList.remove('show');
+                    } else {
+                        console.log('رفض المستخدم التثبيت');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // مستمعي الأحداث
+        function setupEventListeners() {
+            document.getElementById('addButton').addEventListener('click', openNewCheckModal);
+            
+            document.getElementById('syncButton').addEventListener('click', syncData);
+            
+            document.getElementById('currencyBtn').addEventListener('click', function() {
+                document.getElementById('currencyDropdown').classList.toggle('show');
+            });
+            
+            document.querySelectorAll('#currencyDropdown .dropdown-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    currentCurrency = this.dataset.currency;
+                    localStorage.setItem('currency', currentCurrency);
+                    updateCurrencySymbol();
+                    document.getElementById('currencyDropdown').classList.remove('show');
+                    updateUI();
+                    showNotification('تم تغيير العملة');
+                });
+            });
+            
+            document.getElementById('searchInput').addEventListener('input', updateAllChecks);
+            
+            document.getElementById('themeSelect').addEventListener('change', function() {
+                localStorage.setItem('theme', this.value);
+                applyTheme(this.value);
+            });
+            
+            document.getElementById('currencySelect').addEventListener('change', function() {
+                localStorage.setItem('currency', this.value);
+                currentCurrency = this.value;
+                updateCurrencySymbol();
+                updateUI();
+            });
+            
+            document.getElementById('languageSelect').addEventListener('change', function() {
+                localStorage.setItem('language', this.value);
+                location.reload();
+            });
+            
+            document.getElementById('filterButton').addEventListener('click', function() {
+                alert('التصفية - قريباً في التحديث القادم!');
+            });
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                setTimeout(() => {
+                    if (!isInstalled && !localStorage.getItem('installPromptDismissed')) {
+                        document.getElementById('installPrompt').classList.add('show');
+                    }
+                }, 5000);
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                isInstalled = true;
+                console.log('تم تثبيت التطبيق');
+                document.getElementById('installPrompt').classList.remove('show');
+            });
+            
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal();
+                    }
+                });
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.currency-selector')) {
+                    document.getElementById('currencyDropdown').classList.remove('show');
+                }
+            });
+        }
+
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swContent = `
+                    self.addEventListener('install', event => {
+                        console.log('Service Worker جاري التثبيت');
+                        self.skipWaiting();
+                    });
+
+                    self.addEventListener('activate', event => {
+                        console.log('Service Worker جاري التفعيل');
+                    });
+
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request).then(response => {
+                                return response || fetch(event.request);
+                            })
+                        );
+                    });
+                `;
+
+                const swBlob = new Blob([swContent], { type: 'application/javascript' });
+                const swURL = URL.createObjectURL(swBlob);
+
+                navigator.serviceWorker.register(swURL).then(registration => {
+                    console.log('Service Worker مسجل بنجاح:', registration.scope);
+                }).catch(error => {
+                    console.log('فشل تسجيل Service Worker:', error);
+                });
+            });
+        }
+
+        // Manifest ديناميكي
+        document.addEventListener('DOMContentLoaded', function() {
+            const manifest = {
+                "name": "CheckFlow Pro",
+                "short_name": "CheckFlow",
+                "description": "إدارة الشيكات الاحترافية",
+                "start_url": "/",
+                "display": "standalone",
+                "background_color": "#337ea9",
+                "theme_color": "#337ea9",
+                "orientation": "portrait",
+                "dir": "rtl",
+                "lang": "ar",
+                "icons": [
+                    {
+                        "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                        "sizes": "192x192",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ],
+                "categories": ["finance", "productivity", "business"]
+            };
+            
+            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = url;
+            document.head.appendChild(link);
+        });
+    </script>
+</body>
+</html>
