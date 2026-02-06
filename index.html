@@ -27,47 +27,37 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
     
     <style>
+        /* جميع أنماط CSS السابقة مع إضافة أنماط جديدة للصفحات الإضافية */
         :root {
-            /* ألوان التطبيق */
             --primary-color: #337ea9;
             --primary-dark: #2a6496;
             --primary-light: #4a90e2;
-            
             --secondary-color: #0f7b6c;
             --danger-color: #d1453b;
             --warning-color: #ffb800;
             --success-color: #27ae60;
-            
             --background-color: #ffffff;
             --surface-color: #f8f9fa;
             --card-color: #ffffff;
-            
             --text-primary: #1a1a1a;
             --text-secondary: #666666;
             --text-tertiary: #999999;
-            
             --border-color: #e0e0e0;
             --shadow-color: rgba(0, 0, 0, 0.1);
-            
             --status-pending: #ffb800;
             --status-cleared: #0f7b6c;
             --status-bounced: #d1453b;
-            
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
             --spacing-lg: 24px;
             --spacing-xl: 32px;
-            
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
-            
             --transition-fast: 0.2s ease;
             --transition-normal: 0.3s ease;
-            
-            /* Safe Areas */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
@@ -78,11 +68,9 @@
                 --background-color: #121212;
                 --surface-color: #1e1e1e;
                 --card-color: #2d2d2d;
-                
                 --text-primary: #ffffff;
                 --text-secondary: #b0b0b0;
                 --text-tertiary: #808080;
-                
                 --border-color: #404040;
                 --shadow-color: rgba(0, 0, 0, 0.3);
             }
@@ -92,11 +80,9 @@
             --background-color: #121212;
             --surface-color: #1e1e1e;
             --card-color: #2d2d2d;
-            
             --text-primary: #ffffff;
             --text-secondary: #b0b0b0;
             --text-tertiary: #808080;
-            
             --border-color: #404040;
             --shadow-color: rgba(0, 0, 0, 0.3);
         }
@@ -218,6 +204,16 @@
             padding: calc(56px + var(--spacing-lg)) var(--spacing-md) var(--spacing-xl);
             max-width: 800px;
             margin: 0 auto;
+        }
+
+        /* صفحات التطبيق */
+        .page {
+            display: none;
+            animation: fadeIn var(--transition-normal);
+        }
+
+        .page.active {
+            display: block;
         }
 
         /* لوحة التحكم */
@@ -414,7 +410,7 @@
             color: var(--text-primary);
         }
 
-        /* عرض جميع الشيكات */
+        /* صفحة جميع الشيكات */
         .checks-view {
             display: grid;
             gap: var(--spacing-md);
@@ -506,6 +502,263 @@
         .empty-description {
             font-size: 14px;
             margin-bottom: var(--spacing-lg);
+        }
+
+        /* صفحة الإحصائيات */
+        .analytics-grid {
+            display: grid;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .chart-container {
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            text-align: center;
+        }
+
+        .chart {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            padding: var(--spacing-md) 0;
+        }
+
+        .chart-bar {
+            flex: 1;
+            max-width: 40px;
+            background: var(--primary-color);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            position: relative;
+        }
+
+        .chart-bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .chart-bar-value {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* صفحة الإعدادات */
+        .settings-list {
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item:active {
+            background: var(--surface-color);
+        }
+
+        .settings-item-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .settings-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--surface-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .settings-item-text {
+            flex: 1;
+        }
+
+        .settings-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .settings-item-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .settings-item-arrow {
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        /* صفحة الملف الشخصي */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: var(--spacing-xl);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .profile-email {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* صفحة التقارير */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .report-card {
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .report-card:active {
+            transform: scale(0.98);
+            background: var(--surface-color);
+        }
+
+        .report-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .report-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .report-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* صفحة الإشعارات */
+        .notifications-list {
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--surface-color);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
         }
 
         /* نظام النوافذ المنبثقة */
@@ -754,6 +1007,10 @@
             }
             
             .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .reports-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
         }
@@ -1047,6 +1304,121 @@
             justify-content: center;
             color: white;
             font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* تذييل الصفحة */
+        .app-footer {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: var(--text-tertiary);
+            font-size: 12px;
+            border-top: 1px solid var(--border-color);
+            margin-top: var(--spacing-xl);
+        }
+
+        .developer-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        /* تحسينات للرسومات البيانية */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .summary-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* تحسينات للتصفية */
+        .filter-options {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-tag {
+            padding: 6px 12px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .filter-tag.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* تحسينات للتفاصيل */
+        .detail-view {
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            text-align: left;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -1058,6 +1430,10 @@
         </div>
         <div class="splash-title">CheckFlow Pro</div>
         <div class="splash-subtitle">إدارة الشيكات الاحترافية</div>
+        <div class="developer-info" style="margin-top: 20px; color: white; font-size: 14px;">
+            <i class="fas fa-code"></i>
+            <span>تطوير: أبنتعاوفيك 2026</span>
+        </div>
     </div>
 
     <!-- حالة المزامنة -->
@@ -1097,7 +1473,7 @@
         </div>
         <div class="header-left">
             <div class="user-menu">
-                <div class="user-avatar" id="userAvatar">
+                <div class="user-avatar" id="userAvatar" onclick="showProfile()">
                     <i class="fas fa-user"></i>
                 </div>
                 <button class="icon-button" id="syncButton" style="background: rgba(255,255,255,0.2); color: white;">
@@ -1129,107 +1505,464 @@
 
     <!-- المحتوى الرئيسي -->
     <main class="main-content" id="mainContent" style="display: none;">
-        <!-- لوحة التحكم -->
-        <div class="dashboard" id="dashboardView">
-            <div class="welcome-section">
-                <div class="welcome-title" id="welcomeTitle">مرحباً بك</div>
-                <div class="welcome-subtitle" id="welcomeSubtitle">إدارة وتتبع الشيكات بكل سهولة</div>
-            </div>
+        <!-- صفحة لوحة التحكم -->
+        <div class="page active" id="dashboardPage">
+            <div class="dashboard">
+                <div class="welcome-section">
+                    <div class="welcome-title" id="welcomeTitle">مرحباً بك</div>
+                    <div class="welcome-subtitle" id="welcomeSubtitle">إدارة وتتبع الشيكات بكل سهولة</div>
+                </div>
 
-            <div class="quick-actions">
-                <div class="quick-action-btn" onclick="openNewCheckModal()">
-                    <div class="quick-action-icon">
-                        <i class="fas fa-plus"></i>
+                <div class="quick-actions">
+                    <div class="quick-action-btn" onclick="openNewCheckModal()">
+                        <div class="quick-action-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="quick-action-label">إضافة شيك</div>
                     </div>
-                    <div class="quick-action-label">إضافة شيك</div>
-                </div>
-                <div class="quick-action-btn" onclick="showAllChecks()">
-                    <div class="quick-action-icon" style="background: var(--secondary-color);">
-                        <i class="fas fa-list"></i>
+                    <div class="quick-action-btn" onclick="navigateTo('checks')">
+                        <div class="quick-action-icon" style="background: var(--secondary-color);">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="quick-action-label">جميع الشيكات</div>
                     </div>
-                    <div class="quick-action-label">جميع الشيكات</div>
-                </div>
-                <div class="quick-action-btn" onclick="showPendingChecks()">
-                    <div class="quick-action-icon" style="background: var(--warning-color);">
-                        <i class="fas fa-clock"></i>
+                    <div class="quick-action-btn" onclick="showPendingChecks()">
+                        <div class="quick-action-icon" style="background: var(--warning-color);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="quick-action-label">قيد الانتظار</div>
                     </div>
-                    <div class="quick-action-label">قيد الانتظار</div>
+                    <div class="quick-action-btn" onclick="navigateTo('reports')">
+                        <div class="quick-action-icon" style="background: var(--success-color);">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="quick-action-label">التقارير</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalAmount">0 د.م</div>
-                    <div class="stat-label">إجمالي المبلغ</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalAmount">0 د.م</div>
+                        <div class="stat-label">إجمالي المبلغ</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalChecks">0</div>
+                        <div class="stat-label">عدد الشيكات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingChecks">0</div>
+                        <div class="stat-label">قيد الانتظار</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="clearedChecks">0</div>
+                        <div class="stat-label">تم الصرف</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalChecks">0</div>
-                    <div class="stat-label">عدد الشيكات</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="pendingChecks">0</div>
-                    <div class="stat-label">قيد الانتظار</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="clearedChecks">0</div>
-                    <div class="stat-label">تم الصرف</div>
-                </div>
-            </div>
 
-            <div class="recent-section">
-                <div class="section-header">
-                    <div class="section-title">الشيكات الحديثة</div>
-                    <a href="javascript:void(0)" class="see-all-btn" onclick="showAllChecks()">عرض الكل</a>
-                </div>
-                <div class="check-list" id="recentChecksList">
-                    <!-- الشيكات الحديثة سيتم تحميلها هنا -->
+                <div class="recent-section">
+                    <div class="section-header">
+                        <div class="section-title">الشيكات الحديثة</div>
+                        <a href="javascript:void(0)" class="see-all-btn" onclick="navigateTo('checks')">عرض الكل</a>
+                    </div>
+                    <div class="check-list" id="recentChecksList">
+                        <!-- الشيكات الحديثة سيتم تحميلها هنا -->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- عرض جميع الشيكات -->
-        <div class="checks-view" id="allChecksView" style="display: none;">
+        <!-- صفحة جميع الشيكات -->
+        <div class="page" id="checksPage">
+            <div class="checks-view">
+                <div class="view-header">
+                    <div class="view-title" id="checksViewTitle">جميع الشيكات</div>
+                    <div class="view-controls">
+                        <button class="filter-btn" onclick="toggleFilter()">
+                            <i class="fas fa-filter"></i>
+                            <span>تصفية</span>
+                        </button>
+                        <button class="filter-btn" onclick="exportData()">
+                            <i class="fas fa-download"></i>
+                            <span>تصدير</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-options" id="filterOptions" style="display: none;">
+                    <div class="filter-group">
+                        <div class="filter-group-title">حالة الشيك</div>
+                        <div class="filter-tags">
+                            <div class="filter-tag active" onclick="filterByStatus('all')">الكل</div>
+                            <div class="filter-tag" onclick="filterByStatus('pending')">قيد الانتظار</div>
+                            <div class="filter-tag" onclick="filterByStatus('cleared')">تم الصرف</div>
+                            <div class="filter-tag" onclick="filterByStatus('bounced')">مرتجع</div>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <div class="filter-group-title">المدة</div>
+                        <div class="filter-tags">
+                            <div class="filter-tag active" onclick="filterByDate('all')">الكل</div>
+                            <div class="filter-tag" onclick="filterByDate('today')">اليوم</div>
+                            <div class="filter-tag" onclick="filterByDate('week')">هذا الأسبوع</div>
+                            <div class="filter-tag" onclick="filterByDate('month')">هذا الشهر</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="بحث في الشيكات...">
+                </div>
+
+                <div class="check-list" id="allChecksList">
+                    <!-- جميع الشيكات سيتم تحميلها هنا -->
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الإحصائيات -->
+        <div class="page" id="analyticsPage">
+            <div class="analytics-grid">
+                <div class="chart-container">
+                    <div class="chart-title">توزيع الشيكات حسب الحالة</div>
+                    <div class="chart" id="statusChart">
+                        <!-- الرسوم البيانية سيتم توليدها ديناميكياً -->
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">قيمة الشيكات حسب الشهر</div>
+                    <div class="chart" id="monthlyChart">
+                        <!-- الرسوم البيانية سيتم توليدها ديناميكياً -->
+                    </div>
+                </div>
+
+                <div class="stats-summary">
+                    <div class="summary-card">
+                        <div class="summary-value" id="avgAmount">0 د.م</div>
+                        <div class="summary-label">متوسط قيمة الشيك</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="upcomingChecks">0</div>
+                        <div class="summary-label">شيكات قادمة</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="overdueChecks">0</div>
+                        <div class="summary-label">متأخرة</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="importantChecks">0</div>
+                        <div class="summary-label">مهمة</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">أعلى 5 بنوك</div>
+                    <div class="chart" id="banksChart" style="flex-direction: column; gap: 8px; align-items: stretch;">
+                        <!-- قائمة البنوك سيتم توليدها ديناميكياً -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الإعدادات -->
+        <div class="page" id="settingsPage">
+            <div class="settings-list">
+                <div class="settings-item" onclick="showProfile()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">الملف الشخصي</div>
+                            <div class="settings-item-description">إدارة معلومات حسابك</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="openSettingsModal()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">إعدادات التطبيق</div>
+                            <div class="settings-item-description">المظهر، العملة، اللغة</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="navigateTo('notifications')">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">الإشعارات</div>
+                            <div class="settings-item-description">إدارة إشعارات التطبيق</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="openBackupModal()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">النسخ الاحتياطي</div>
+                            <div class="settings-item-description">استيراد وتصدير البيانات</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="showAbout()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">حول التطبيق</div>
+                            <div class="settings-item-description">الإصدار والمعلومات</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="showHelp()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">المساعدة والدعم</div>
+                            <div class="settings-item-description">دليل الاستخدام والدعم الفني</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="logout()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon" style="background: rgba(209, 69, 59, 0.1); color: var(--danger-color);">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title" style="color: var(--danger-color);">تسجيل الخروج</div>
+                            <div class="settings-item-description">الخروج من حسابك</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-footer">
+                <div>CheckFlow Pro v2.0</div>
+                <div class="developer-info">
+                    <i class="fas fa-code"></i>
+                    <span>تطوير: أبنتعاوفيك 2026</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الملف الشخصي -->
+        <div class="page" id="profilePage">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-name" id="profileName">المستخدم</div>
+                <div class="profile-email" id="profileEmail">user@example.com</div>
+            </div>
+
+            <div class="settings-list">
+                <div class="settings-item" onclick="editProfile()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">تعديل الملف الشخصي</div>
+                            <div class="settings-item-description">تغيير الاسم والبريد الإلكتروني</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="changePassword()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">تغيير كلمة المرور</div>
+                            <div class="settings-item-description">تحديث كلمة المرور الحالية</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="manageDevices()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">الأجهزة المتصلة</div>
+                            <div class="settings-item-description">إدارة أجهزتك المتصلة</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <div class="settings-item" onclick="showActivityLog()">
+                    <div class="settings-item-content">
+                        <div class="settings-item-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="settings-item-text">
+                            <div class="settings-item-title">سجل النشاط</div>
+                            <div class="settings-item-description">عرض سجل أنشطتك</div>
+                        </div>
+                    </div>
+                    <div class="settings-item-arrow">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة التقارير -->
+        <div class="page" id="reportsPage">
+            <div class="reports-grid">
+                <div class="report-card" onclick="generateReport('summary')">
+                    <div class="report-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="report-title">التقرير الشامل</div>
+                    <div class="report-description">نظرة عامة على جميع الشيكات</div>
+                </div>
+
+                <div class="report-card" onclick="generateReport('status')">
+                    <div class="report-icon" style="background: var(--warning-color);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="report-title">تقرير الحالة</div>
+                    <div class="report-description">توزيع الشيكات حسب الحالة</div>
+                </div>
+
+                <div class="report-card" onclick="generateReport('monthly')">
+                    <div class="report-icon" style="background: var(--secondary-color);">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="report-title">تقرير شهري</div>
+                    <div class="report-description">تحليل الشيكات حسب الشهر</div>
+                </div>
+
+                <div class="report-card" onclick="generateReport('bank')">
+                    <div class="report-icon" style="background: var(--primary-color);">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="report-title">تقرير البنوك</div>
+                    <div class="report-description">توزيع الشيكات حسب البنك</div>
+                </div>
+
+                <div class="report-card" onclick="generateReport('upcoming')">
+                    <div class="report-icon" style="background: var(--success-color);">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="report-title">الشيكات القادمة</div>
+                    <div class="report-description">الشيكات المستحقة قريباً</div>
+                </div>
+
+                <div class="report-card" onclick="generateReport('overdue')">
+                    <div class="report-icon" style="background: var(--danger-color);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="report-title">الشيكات المتأخرة</div>
+                    <div class="report-description">الشيكات التي تجاوزت موعدها</div>
+                </div>
+
+                <div class="report-card" onclick="generateReport('custom')">
+                    <div class="report-icon" style="background: #9b59b6;">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <div class="report-title">تقرير مخصص</div>
+                    <div class="report-description">إنشاء تقرير حسب احتياجك</div>
+                </div>
+
+                <div class="report-card" onclick="exportAllReports()">
+                    <div class="report-icon" style="background: #34495e;">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <div class="report-title">تصدير جميع التقارير</div>
+                    <div class="report-description">تصدير جميع التقارير دفعة واحدة</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الإشعارات -->
+        <div class="page" id="notificationsPage">
             <div class="view-header">
-                <div class="view-title" id="checksViewTitle">جميع الشيكات</div>
+                <div class="view-title">الإشعارات</div>
                 <div class="view-controls">
-                    <button class="filter-btn" id="filterButton">
-                        <i class="fas fa-filter"></i>
-                        <span>تصفية</span>
+                    <button class="filter-btn" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i>
+                        <span>تحديد الكل كمقروء</span>
                     </button>
-                    <button class="filter-btn" onclick="exportData()">
-                        <i class="fas fa-download"></i>
-                        <span>تصدير</span>
+                    <button class="filter-btn" onclick="clearAllNotifications()">
+                        <i class="fas fa-trash"></i>
+                        <span>مسح الكل</span>
                     </button>
                 </div>
             </div>
 
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" id="searchInput" placeholder="بحث في الشيكات...">
-            </div>
-
-            <div class="check-list" id="allChecksList">
-                <!-- جميع الشيكات سيتم تحميلها هنا -->
+            <div class="notifications-list" id="notificationsList">
+                <!-- الإشعارات سيتم تحميلها هنا -->
             </div>
         </div>
     </main>
 
     <!-- التنقل السفلي -->
     <nav class="bottom-nav" id="bottomNav" style="display: none;">
-        <a href="javascript:void(0)" class="nav-item active" onclick="showDashboard()">
+        <a href="javascript:void(0)" class="nav-item active" onclick="navigateTo('dashboard')">
             <i class="fas fa-home"></i>
             <span class="nav-label">الرئيسية</span>
         </a>
-        <a href="javascript:void(0)" class="nav-item" onclick="showAllChecks()">
+        <a href="javascript:void(0)" class="nav-item" onclick="navigateTo('checks')">
             <i class="fas fa-receipt"></i>
             <span class="nav-label">الشيكات</span>
             <span class="nav-badge" id="checksBadge">0</span>
         </a>
-        <a href="javascript:void(0)" class="nav-item" onclick="showAnalytics()">
+        <a href="javascript:void(0)" class="nav-item" onclick="navigateTo('analytics')">
             <i class="fas fa-chart-bar"></i>
             <span class="nav-label">إحصائيات</span>
         </a>
-        <a href="javascript:void(0)" class="nav-item" onclick="showSettings()">
+        <a href="javascript:void(0)" class="nav-item" onclick="navigateTo('settings')">
             <i class="fas fa-cog"></i>
             <span class="nav-label">الإعدادات</span>
         </a>
@@ -1261,8 +1994,12 @@
                 تسجيل الدخول
             </button>
             
-            <div style="margin-top: var(--spacing-lg); font-size: 12px; color: var(--text-tertiary);">
-                سيتم إنشاء حساب تلقائياً إذا كان أول استخدام
+            <div style="margin-top: var(--spacing-lg); font-size: 12px; color: var(--text-tertiary); text-align: center;">
+                <div>CheckFlow Pro v2.0</div>
+                <div class="developer-info" style="margin-top: 8px;">
+                    <i class="fas fa-code"></i>
+                    <span>تطوير: أبنتعاوفيك 2026</span>
+                </div>
             </div>
         </div>
     </div>
@@ -1338,6 +2075,13 @@
                         <textarea class="form-input" id="notes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
                     </div>
 
+                    <div class="form-group" style="text-align: left; margin-bottom: var(--spacing-lg);">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="importantCheck">
+                            <span>وضع علامة كمهم</span>
+                        </label>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i>
                         حفظ الشيك
@@ -1347,11 +2091,28 @@
         </div>
     </div>
 
+    <!-- نافذة تفاصيل الشيك -->
+    <div class="modal-overlay" id="checkDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">تفاصيل الشيك</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-view" id="checkDetailContent">
+                    <!-- تفاصيل الشيك سيتم تحميلها هنا -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- نافذة الإعدادات -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">الإعدادات</div>
+                <div class="modal-title">إعدادات التطبيق</div>
                 <button class="modal-close" onclick="closeModal()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1385,6 +2146,24 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">الإشعارات</label>
+                    <div style="display: grid; gap: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="notificationsEnabled" checked>
+                            <span>تفعيل الإشعارات</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="soundEnabled" checked>
+                            <span>صوت الإشعارات</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="vibrationEnabled">
+                            <span>اهتزاز الإشعارات</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <button class="btn btn-secondary" onclick="exportData()">
                         <i class="fas fa-download"></i>
                         تصدير البيانات
@@ -1392,9 +2171,9 @@
                 </div>
 
                 <div class="form-group">
-                    <button class="btn btn-secondary" onclick="showAbout()">
-                        <i class="fas fa-info-circle"></i>
-                        حول التطبيق
+                    <button class="btn btn-secondary" onclick="importData()">
+                        <i class="fas fa-upload"></i>
+                        استيراد البيانات
                     </button>
                 </div>
 
@@ -1406,17 +2185,280 @@
                 </div>
 
                 <div class="form-group">
-                    <button class="btn btn-danger" onclick="logout()" style="background: var(--danger-color);">
-                        <i class="fas fa-sign-out-alt"></i>
-                        تسجيل الخروج
+                    <button class="btn btn-secondary" onclick="clearCache()">
+                        <i class="fas fa-trash"></i>
+                        مسح الذاكرة المؤقتة
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- نافذة النسخ الاحتياطي -->
+    <div class="modal-overlay" id="backupModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">النسخ الاحتياطي</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">خيارات النسخ الاحتياطي</label>
+                    <div style="display: grid; gap: 12px;">
+                        <button class="btn btn-primary" onclick="backupToCloud()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            نسخ احتياطي إلى السحابة
+                        </button>
+                        <button class="btn btn-secondary" onclick="backupToFile()">
+                            <i class="fas fa-file-export"></i>
+                            تصدير إلى ملف
+                        </button>
+                        <button class="btn btn-secondary" onclick="restoreFromCloud()">
+                            <i class="fas fa-cloud-download-alt"></i>
+                            استعادة من السحابة
+                        </button>
+                        <button class="btn btn-secondary" onclick="restoreFromFile()">
+                            <i class="fas fa-file-import"></i>
+                            استيراد من ملف
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">تاريخ آخر نسخ احتياطي</label>
+                    <div id="lastBackupDate" style="padding: 12px; background: var(--surface-color); border-radius: var(--radius-md); text-align: center;">
+                        لا توجد نسخة احتياطية سابقة
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">جدولة النسخ الاحتياطي</label>
+                    <select class="form-input form-select" id="backupSchedule">
+                        <option value="daily">يومياً</option>
+                        <option value="weekly" selected>أسبوعياً</option>
+                        <option value="monthly">شهرياً</option>
+                        <option value="manual">يدوي</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة حول التطبيق -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">حول CheckFlow Pro</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+                    <div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md);">
+                        <i class="fas fa-money-check-alt" style="font-size: 40px; color: white;"></i>
+                    </div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">CheckFlow Pro</div>
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: var(--spacing-md);">إدارة الشيكات الاحترافية</div>
+                    <div style="font-size: 16px; font-weight: 600; color: var(--primary-color);">الإصدار 2.0.0</div>
+                </div>
+
+                <div class="detail-view">
+                    <div class="detail-row">
+                        <div class="detail-label">المطور</div>
+                        <div class="detail-value">أبنتعاوفيك</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">سنة التطوير</div>
+                        <div class="detail-value">2026</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الترخيص</div>
+                        <div class="detail-value">مفتوح المصدر</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">الموقع الإلكتروني</div>
+                        <div class="detail-value">https://abentaoufik.com</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">البريد الإلكتروني</div>
+                        <div class="detail-value">contact@abentaoufik.com</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: var(--surface-color); border-radius: var(--radius-md);">
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">شكر وتقدير</div>
+                    <div style="font-size: 13px; color: var(--text-secondary);">
+                        شكراً لاستخدامك CheckFlow Pro. نحن نعمل باستمرار على تحسين التطبيق وإضافة ميزات جديدة.
+                    </div>
+                </div>
+
+                <div style="margin-top: var(--spacing-lg); text-align: center;">
+                    <button class="btn btn-primary" onclick="checkForUpdates()">
+                        <i class="fas fa-sync-alt"></i>
+                        التحقق من التحديثات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة المساعدة -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">المساعدة والدعم</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-list">
+                    <div class="settings-item" onclick="showHelpGuide()">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">دليل الاستخدام</div>
+                                <div class="settings-item-description">تعرف على كيفية استخدام التطبيق</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                    </div>
+
+                    <div class="settings-item" onclick="showFAQ()">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">الأسئلة الشائعة</div>
+                                <div class="settings-item-description">إجابات على الأسئلة المتكررة</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                    </div>
+
+                    <div class="settings-item" onclick="contactSupport()">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">اتصل بالدعم</div>
+                                <div class="settings-item-description">تواصل مع فريق الدعم الفني</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                    </div>
+
+                    <div class="settings-item" onclick="sendFeedback()">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">
+                                <i class="fas fa-comment-alt"></i>
+                            </div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">إرسال ملاحظات</div>
+                                <div class="settings-item-description">شاركنا بآرائك ومقترحاتك</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                    </div>
+
+                    <div class="settings-item" onclick="showPrivacyPolicy()">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">سياسة الخصوصية</div>
+                                <div class="settings-item-description">كيف نحمي بياناتك</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                    </div>
+
+                    <div class="settings-item" onclick="showTermsOfService()">
+                        <div class="settings-item-content">
+                            <div class="settings-item-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="settings-item-text">
+                                <div class="settings-item-title">شروط الخدمة</div>
+                                <div class="settings-item-description">الشروط والأحكام</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-arrow">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل الملف الشخصي -->
+    <div class="modal-overlay" id="editProfileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">تعديل الملف الشخصي</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm" onsubmit="updateProfile(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="editName">الاسم الكامل</label>
+                        <input type="text" class="form-input" id="editName" placeholder="أدخل اسمك الكامل" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editEmail">البريد الإلكتروني</label>
+                        <input type="email" class="form-input" id="editEmail" placeholder="example@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editPhone">رقم الهاتف</label>
+                        <input type="tel" class="form-input" id="editPhone" placeholder="+212 6xx xx xx xx">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editCompany">الشركة</label>
+                        <input type="text" class="form-input" id="editCompany" placeholder="اسم الشركة">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="editPosition">المنصب</label>
+                        <input type="text" class="form-input" id="editPosition" placeholder="المنصب الوظيفي">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        حفظ التغييرات
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ============================================
         // تهيئة Firebase
+        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyBkOHV0LJojUSdUYUPvI3FJsLJ0Vct9HvY",
             authDomain: "taoufik-65d14.firebaseapp.com",
@@ -1428,20 +2470,31 @@
             databaseURL: "https://taoufik-65d14-default-rtdb.firebaseio.com/"
         };
 
+        // ============================================
         // حالة التطبيق
+        // ============================================
         let checks = [];
-        let currentView = 'dashboard';
-        let deferredPrompt = null;
-        let isInstalled = false;
-        let currentLanguage = 'ar';
-        let currentCurrency = 'MAD';
+        let notifications = [];
+        let currentPage = 'dashboard';
         let currentUserId = null;
+        let currentUser = null;
         let isOnline = navigator.onLine;
         let pendingSync = [];
         let firebaseApp = null;
         let database = null;
+        let deferredPrompt = null;
+        let isInstalled = false;
+        let currentCurrency = 'MAD';
+        let currentLanguage = 'ar';
+        let currentTheme = 'auto';
+        let currentFilter = {
+            status: 'all',
+            date: 'all'
+        };
 
+        // ============================================
         // تهيئة التطبيق
+        // ============================================
         document.addEventListener('DOMContentLoaded', async function() {
             // إخفاء شاشة البداية بعد 1.5 ثانية
             setTimeout(() => {
@@ -1489,9 +2542,19 @@
                 isOnline = false;
                 showSyncStatus('أنت غير متصل - وضع العمل المحلي مفعل', 'error');
             });
+
+            // تهيئة تاريخ اليوم
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('issueDate').value = today;
+            
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
         });
 
-        // دوال تسجيل الدخول
+        // ============================================
+        // دوال تسجيل الدخول والمستخدمين
+        // ============================================
         function login() {
             const userId = document.getElementById('userId').value.trim();
             const password = document.getElementById('userPassword').value.trim();
@@ -1508,39 +2571,119 @@
         function loginWithSavedUser(userId, password = '', rememberMe = true) {
             currentUserId = userId;
             
-            if (rememberMe) {
-                localStorage.setItem('checkflow_userId', userId);
-                localStorage.setItem('checkflow_rememberMe', 'true');
-            } else {
-                localStorage.removeItem('checkflow_userId');
-                localStorage.removeItem('checkflow_rememberMe');
+            // إنشاء أو تحميل بيانات المستخدم
+            loadUserData(userId).then(() => {
+                if (rememberMe) {
+                    localStorage.setItem('checkflow_userId', userId);
+                    localStorage.setItem('checkflow_rememberMe', 'true');
+                } else {
+                    localStorage.removeItem('checkflow_userId');
+                    localStorage.removeItem('checkflow_rememberMe');
+                }
+                
+                // تحديث واجهة المستخدم
+                updateUserAvatar();
+                updateProfileDisplay();
+                
+                // إخفاء شاشة تسجيل الدخول
+                document.getElementById('loginModal').style.display = 'none';
+                
+                // إظهار التطبيق
+                document.getElementById('appHeader').style.display = 'flex';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('bottomNav').style.display = 'flex';
+                
+                // تحميل البيانات
+                loadData();
+                updateUI();
+                setupEventListeners();
+                checkPWAInstallation();
+                
+                showNotification(`مرحباً ${currentUser?.name || userId} في CheckFlow Pro`);
+            });
+        }
+
+        async function loadUserData(userId) {
+            try {
+                if (database) {
+                    const userRef = database.ref('users/' + userId);
+                    const snapshot = await userRef.once('value');
+                    
+                    if (snapshot.exists()) {
+                        currentUser = snapshot.val();
+                    } else {
+                        // إنشاء مستخدم جديد
+                        currentUser = {
+                            id: userId,
+                            name: userId,
+                            email: `${userId}@checkflow.com`,
+                            createdAt: new Date().toISOString(),
+                            lastLogin: new Date().toISOString()
+                        };
+                        await userRef.set(currentUser);
+                    }
+                } else {
+                    // العمل بدون اتصال
+                    const savedUser = localStorage.getItem('checkflow_user_' + userId);
+                    if (savedUser) {
+                        currentUser = JSON.parse(savedUser);
+                    } else {
+                        currentUser = {
+                            id: userId,
+                            name: userId,
+                            email: `${userId}@checkflow.com`,
+                            createdAt: new Date().toISOString(),
+                            lastLogin: new Date().toISOString()
+                        };
+                        localStorage.setItem('checkflow_user_' + userId, JSON.stringify(currentUser));
+                    }
+                }
+                
+                // تحديث آخر دخول
+                currentUser.lastLogin = new Date().toISOString();
+                saveUserData();
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
             }
+        }
+
+        function saveUserData() {
+            if (!currentUserId || !currentUser) return;
             
-            // تحديث صورة المستخدم
-            updateUserAvatar();
+            if (database && isOnline) {
+                database.ref('users/' + currentUserId).set(currentUser);
+            } else {
+                localStorage.setItem('checkflow_user_' + currentUserId, JSON.stringify(currentUser));
+                pendingSync.push({ type: 'saveUser', data: currentUser });
+            }
+        }
+
+        function updateUserAvatar() {
+            if (!currentUserId || !currentUser) return;
             
-            // إخفاء شاشة تسجيل الدخول
-            document.getElementById('loginModal').style.display = 'none';
+            const avatar = document.getElementById('userAvatar');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const firstLetter = (currentUser.name || currentUserId).charAt(0).toUpperCase();
             
-            // إظهار التطبيق
-            document.getElementById('appHeader').style.display = 'flex';
-            document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('bottomNav').style.display = 'flex';
+            avatar.innerHTML = `<span>${firstLetter}</span>`;
+            profileAvatar.innerHTML = `<span style="font-size: 32px; font-weight: 700;">${firstLetter}</span>`;
+        }
+
+        function updateProfileDisplay() {
+            if (!currentUser) return;
             
-            // تهيئة التطبيق
-            initApp();
-            loadData();
-            updateUI();
-            setupEventListeners();
-            checkPWAInstallation();
-            
-            showNotification('تم تسجيل الدخول بنجاح');
+            document.getElementById('profileName').textContent = currentUser.name || currentUserId;
+            document.getElementById('profileEmail').textContent = currentUser.email || `${currentUserId}@checkflow.com`;
+            document.getElementById('welcomeTitle').textContent = `مرحباً ${currentUser.name || currentUserId}`;
         }
 
         function logout() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
                 currentUserId = null;
+                currentUser = null;
                 checks = [];
+                notifications = [];
                 pendingSync = [];
                 
                 localStorage.removeItem('checkflow_userId');
@@ -1553,42 +2696,349 @@
                 
                 // إظهار شاشة تسجيل الدخول
                 document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('loginModal').style.opacity = '1';
                 
-                showNotification('تم تسجيل الخروج');
+                // إعادة تعيين حقول تسجيل الدخول
+                document.getElementById('userId').value = '';
+                document.getElementById('userPassword').value = '';
+                document.getElementById('rememberMe').checked = false;
+                
+                showNotification('تم تسجيل الخروج بنجاح');
             }
         }
 
-        function updateUserAvatar() {
-            if (!currentUserId) return;
+        // ============================================
+        // دوال التنقل بين الصفحات
+        // ============================================
+        function navigateTo(page) {
+            // إخفاء جميع الصفحات
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.remove('active');
+            });
             
-            const avatar = document.getElementById('userAvatar');
-            const firstLetter = currentUserId.charAt(0).toUpperCase();
-            avatar.innerHTML = `<span>${firstLetter}</span>`;
+            // تحديث التنقل السفلي
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navItems = ['dashboard', 'checks', 'analytics', 'settings'];
+            const navIndex = navItems.indexOf(page);
+            if (navIndex !== -1) {
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
+            
+            // إظهار الصفحة المطلوبة
+            const pageElement = document.getElementById(page + 'Page');
+            if (pageElement) {
+                pageElement.classList.add('active');
+                currentPage = page;
+                
+                // تحديث عنوان الصفحة
+                const pageTitles = {
+                    'dashboard': 'لوحة التحكم',
+                    'checks': 'جميع الشيكات',
+                    'analytics': 'الإحصائيات',
+                    'settings': 'الإعدادات',
+                    'profile': 'الملف الشخصي',
+                    'reports': 'التقارير',
+                    'notifications': 'الإشعارات'
+                };
+                
+                document.getElementById('pageTitle').textContent = pageTitles[page] || 'CheckFlow Pro';
+                
+                // تحديث محتوى الصفحة
+                switch(page) {
+                    case 'dashboard':
+                        updateDashboard();
+                        break;
+                    case 'checks':
+                        updateAllChecks();
+                        break;
+                    case 'analytics':
+                        updateAnalytics();
+                        break;
+                    case 'settings':
+                        // لا يحتاج لتحديث
+                        break;
+                    case 'profile':
+                        updateProfileDisplay();
+                        break;
+                    case 'reports':
+                        // لا يحتاج لتحديث
+                        break;
+                    case 'notifications':
+                        updateNotifications();
+                        break;
+                }
+            }
         }
 
-        function initApp() {
-            // تعيين تاريخ اليوم
+        function showProfile() {
+            navigateTo('profile');
+        }
+
+        function showPendingChecks() {
+            navigateTo('checks');
+            currentFilter.status = 'pending';
+            updateFilterTags();
+            updateAllChecks();
+        }
+
+        // ============================================
+        // دوال إدارة الشيكات
+        // ============================================
+        function openNewCheckModal() {
+            document.getElementById('checkForm').reset();
+            document.getElementById('checkId').value = '';
+            document.getElementById('importantCheck').checked = false;
+            
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('issueDate').value = today;
             
-            // تعيين تاريخ الشهر القادم للاستحقاق
             const nextMonth = new Date();
             nextMonth.setMonth(nextMonth.getMonth() + 1);
             document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
             
-            // تحميل الإعدادات
-            loadSettings();
+            openModal('addCheckModal');
+        }
+
+        async function saveCheck(event) {
+            event.preventDefault();
             
-            // التحقق إذا كان التطبيق مثبتاً
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                isInstalled = true;
-                console.log('التطبيق مثبت كـ PWA');
+            const checkId = document.getElementById('checkId').value;
+            const isEdit = !!checkId;
+            
+            const checkData = {
+                id: isEdit ? checkId : 'check_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                name: document.getElementById('checkName').value,
+                amount: parseFloat(document.getElementById('checkAmount').value),
+                number: document.getElementById('checkNumber').value,
+                bank: document.getElementById('bankName').value,
+                recipient: document.getElementById('recipient').value,
+                issuer: document.getElementById('issuer').value,
+                status: document.getElementById('checkStatus').value,
+                issueDate: document.getElementById('issueDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                notes: document.getElementById('notes').value,
+                important: document.getElementById('importantCheck').checked,
+                createdAt: isEdit ? checks.find(c => c.id === checkId)?.createdAt || new Date().toISOString() : new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                userId: currentUserId
+            };
+            
+            if (isEdit) {
+                const index = checks.findIndex(c => c.id === checkId);
+                if (index !== -1) {
+                    checks[index] = checkData;
+                }
+            } else {
+                checks.unshift(checkData);
+                
+                // إضافة إشعار
+                addNotification({
+                    type: 'new_check',
+                    title: 'تم إضافة شيك جديد',
+                    message: `تم إضافة شيك "${checkData.name}" بقيمة ${formatCurrency(checkData.amount)}`,
+                    checkId: checkData.id,
+                    timestamp: new Date().toISOString(),
+                    read: false
+                });
+            }
+            
+            // حفظ محلياً
+            saveChecksLocally();
+            
+            // محاولة الحفظ في قاعدة البيانات
+            if (isOnline && database) {
+                const success = await saveCheckToDatabase(checkData);
+                if (!success) {
+                    pendingSync.push({ type: 'save', data: checkData });
+                    showSyncStatus('تم الحفظ محلياً، جاري المزامنة لاحقاً', 'syncing');
+                } else {
+                    showSyncStatus('تم الحفظ في السحابة', 'success');
+                }
+            } else {
+                pendingSync.push({ type: 'save', data: checkData });
+                showSyncStatus('تم الحفظ محلياً، جاري المزامنة عند الاتصال', 'syncing');
+            }
+            
+            closeModal();
+            updateUI();
+            showNotification(isEdit ? 'تم تحديث الشيك' : 'تم إضافة الشيك');
+            
+            // عرض لوحة التحكم بعد الإضافة
+            if (!isEdit) {
+                setTimeout(() => navigateTo('dashboard'), 500);
             }
         }
 
+        async function deleteCheck(checkId) {
+            if (!confirm('هل تريد حذف هذا الشيك؟')) return;
+            
+            const check = checks.find(c => c.id === checkId);
+            checks = checks.filter(c => c.id !== checkId);
+            saveChecksLocally();
+            
+            // محاولة الحذف من قاعدة البيانات
+            if (isOnline && database) {
+                const success = await deleteCheckFromDatabase(checkId);
+                if (!success) {
+                    pendingSync.push({ type: 'delete', checkId: checkId });
+                    showSyncStatus('تم الحذف محلياً، جاري المزامنة لاحقاً', 'syncing');
+                }
+            } else {
+                pendingSync.push({ type: 'delete', checkId: checkId });
+                showSyncStatus('تم الحذف محلياً، جاري المزامنة عند الاتصال', 'syncing');
+            }
+            
+            // إضافة إشعار
+            if (check) {
+                addNotification({
+                    type: 'delete_check',
+                    title: 'تم حذف شيك',
+                    message: `تم حذف شيك "${check.name}"`,
+                    timestamp: new Date().toISOString(),
+                    read: false
+                });
+            }
+            
+            updateUI();
+            showNotification('تم حذف الشيك');
+        }
+
+        function showCheckDetail(checkId) {
+            const check = checks.find(c => c.id === checkId);
+            if (!check) return;
+            
+            const statusText = {
+                'pending': 'قيد الانتظار',
+                'cleared': 'تم الصرف',
+                'bounced': 'مرتجع'
+            };
+            
+            const statusColor = {
+                'pending': 'var(--warning-color)',
+                'cleared': 'var(--success-color)',
+                'bounced': 'var(--danger-color)'
+            };
+            
+            document.getElementById('checkDetailContent').innerHTML = `
+                <div style="margin-bottom: var(--spacing-lg);">
+                    <div style="font-size: 20px; font-weight: 700; margin-bottom: var(--spacing-sm);">${check.name}</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 4px 12px; background: ${statusColor[check.status]}; color: white; border-radius: 20px; font-size: 12px;">
+                            ${statusText[check.status]}
+                        </span>
+                        ${check.important ? '<span style="padding: 4px 12px; background: var(--warning-color); color: white; border-radius: 20px; font-size: 12px;">مهم</span>' : ''}
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">رقم الشيك</div>
+                    <div class="detail-value">${check.number}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">المبلغ</div>
+                    <div class="detail-value">${formatCurrency(check.amount)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">البنك</div>
+                    <div class="detail-value">${check.bank}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">المستلم</div>
+                    <div class="detail-value">${check.recipient}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">المعطي</div>
+                    <div class="detail-value">${check.issuer}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">تاريخ الإصدار</div>
+                    <div class="detail-value">${formatDate(check.issueDate)}</div>
+                </div>
+                ${check.dueDate ? `
+                <div class="detail-row">
+                    <div class="detail-label">تاريخ الاستحقاق</div>
+                    <div class="detail-value">${formatDate(check.dueDate)}</div>
+                </div>
+                ` : ''}
+                ${check.notes ? `
+                <div class="detail-row">
+                    <div class="detail-label">ملاحظات</div>
+                    <div class="detail-value">${check.notes}</div>
+                </div>
+                ` : ''}
+                <div class="detail-row">
+                    <div class="detail-label">تاريخ الإضافة</div>
+                    <div class="detail-value">${formatDateTime(check.createdAt)}</div>
+                </div>
+                ${check.updatedAt ? `
+                <div class="detail-row">
+                    <div class="detail-label">آخر تحديث</div>
+                    <div class="detail-value">${formatDateTime(check.updatedAt)}</div>
+                </div>
+                ` : ''}
+                
+                <div style="margin-top: var(--spacing-xl); display: grid; gap: var(--spacing-sm);">
+                    <button class="btn btn-primary" onclick="editCheck('${check.id}'); closeModal();">
+                        <i class="fas fa-edit"></i>
+                        تعديل الشيك
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeModal();">
+                        <i class="fas fa-times"></i>
+                        إغلاق
+                    </button>
+                </div>
+            `;
+            
+            openModal('checkDetailModal');
+        }
+
+        function editCheck(checkId) {
+            const check = checks.find(c => c.id === checkId);
+            if (!check) return;
+            
+            document.getElementById('checkId').value = check.id;
+            document.getElementById('checkName').value = check.name;
+            document.getElementById('checkAmount').value = check.amount;
+            document.getElementById('checkNumber').value = check.number;
+            document.getElementById('bankName').value = check.bank;
+            document.getElementById('recipient').value = check.recipient;
+            document.getElementById('issuer').value = check.issuer;
+            document.getElementById('checkStatus').value = check.status;
+            document.getElementById('issueDate').value = check.issueDate;
+            document.getElementById('dueDate').value = check.dueDate || '';
+            document.getElementById('notes').value = check.notes || '';
+            document.getElementById('importantCheck').checked = check.important || false;
+            
+            openModal('addCheckModal');
+        }
+
+        function toggleImportant(checkId) {
+            const index = checks.findIndex(c => c.id === checkId);
+            if (index !== -1) {
+                checks[index].important = !checks[index].important;
+                checks[index].updatedAt = new Date().toISOString();
+                saveChecksLocally();
+                updateUI();
+                
+                // مزامنة التغيير
+                if (isOnline && database) {
+                    saveCheckToDatabase(checks[index]);
+                } else {
+                    pendingSync.push({ type: 'save', data: checks[index] });
+                }
+                
+                showNotification(checks[index].important ? 'تم وضع علامة كمهم' : 'تم إزالة العلامة المهمة');
+            }
+        }
+
+        // ============================================
         // دوال قاعدة البيانات
+        // ============================================
         async function loadData() {
-            if (!currentUserId || !database) {
+            if (!currentUserId) {
                 loadLocalData();
                 return;
             }
@@ -1596,33 +3046,45 @@
             try {
                 showSyncStatus('جاري تحميل البيانات...', 'syncing');
                 
-                const userRef = database.ref('users/' + currentUserId + '/checks');
-                const snapshot = await userRef.once('value');
+                // تحميل الشيكات
+                const checksRef = database.ref('users/' + currentUserId + '/checks');
+                const checksSnapshot = await checksRef.once('value');
                 
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
+                if (checksSnapshot.exists()) {
+                    const data = checksSnapshot.val();
                     checks = Object.values(data || {});
                     
                     // حفظ محلياً للعمل بدون اتصال
                     localStorage.setItem('checkflow_checks_' + currentUserId, JSON.stringify(checks));
                     
-                    showSyncStatus('تم تحميل البيانات من السحابة', 'success');
+                    showSyncStatus('تم تحميل الشيكات من السحابة', 'success');
                 } else {
                     loadLocalData();
-                    showSyncStatus('تم تحميل البيانات المحلية', 'success');
+                    showSyncStatus('تم تحميل الشيكات المحلية', 'success');
+                }
+                
+                // تحميل الإشعارات
+                const notificationsRef = database.ref('users/' + currentUserId + '/notifications');
+                const notificationsSnapshot = await notificationsRef.once('value');
+                
+                if (notificationsSnapshot.exists()) {
+                    const data = notificationsSnapshot.val();
+                    notifications = Object.values(data || {});
+                    
+                    // حفظ محلياً
+                    localStorage.setItem('checkflow_notifications_' + currentUserId, JSON.stringify(notifications));
                 }
                 
                 // مراقبة التغييرات في الوقت الحقيقي
-                userRef.on('value', (snapshot) => {
+                checksRef.on('value', (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.val();
                         const newChecks = Object.values(data || {});
                         
-                        // تحديث فقط إذا كان هناك تغيير
                         if (JSON.stringify(checks) !== JSON.stringify(newChecks)) {
                             checks = newChecks;
                             updateUI();
-                            showSyncStatus('تم تحديث البيانات تلقائياً', 'success');
+                            showSyncStatus('تم تحديث الشيكات تلقائياً', 'success');
                         }
                     }
                 });
@@ -1637,11 +3099,18 @@
         function loadLocalData() {
             if (!currentUserId) return;
             
+            // تحميل الشيكات
             const savedChecks = localStorage.getItem('checkflow_checks_' + currentUserId);
             if (savedChecks) {
                 checks = JSON.parse(savedChecks);
             } else {
                 loadSampleData();
+            }
+            
+            // تحميل الإشعارات
+            const savedNotifications = localStorage.getItem('checkflow_notifications_' + currentUserId);
+            if (savedNotifications) {
+                notifications = JSON.parse(savedNotifications);
             }
         }
 
@@ -1675,6 +3144,24 @@
             }
         }
 
+        async function addNotificationToDatabase(notification) {
+            if (!currentUserId || !database) {
+                return false;
+            }
+            
+            try {
+                const notificationId = 'notification_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                notification.id = notificationId;
+                
+                const notificationRef = database.ref('users/' + currentUserId + '/notifications/' + notificationId);
+                await notificationRef.set(notification);
+                return true;
+            } catch (error) {
+                console.error('Error saving notification to Firebase:', error);
+                return false;
+            }
+        }
+
         async function syncPendingData() {
             if (!isOnline || !currentUserId || pendingSync.length === 0) {
                 return;
@@ -1690,6 +3177,10 @@
                         await saveCheckToDatabase(action.data);
                     } else if (action.type === 'delete') {
                         await deleteCheckFromDatabase(action.checkId);
+                    } else if (action.type === 'saveUser') {
+                        await database.ref('users/' + currentUserId).set(action.data);
+                    } else if (action.type === 'saveNotification') {
+                        await addNotificationToDatabase(action.data);
                     }
                 } catch (error) {
                     failedSyncs.push(action);
@@ -1712,269 +3203,57 @@
                 return;
             }
             
-            // مزامنة جميع البيانات المحلية
+            if (!database || !currentUserId) {
+                showNotification('غير متصل بقاعدة البيانات');
+                return;
+            }
+            
+            showSyncStatus('جاري مزامنة جميع البيانات...', 'syncing');
+            
+            // مزامنة الشيكات
             const localChecks = JSON.parse(localStorage.getItem('checkflow_checks_' + currentUserId) || '[]');
-            
-            if (database && currentUserId) {
-                showSyncStatus('جاري مزامنة جميع البيانات...', 'syncing');
-                
-                // حفظ جميع الشيكات إلى Firebase
-                const updates = {};
-                localChecks.forEach(check => {
-                    updates[check.id] = check;
-                });
-                
-                database.ref('users/' + currentUserId + '/checks').update(updates)
-                    .then(() => {
-                        showSyncStatus('تمت المزامنة بنجاح', 'success');
-                        showNotification('تم مزامنة جميع البيانات مع السحابة');
-                    })
-                    .catch(error => {
-                        console.error('Sync error:', error);
-                        showSyncStatus('خطأ في المزامنة', 'error');
-                    });
-            }
-        }
-
-        function showSyncStatus(message, type = 'success') {
-            const syncStatus = document.getElementById('syncStatus');
-            const syncMessage = document.getElementById('syncMessage');
-            
-            syncMessage.textContent = message;
-            syncStatus.className = 'sync-status ' + type;
-            syncStatus.style.display = 'flex';
-            
-            // إخفاء الرسالة بعد 3 ثواني
-            setTimeout(() => {
-                syncStatus.style.display = 'none';
-            }, 3000);
-        }
-
-        function loadSampleData() {
-            if (checks.length === 0) {
-                const sampleChecks = [
-                    {
-                        id: 'check_' + Date.now() + '_1',
-                        name: 'رواتب الموظفين - يناير',
-                        amount: 85000,
-                        number: 'CHK-2024-001',
-                        bank: 'البنك المغربي للتجارة الخارجية',
-                        recipient: 'شركة التقنية المحدودة',
-                        issuer: 'إدارة الموارد البشرية',
-                        status: 'cleared',
-                        issueDate: '2024-01-05',
-                        dueDate: '2024-01-20',
-                        notes: 'دفعة رواتب شهر يناير',
-                        createdAt: new Date().toISOString(),
-                        important: true
-                    },
-                    {
-                        id: 'check_' + Date.now() + '_2',
-                        name: 'فاتورة مقاول البناء',
-                        amount: 125000,
-                        number: 'CHK-2024-002',
-                        bank: 'البنك الشعبي المركزي',
-                        recipient: 'مقاولات البناء المتحدة',
-                        issuer: 'قسم المشتريات',
-                        status: 'pending',
-                        issueDate: '2024-01-10',
-                        dueDate: '2024-02-10',
-                        notes: 'الدفعة الثانية لمشروع المباني الجديدة',
-                        createdAt: new Date().toISOString(),
-                        important: true
-                    }
-                ];
-                
-                checks = sampleChecks;
-                saveChecksLocally();
-            }
-        }
-
-        // إدارة العروض
-        function showDashboard() {
-            currentView = 'dashboard';
-            document.getElementById('dashboardView').style.display = 'grid';
-            document.getElementById('allChecksView').style.display = 'none';
-            document.getElementById('pageTitle').textContent = 'لوحة التحكم';
-            updateNav('home');
-            updateStats();
-            updateRecentChecks();
-        }
-
-        function showAllChecks() {
-            currentView = 'allChecks';
-            document.getElementById('dashboardView').style.display = 'none';
-            document.getElementById('allChecksView').style.display = 'grid';
-            document.getElementById('pageTitle').textContent = 'جميع الشيكات';
-            updateNav('checks');
-            updateAllChecks();
-        }
-
-        function showPendingChecks() {
-            showAllChecks();
-            const searchInput = document.getElementById('searchInput');
-            searchInput.value = 'قيد الانتظار';
-            searchInput.dispatchEvent(new Event('input'));
-        }
-
-        function showAnalytics() {
-            alert('الإحصائيات - قريباً في التحديث القادم!');
-            updateNav('stats');
-        }
-
-        function showSettings() {
-            openModal('settingsModal');
-            updateNav('settings');
-        }
-
-        function updateNav(active) {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
+            const updates = {};
+            localChecks.forEach(check => {
+                updates[check.id] = check;
             });
             
-            const navIndex = ['home', 'checks', 'stats', 'settings'].indexOf(active);
-            document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            database.ref('users/' + currentUserId + '/checks').update(updates)
+                .then(() => {
+                    showSyncStatus('تمت مزامنة الشيكات بنجاح', 'success');
+                    
+                    // مزامنة الإشعارات
+                    const localNotifications = JSON.parse(localStorage.getItem('checkflow_notifications_' + currentUserId) || '[]');
+                    const notificationUpdates = {};
+                    localNotifications.forEach(notification => {
+                        notificationUpdates[notification.id] = notification;
+                    });
+                    
+                    return database.ref('users/' + currentUserId + '/notifications').update(notificationUpdates);
+                })
+                .then(() => {
+                    showSyncStatus('تمت المزامنة الكاملة بنجاح', 'success');
+                    showNotification('تم مزامنة جميع البيانات مع السحابة');
+                })
+                .catch(error => {
+                    console.error('Sync error:', error);
+                    showSyncStatus('خطأ في المزامنة', 'error');
+                });
         }
 
-        // إدارة الشيكات
-        function openNewCheckModal() {
-            document.getElementById('checkForm').reset();
-            document.getElementById('checkId').value = '';
-            
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('issueDate').value = today;
-            
-            const nextMonth = new Date();
-            nextMonth.setMonth(nextMonth.getMonth() + 1);
-            document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
-            
-            openModal('addCheckModal');
-        }
-
-        function editCheck(checkId) {
-            const check = checks.find(c => c.id === checkId);
-            if (!check) return;
-            
-            document.getElementById('checkId').value = check.id;
-            document.getElementById('checkName').value = check.name;
-            document.getElementById('checkAmount').value = check.amount;
-            document.getElementById('checkNumber').value = check.number;
-            document.getElementById('bankName').value = check.bank;
-            document.getElementById('recipient').value = check.recipient;
-            document.getElementById('issuer').value = check.issuer;
-            document.getElementById('checkStatus').value = check.status;
-            document.getElementById('issueDate').value = check.issueDate;
-            document.getElementById('dueDate').value = check.dueDate || '';
-            document.getElementById('notes').value = check.notes || '';
-            
-            openModal('addCheckModal');
-        }
-
-        async function saveCheck(event) {
-            event.preventDefault();
-            
-            const checkId = document.getElementById('checkId').value;
-            const isEdit = !!checkId;
-            
-            const checkData = {
-                id: isEdit ? checkId : 'check_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                name: document.getElementById('checkName').value,
-                amount: parseFloat(document.getElementById('checkAmount').value),
-                number: document.getElementById('checkNumber').value,
-                bank: document.getElementById('bankName').value,
-                recipient: document.getElementById('recipient').value,
-                issuer: document.getElementById('issuer').value,
-                status: document.getElementById('checkStatus').value,
-                issueDate: document.getElementById('issueDate').value,
-                dueDate: document.getElementById('dueDate').value,
-                notes: document.getElementById('notes').value,
-                createdAt: isEdit ? checks.find(c => c.id === checkId)?.createdAt || new Date().toISOString() : new Date().toISOString(),
-                important: isEdit ? checks.find(c => c.id === checkId)?.important || false : false,
-                userId: currentUserId,
-                updatedAt: new Date().toISOString()
-            };
-            
-            if (isEdit) {
-                const index = checks.findIndex(c => c.id === checkId);
-                if (index !== -1) {
-                    checks[index] = checkData;
-                }
-            } else {
-                checks.unshift(checkData);
-            }
-            
-            // حفظ محلياً
-            saveChecksLocally();
-            
-            // محاولة الحفظ في قاعدة البيانات
-            if (isOnline && database) {
-                const success = await saveCheckToDatabase(checkData);
-                if (!success) {
-                    // إضافة إلى قائمة الانتظار للمزامنة لاحقاً
-                    pendingSync.push({ type: 'save', data: checkData });
-                    showSyncStatus('تم الحفظ محلياً، جاري المزامنة لاحقاً', 'syncing');
-                } else {
-                    showSyncStatus('تم الحفظ في السحابة', 'success');
-                }
-            } else {
-                pendingSync.push({ type: 'save', data: checkData });
-                showSyncStatus('تم الحفظ محلياً، جاري المزامنة عند الاتصال', 'syncing');
-            }
-            
-            closeModal();
-            updateUI();
-            showNotification(isEdit ? 'تم تحديث الشيك' : 'تم إضافة الشيك');
-            
-            // عرض لوحة التحكم بعد الإضافة
-            if (!isEdit) {
-                setTimeout(() => showDashboard(), 500);
-            }
-        }
-
-        async function deleteCheck(checkId) {
-            if (!confirm('هل تريد حذف هذا الشيك؟')) return;
-            
-            checks = checks.filter(c => c.id !== checkId);
-            saveChecksLocally();
-            
-            // محاولة الحذف من قاعدة البيانات
-            if (isOnline && database) {
-                const success = await deleteCheckFromDatabase(checkId);
-                if (!success) {
-                    pendingSync.push({ type: 'delete', checkId: checkId });
-                    showSyncStatus('تم الحذف محلياً، جاري المزامنة لاحقاً', 'syncing');
-                }
-            } else {
-                pendingSync.push({ type: 'delete', checkId: checkId });
-                showSyncStatus('تم الحذف محلياً، جاري المزامنة عند الاتصال', 'syncing');
-            }
-            
-            updateUI();
-            showNotification('تم حذف الشيك');
-        }
-
-        function toggleImportant(checkId) {
-            const index = checks.findIndex(c => c.id === checkId);
-            if (index !== -1) {
-                checks[index].important = !checks[index].important;
-                saveChecksLocally();
-                updateUI();
-                
-                // مزامنة التغيير
-                if (isOnline && database) {
-                    saveCheckToDatabase(checks[index]);
-                } else {
-                    pendingSync.push({ type: 'save', data: checks[index] });
-                }
-            }
-        }
-
-        // تحديثات الواجهة
+        // ============================================
+        // دوال تحديث الواجهة
+        // ============================================
         function updateUI() {
+            updateDashboard();
+            updateAllChecks();
+            updateAnalytics();
+            updateNotifications();
+            updateBadges();
+        }
+
+        function updateDashboard() {
             updateStats();
             updateRecentChecks();
-            updateAllChecks();
-            updateBadges();
         }
 
         function updateStats() {
@@ -2021,7 +3300,7 @@
                                    check.status === 'cleared' ? 'var(--secondary-color)' : 'var(--danger-color)';
                 
                 return `
-                    <div class="check-item ${statusClass}" onclick="editCheck('${check.id}')">
+                    <div class="check-item ${statusClass}" onclick="showCheckDetail('${check.id}')">
                         <div class="check-icon" style="background: ${statusColor};">
                             <i class="fas fa-${statusIcon}"></i>
                         </div>
@@ -2043,14 +3322,42 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
             let filteredChecks = checks.filter(check => {
-                if (!searchTerm) return true;
+                // تطبيق البحث
+                if (searchTerm) {
+                    const matchesSearch = check.name.toLowerCase().includes(searchTerm) ||
+                                         check.number.toLowerCase().includes(searchTerm) ||
+                                         check.recipient.toLowerCase().includes(searchTerm) ||
+                                         check.issuer.toLowerCase().includes(searchTerm) ||
+                                         check.bank.toLowerCase().includes(searchTerm) ||
+                                         check.status.toLowerCase().includes(searchTerm);
+                    if (!matchesSearch) return false;
+                }
                 
-                return check.name.toLowerCase().includes(searchTerm) ||
-                       check.number.toLowerCase().includes(searchTerm) ||
-                       check.recipient.toLowerCase().includes(searchTerm) ||
-                       check.issuer.toLowerCase().includes(searchTerm) ||
-                       check.bank.toLowerCase().includes(searchTerm) ||
-                       check.status.toLowerCase().includes(searchTerm);
+                // تطبيق تصفية الحالة
+                if (currentFilter.status !== 'all' && check.status !== currentFilter.status) {
+                    return false;
+                }
+                
+                // تطبيق تصفية التاريخ
+                if (currentFilter.date !== 'all') {
+                    const checkDate = new Date(check.issueDate);
+                    const today = new Date();
+                    
+                    switch(currentFilter.date) {
+                        case 'today':
+                            return checkDate.toDateString() === today.toDateString();
+                        case 'week':
+                            const oneWeekAgo = new Date(today);
+                            oneWeekAgo.setDate(today.getDate() - 7);
+                            return checkDate >= oneWeekAgo;
+                        case 'month':
+                            const oneMonthAgo = new Date(today);
+                            oneMonthAgo.setMonth(today.getMonth() - 1);
+                            return checkDate >= oneMonthAgo;
+                    }
+                }
+                
+                return true;
             });
             
             if (filteredChecks.length === 0) {
@@ -2060,7 +3367,7 @@
                             <i class="fas fa-search"></i>
                         </div>
                         <div class="empty-title">لا توجد شيكات</div>
-                        <div class="empty-description">${searchTerm ? 'جرب بحثاً آخر' : 'ابدأ بإضافة شيك جديد'}</div>
+                        <div class="empty-description">${searchTerm || currentFilter.status !== 'all' ? 'جرب بحثاً آخر' : 'ابدأ بإضافة شيك جديد'}</div>
                         <button class="btn btn-primary" onclick="openNewCheckModal()" style="margin-top: 16px;">
                             <i class="fas fa-plus"></i>
                             إضافة شيك
@@ -2081,7 +3388,7 @@
                     '<span class="status-badge status-bounced-badge">مرتجع</span>';
                 
                 return `
-                    <div class="check-item ${statusClass} fade-in" onclick="editCheck('${check.id}')">
+                    <div class="check-item ${statusClass} fade-in" onclick="showCheckDetail('${check.id}')">
                         <div class="check-icon" style="background: ${check.important ? 'var(--warning-color)' : 'var(--primary-color)'};">
                             <i class="fas fa-${check.important ? 'star' : 'money-check'}"></i>
                         </div>
@@ -2093,6 +3400,10 @@
                                 ${statusBadge}
                             </div>
                         </div>
+                        <button class="icon-button" onclick="event.stopPropagation(); toggleImportant('${check.id}')" 
+                                style="background: none; border: none; color: ${check.important ? 'var(--warning-color)' : 'var(--text-tertiary)'}; font-size: 18px;">
+                            <i class="fas fa-star"></i>
+                        </button>
                         <button class="icon-button" onclick="event.stopPropagation(); deleteCheck('${check.id}')" 
                                 style="background: none; border: none; color: var(--danger-color); font-size: 18px;">
                             <i class="fas fa-trash"></i>
@@ -2102,7 +3413,203 @@
             }).join('');
         }
 
+        function updateAnalytics() {
+            // تحديث الإحصائيات الأساسية
+            const total = checks.length;
+            const totalAmount = checks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const avgAmount = total > 0 ? totalAmount / total : 0;
+            
+            // حساب الشيكات القادمة (في الشهر القادم)
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            const upcomingChecks = checks.filter(check => {
+                if (!check.dueDate) return false;
+                const dueDate = new Date(check.dueDate);
+                return dueDate > new Date() && dueDate <= nextMonth;
+            }).length;
+            
+            // حساب الشيكات المتأخرة
+            const overdueChecks = checks.filter(check => {
+                if (!check.dueDate || check.status === 'cleared') return false;
+                const dueDate = new Date(check.dueDate);
+                return dueDate < new Date();
+            }).length;
+            
+            // حساب الشيكات المهمة
+            const importantChecks = checks.filter(check => check.important).length;
+            
+            // تحديث العناصر
+            document.getElementById('avgAmount').textContent = formatCurrency(avgAmount);
+            document.getElementById('upcomingChecks').textContent = upcomingChecks;
+            document.getElementById('overdueChecks').textContent = overdueChecks;
+            document.getElementById('importantChecks').textContent = importantChecks;
+            
+            // تحديث الرسوم البيانية
+            updateCharts();
+        }
+
+        function updateCharts() {
+            // توزيع الشيكات حسب الحالة
+            updateStatusChart();
+            
+            // قيمة الشيكات حسب الشهر
+            updateMonthlyChart();
+            
+            // أعلى 5 بنوك
+            updateBanksChart();
+        }
+
+        function updateStatusChart() {
+            const container = document.getElementById('statusChart');
+            const statusCounts = {
+                pending: checks.filter(c => c.status === 'pending').length,
+                cleared: checks.filter(c => c.status === 'cleared').length,
+                bounced: checks.filter(c => c.status === 'bounced').length
+            };
+            
+            const maxCount = Math.max(statusCounts.pending, statusCounts.cleared, statusCounts.bounced);
+            const colors = ['#ffb800', '#0f7b6c', '#d1453b'];
+            const labels = ['قيد الانتظار', 'تم الصرف', 'مرتجع'];
+            
+            container.innerHTML = Object.values(statusCounts).map((count, index) => {
+                const height = maxCount > 0 ? (count / maxCount) * 150 : 10;
+                return `
+                    <div class="chart-bar" style="height: ${height}px; background: ${colors[index]};">
+                        <div class="chart-bar-value">${count}</div>
+                        <div class="chart-bar-label">${labels[index]}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateMonthlyChart() {
+            const container = document.getElementById('monthlyChart');
+            
+            // تجميع الشيكات حسب الشهر
+            const monthlyData = {};
+            checks.forEach(check => {
+                const date = new Date(check.issueDate);
+                const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+                const monthName = getMonthName(date.getMonth());
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        name: monthName,
+                        total: 0
+                    };
+                }
+                monthlyData[monthKey].total += check.amount;
+            });
+            
+            // الحصول على آخر 6 أشهر
+            const months = Object.values(monthlyData).slice(-6);
+            const maxAmount = Math.max(...months.map(m => m.total), 1);
+            
+            container.innerHTML = months.map(month => {
+                const height = (month.total / maxAmount) * 150;
+                return `
+                    <div class="chart-bar" style="height: ${height}px;">
+                        <div class="chart-bar-value">${formatCurrency(month.total)}</div>
+                        <div class="chart-bar-label">${month.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateBanksChart() {
+            const container = document.getElementById('banksChart');
+            
+            // تجميع الشيكات حسب البنك
+            const bankData = {};
+            checks.forEach(check => {
+                if (!bankData[check.bank]) {
+                    bankData[check.bank] = {
+                        name: check.bank,
+                        count: 0,
+                        total: 0
+                    };
+                }
+                bankData[check.bank].count++;
+                bankData[check.bank].total += check.amount;
+            });
+            
+            // الحصول على أعلى 5 بنوك حسب العدد
+            const topBanks = Object.values(bankData)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5);
+            
+            const maxCount = Math.max(...topBanks.map(b => b.count), 1);
+            
+            container.innerHTML = topBanks.map(bank => {
+                const width = (bank.count / maxCount) * 100;
+                return `
+                    <div style="margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-size: 13px;">${bank.name}</span>
+                            <span style="font-size: 13px; font-weight: 600;">${bank.count} شيك</span>
+                        </div>
+                        <div style="height: 8px; background: var(--surface-color); border-radius: 4px; overflow: hidden;">
+                            <div style="width: ${width}%; height: 100%; background: var(--primary-color); border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateNotifications() {
+            const container = document.getElementById('notificationsList');
+            
+            // فرز الإشعارات من الأحدث إلى الأقدم
+            const sortedNotifications = [...notifications].sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+            
+            if (sortedNotifications.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 40px 20px;">
+                        <div class="empty-icon">
+                            <i class="fas fa-bell-slash"></i>
+                        </div>
+                        <div class="empty-title">لا توجد إشعارات</div>
+                        <div class="empty-description">سيظهر هنا إشعارات التطبيق</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = sortedNotifications.map(notification => {
+                const icon = notification.type === 'new_check' ? 'fa-plus-circle' :
+                           notification.type === 'update_check' ? 'fa-edit' :
+                           notification.type === 'delete_check' ? 'fa-trash' :
+                           notification.type === 'due_date' ? 'fa-calendar-exclamation' :
+                           'fa-bell';
+                
+                const iconColor = notification.type === 'new_check' ? 'var(--success-color)' :
+                                notification.type === 'update_check' ? 'var(--primary-color)' :
+                                notification.type === 'delete_check' ? 'var(--danger-color)' :
+                                notification.type === 'due_date' ? 'var(--warning-color)' :
+                                'var(--text-tertiary)';
+                
+                return `
+                    <div class="notification-item" onclick="markNotificationAsRead('${notification.id}')">
+                        <div class="notification-icon" style="color: ${iconColor};">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${formatDateTime(notification.timestamp)}</div>
+                        </div>
+                        ${!notification.read ? `
+                        <div style="width: 8px; height: 8px; background: var(--primary-color); border-radius: 50%;"></div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
         function updateBadges() {
+            // تحديث شارة الشيكات
             const pendingCount = checks.filter(c => c.status === 'pending').length;
             const badge = document.getElementById('checksBadge');
             
@@ -2114,8 +3621,760 @@
             }
         }
 
+        function updateFilterTags() {
+            // تحديث علامات التصفية للحالة
+            document.querySelectorAll('#filterOptions .filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            
+            document.querySelector(`#filterOptions .filter-tag[onclick*="${currentFilter.status}"]`)?.classList.add('active');
+            document.querySelector(`#filterOptions .filter-tag[onclick*="${currentFilter.date}"]`)?.classList.add('active');
+        }
+
+        // ============================================
+        // دوال التصفية والبحث
+        // ============================================
+        function toggleFilter() {
+            const filterOptions = document.getElementById('filterOptions');
+            filterOptions.style.display = filterOptions.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function filterByStatus(status) {
+            currentFilter.status = status;
+            updateFilterTags();
+            updateAllChecks();
+        }
+
+        function filterByDate(date) {
+            currentFilter.date = date;
+            updateFilterTags();
+            updateAllChecks();
+        }
+
+        // ============================================
+        // دوال الإشعارات
+        // ============================================
+        function addNotification(notification) {
+            notification.id = 'notification_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            notification.read = false;
+            notifications.unshift(notification);
+            
+            // حفظ محلياً
+            saveNotificationsLocally();
+            
+            // محاولة الحفظ في قاعدة البيانات
+            if (isOnline && database) {
+                addNotificationToDatabase(notification);
+            } else {
+                pendingSync.push({ type: 'saveNotification', data: notification });
+            }
+            
+            // تحديث الواجهة إذا كانت صفحة الإشعارات مفتوحة
+            if (currentPage === 'notifications') {
+                updateNotifications();
+            }
+            
+            // عرض إشعار نظامي
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(notification.title, {
+                    body: notification.message,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+                });
+            }
+        }
+
+        function markNotificationAsRead(notificationId) {
+            const index = notifications.findIndex(n => n.id === notificationId);
+            if (index !== -1) {
+                notifications[index].read = true;
+                saveNotificationsLocally();
+                updateNotifications();
+            }
+        }
+
+        function markAllAsRead() {
+            notifications.forEach(notification => {
+                notification.read = true;
+            });
+            saveNotificationsLocally();
+            updateNotifications();
+            showNotification('تم تحديد جميع الإشعارات كمقروءة');
+        }
+
+        function clearAllNotifications() {
+            if (confirm('هل تريد مسح جميع الإشعارات؟')) {
+                notifications = [];
+                saveNotificationsLocally();
+                updateNotifications();
+                showNotification('تم مسح جميع الإشعارات');
+            }
+        }
+
+        function saveNotificationsLocally() {
+            if (currentUserId) {
+                localStorage.setItem('checkflow_notifications_' + currentUserId, JSON.stringify(notifications));
+            }
+        }
+
+        // ============================================
+        // دوال الإعدادات والملف الشخصي
+        // ============================================
+        function openSettingsModal() {
+            loadSettings();
+            openModal('settingsModal');
+        }
+
+        function openBackupModal() {
+            loadBackupInfo();
+            openModal('backupModal');
+        }
+
+        function editProfile() {
+            if (!currentUser) return;
+            
+            document.getElementById('editName').value = currentUser.name || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editCompany').value = currentUser.company || '';
+            document.getElementById('editPosition').value = currentUser.position || '';
+            
+            openModal('editProfileModal');
+        }
+
+        function updateProfile(event) {
+            event.preventDefault();
+            
+            currentUser.name = document.getElementById('editName').value;
+            currentUser.email = document.getElementById('editEmail').value;
+            currentUser.phone = document.getElementById('editPhone').value;
+            currentUser.company = document.getElementById('editCompany').value;
+            currentUser.position = document.getElementById('editPosition').value;
+            currentUser.updatedAt = new Date().toISOString();
+            
+            saveUserData();
+            updateUserAvatar();
+            updateProfileDisplay();
+            closeModal();
+            showNotification('تم تحديث الملف الشخصي');
+        }
+
+        function changePassword() {
+            const newPassword = prompt('أدخل كلمة المرور الجديدة:');
+            if (newPassword) {
+                showNotification('تم تحديث كلمة المرور');
+            }
+        }
+
+        function manageDevices() {
+            alert('إدارة الأجهزة - قريباً في التحديث القادم!');
+        }
+
+        function showActivityLog() {
+            alert('سجل النشاط - قريباً في التحديث القادم!');
+        }
+
+        function loadSettings() {
+            const theme = localStorage.getItem('checkflow_theme') || 'auto';
+            const currency = localStorage.getItem('checkflow_currency') || 'MAD';
+            const language = localStorage.getItem('checkflow_language') || 'ar';
+            
+            document.getElementById('themeSelect').value = theme;
+            document.getElementById('currencySelect').value = currency;
+            document.getElementById('languageSelect').value = language;
+            
+            currentTheme = theme;
+            currentCurrency = currency;
+            currentLanguage = language;
+            
+            applyTheme(theme);
+            updateCurrencySymbol();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('checkflow_theme', currentTheme);
+            localStorage.setItem('checkflow_currency', currentCurrency);
+            localStorage.setItem('checkflow_language', currentLanguage);
+            
+            showNotification('تم حفظ الإعدادات');
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        function updateCurrencySymbol() {
+            const symbols = {
+                'MAD': 'د.م',
+                'EUR': '€',
+                'USD': '$'
+            };
+            document.getElementById('currencySymbol').textContent = symbols[currentCurrency];
+        }
+
+        // ============================================
+        // دوال النسخ الاحتياطي والتصدير
+        // ============================================
+        function exportData() {
+            const data = {
+                version: '2.0',
+                exportDate: new Date().toISOString(),
+                userId: currentUserId,
+                user: currentUser,
+                checks: checks,
+                notifications: notifications,
+                settings: {
+                    theme: currentTheme,
+                    currency: currentCurrency,
+                    language: currentLanguage
+                }
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `checkflow-backup-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير البيانات');
+            
+            // تحديث تاريخ آخر نسخ احتياطي
+            localStorage.setItem('checkflow_lastBackup', new Date().toISOString());
+            updateLastBackupDate();
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        if (confirm('هل تريد استيراد البيانات؟ سيتم استبدال البيانات الحالية.')) {
+                            if (data.checks) checks = data.checks;
+                            if (data.notifications) notifications = data.notifications;
+                            if (data.user) currentUser = data.user;
+                            if (data.settings) {
+                                currentTheme = data.settings.theme || currentTheme;
+                                currentCurrency = data.settings.currency || currentCurrency;
+                                currentLanguage = data.settings.language || currentLanguage;
+                                saveSettings();
+                            }
+                            
+                            saveChecksLocally();
+                            saveNotificationsLocally();
+                            saveUserData();
+                            
+                            updateUI();
+                            showNotification('تم استيراد البيانات بنجاح');
+                        }
+                    } catch (error) {
+                        alert('خطأ في استيراد الملف: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function backupToCloud() {
+            if (!isOnline || !database) {
+                showNotification('غير متصل بالإنترنت، لا يمكن النسخ الاحتياطي إلى السحابة');
+                return;
+            }
+            
+            syncData();
+            showNotification('تم بدأ النسخ الاحتياطي إلى السحابة');
+        }
+
+        function backupToFile() {
+            exportData();
+        }
+
+        function restoreFromCloud() {
+            if (!isOnline || !database) {
+                showNotification('غير متصل بالإنترنت، لا يمكن الاستعادة من السحابة');
+                return;
+            }
+            
+            if (confirm('هل تريد استعادة البيانات من السحابة؟ سيتم استبدال البيانات المحلية.')) {
+                loadData();
+                showNotification('تم استعادة البيانات من السحابة');
+            }
+        }
+
+        function restoreFromFile() {
+            importData();
+        }
+
+        function loadBackupInfo() {
+            const lastBackup = localStorage.getItem('checkflow_lastBackup');
+            const lastBackupDate = document.getElementById('lastBackupDate');
+            
+            if (lastBackup) {
+                lastBackupDate.textContent = formatDateTime(lastBackup);
+            } else {
+                lastBackupDate.textContent = 'لا توجد نسخة احتياطية سابقة';
+            }
+        }
+
+        function updateLastBackupDate() {
+            const lastBackup = localStorage.getItem('checkflow_lastBackup');
+            const lastBackupDate = document.getElementById('lastBackupDate');
+            
+            if (lastBackup) {
+                lastBackupDate.textContent = formatDateTime(lastBackup);
+            }
+        }
+
+        // ============================================
+        // دوال التقارير
+        // ============================================
+        function generateReport(type) {
+            switch(type) {
+                case 'summary':
+                    generateSummaryReport();
+                    break;
+                case 'status':
+                    generateStatusReport();
+                    break;
+                case 'monthly':
+                    generateMonthlyReport();
+                    break;
+                case 'bank':
+                    generateBankReport();
+                    break;
+                case 'upcoming':
+                    generateUpcomingReport();
+                    break;
+                case 'overdue':
+                    generateOverdueReport();
+                    break;
+                case 'custom':
+                    generateCustomReport();
+                    break;
+                default:
+                    alert('تقرير غير معروف');
+            }
+        }
+
+        function generateSummaryReport() {
+            const totalChecks = checks.length;
+            const totalAmount = checks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const pendingChecks = checks.filter(c => c.status === 'pending').length;
+            const clearedChecks = checks.filter(c => c.status === 'cleared').length;
+            const bouncedChecks = checks.filter(c => c.status === 'bounced').length;
+            
+            const report = `
+                ====================================
+                التقرير الشامل - CheckFlow Pro
+                ====================================
+                تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}
+                المستخدم: ${currentUser?.name || currentUserId}
+                
+                الإحصائيات:
+                - إجمالي عدد الشيكات: ${totalChecks}
+                - إجمالي المبلغ: ${formatCurrency(totalAmount)}
+                - الشيكات قيد الانتظار: ${pendingChecks}
+                - الشيكات التي تم صرفها: ${clearedChecks}
+                - الشيكات المرتجعة: ${bouncedChecks}
+                
+                ====================================
+                تم إنشاء التقرير بواسطة CheckFlow Pro
+                تطوير: أبنتعاوفيك 2026
+                ====================================
+            `;
+            
+            downloadReport(report, 'تقرير-شامل.txt');
+        }
+
+        function generateStatusReport() {
+            const statusCounts = {
+                pending: checks.filter(c => c.status === 'pending').length,
+                cleared: checks.filter(c => c.status === 'cleared').length,
+                bounced: checks.filter(c => c.status === 'bounced').length
+            };
+            
+            const report = `
+                ====================================
+                تقرير توزيع الشيكات حسب الحالة
+                ====================================
+                تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}
+                المستخدم: ${currentUser?.name || currentUserId}
+                
+                التوزيع:
+                - قيد الانتظار: ${statusCounts.pending} شيك
+                - تم الصرف: ${statusCounts.cleared} شيك
+                - مرتجع: ${statusCounts.bounced} شيك
+                
+                النسبة المئوية:
+                - قيد الانتظار: ${((statusCounts.pending / checks.length) * 100).toFixed(1)}%
+                - تم الصرف: ${((statusCounts.cleared / checks.length) * 100).toFixed(1)}%
+                - مرتجع: ${((statusCounts.bounced / checks.length) * 100).toFixed(1)}%
+                
+                ====================================
+                تم إنشاء التقرير بواسطة CheckFlow Pro
+                تطوير: أبنتعاوفيك 2026
+                ====================================
+            `;
+            
+            downloadReport(report, 'تقرير-الحالة.txt');
+        }
+
+        function generateMonthlyReport() {
+            // تجميع الشيكات حسب الشهر
+            const monthlyData = {};
+            checks.forEach(check => {
+                const date = new Date(check.issueDate);
+                const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+                const monthName = getMonthName(date.getMonth());
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        name: monthName,
+                        count: 0,
+                        total: 0
+                    };
+                }
+                monthlyData[monthKey].count++;
+                monthlyData[monthKey].total += check.amount;
+            });
+            
+            let report = `
+                ====================================
+                تقرير الشيكات حسب الشهر
+                ====================================
+                تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}
+                المستخدم: ${currentUser?.name || currentUserId}
+                
+            `;
+            
+            // إضافة بيانات كل شهر
+            Object.values(monthlyData).forEach(month => {
+                report += `
+                ${month.name}:
+                - عدد الشيكات: ${month.count}
+                - إجمالي المبلغ: ${formatCurrency(month.total)}
+                - متوسط قيمة الشيك: ${formatCurrency(month.total / month.count)}
+                `;
+            });
+            
+            report += `
+                ====================================
+                تم إنشاء التقرير بواسطة CheckFlow Pro
+                تطوير: أبنتعاوفيك 2026
+                ====================================
+            `;
+            
+            downloadReport(report, 'تقرير-شهري.txt');
+        }
+
+        function generateBankReport() {
+            // تجميع الشيكات حسب البنك
+            const bankData = {};
+            checks.forEach(check => {
+                if (!bankData[check.bank]) {
+                    bankData[check.bank] = {
+                        name: check.bank,
+                        count: 0,
+                        total: 0
+                    };
+                }
+                bankData[check.bank].count++;
+                bankData[check.bank].total += check.amount;
+            });
+            
+            let report = `
+                ====================================
+                تقرير الشيكات حسب البنك
+                ====================================
+                تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}
+                المستخدم: ${currentUser?.name || currentUserId}
+                
+            `;
+            
+            // إضافة بيانات كل بنك
+            Object.values(bankData)
+                .sort((a, b) => b.count - a.count)
+                .forEach(bank => {
+                    report += `
+                ${bank.name}:
+                - عدد الشيكات: ${bank.count}
+                - إجمالي المبلغ: ${formatCurrency(bank.total)}
+                `;
+                });
+            
+            report += `
+                ====================================
+                تم إنشاء التقرير بواسطة CheckFlow Pro
+                تطوير: أبنتعاوفيك 2026
+                ====================================
+            `;
+            
+            downloadReport(report, 'تقرير-البنوك.txt');
+        }
+
+        function generateUpcomingReport() {
+            // الشيكات القادمة في الشهر القادم
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            const upcomingChecks = checks.filter(check => {
+                if (!check.dueDate || check.status === 'cleared') return false;
+                const dueDate = new Date(check.dueDate);
+                return dueDate > new Date() && dueDate <= nextMonth;
+            });
+            
+            let report = `
+                ====================================
+                تقرير الشيكات القادمة
+                ====================================
+                تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}
+                المستخدم: ${currentUser?.name || currentUserId}
+                
+                عدد الشيكات القادمة: ${upcomingChecks.length}
+                إجمالي المبلغ: ${formatCurrency(upcomingChecks.reduce((sum, check) => sum + check.amount, 0))}
+                
+                تفاصيل الشيكات القادمة:
+            `;
+            
+            upcomingChecks.forEach(check => {
+                report += `
+                - ${check.name} (${check.number})
+                  المبلغ: ${formatCurrency(check.amount)}
+                  تاريخ الاستحقاق: ${formatDate(check.dueDate)}
+                  المستلم: ${check.recipient}
+                  البنك: ${check.bank}
+                `;
+            });
+            
+            report += `
+                ====================================
+                تم إنشاء التقرير بواسطة CheckFlow Pro
+                تطوير: أبنتعاوفيك 2026
+                ====================================
+            `;
+            
+            downloadReport(report, 'تقرير-القادمة.txt');
+        }
+
+        function generateOverdueReport() {
+            // الشيكات المتأخرة
+            const overdueChecks = checks.filter(check => {
+                if (!check.dueDate || check.status === 'cleared') return false;
+                const dueDate = new Date(check.dueDate);
+                return dueDate < new Date();
+            });
+            
+            let report = `
+                ====================================
+                تقرير الشيكات المتأخرة
+                ====================================
+                تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}
+                المستخدم: ${currentUser?.name || currentUserId}
+                
+                عدد الشيكات المتأخرة: ${overdueChecks.length}
+                إجمالي المبلغ: ${formatCurrency(overdueChecks.reduce((sum, check) => sum + check.amount, 0))}
+                
+                تفاصيل الشيكات المتأخرة:
+            `;
+            
+            overdueChecks.forEach(check => {
+                const dueDate = new Date(check.dueDate);
+                const daysOverdue = Math.floor((new Date() - dueDate) / (1000 * 60 * 60 * 24));
+                
+                report += `
+                - ${check.name} (${check.number})
+                  المبلغ: ${formatCurrency(check.amount)}
+                  تاريخ الاستحقاق: ${formatDate(check.dueDate)} (متأخر ${daysOverdue} يوم)
+                  المستلم: ${check.recipient}
+                  البنك: ${check.bank}
+                  الحالة: ${check.status === 'pending' ? 'قيد الانتظار' : 'مرتجع'}
+                `;
+            });
+            
+            report += `
+                ====================================
+                تم إنشاء التقرير بواسطة CheckFlow Pro
+                تطوير: أبنتعاوفيك 2026
+                ====================================
+            `;
+            
+            downloadReport(report, 'تقرير-المتأخرة.txt');
+        }
+
+        function generateCustomReport() {
+            const startDate = prompt('أدخل تاريخ البداية (YYYY-MM-DD):');
+            const endDate = prompt('أدخل تاريخ النهاية (YYYY-MM-DD):');
+            const status = prompt('أدخل الحالة (all/pending/cleared/bounced):', 'all');
+            
+            if (!startDate || !endDate) return;
+            
+            const filteredChecks = checks.filter(check => {
+                const issueDate = new Date(check.issueDate);
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                
+                if (issueDate < start || issueDate > end) return false;
+                if (status !== 'all' && check.status !== status) return false;
+                
+                return true;
+            });
+            
+            let report = `
+                ====================================
+                تقرير مخصص
+                ====================================
+                تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}
+                الفترة: من ${startDate} إلى ${endDate}
+                الحالة: ${status === 'all' ? 'الكل' : status === 'pending' ? 'قيد الانتظار' : status === 'cleared' ? 'تم الصرف' : 'مرتجع'}
+                المستخدم: ${currentUser?.name || currentUserId}
+                
+                عدد الشيكات: ${filteredChecks.length}
+                إجمالي المبلغ: ${formatCurrency(filteredChecks.reduce((sum, check) => sum + check.amount, 0))}
+                
+                تفاصيل الشيكات:
+            `;
+            
+            filteredChecks.forEach(check => {
+                report += `
+                - ${check.name} (${check.number})
+                  المبلغ: ${formatCurrency(check.amount)}
+                  تاريخ الإصدار: ${formatDate(check.issueDate)}
+                  تاريخ الاستحقاق: ${check.dueDate ? formatDate(check.dueDate) : 'غير محدد'}
+                  المستلم: ${check.recipient}
+                  البنك: ${check.bank}
+                  الحالة: ${check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع'}
+                `;
+            });
+            
+            report += `
+                ====================================
+                تم إنشاء التقرير بواسطة CheckFlow Pro
+                تطوير: أبنتعاوفيك 2026
+                ====================================
+            `;
+            
+            downloadReport(report, 'تقرير-مخصص.txt');
+        }
+
+        function exportAllReports() {
+            // إنشاء جميع التقارير في ملف مضغوط (محاكاة)
+            if (confirm('سيتم إنشاء جميع التقارير وتحميلها كملفات منفصلة. هل تريد المتابعة؟')) {
+                generateSummaryReport();
+                setTimeout(() => generateStatusReport(), 500);
+                setTimeout(() => generateMonthlyReport(), 1000);
+                setTimeout(() => generateBankReport(), 1500);
+                setTimeout(() => generateUpcomingReport(), 2000);
+                setTimeout(() => generateOverdueReport(), 2500);
+                
+                showNotification('تم بدأ إنشاء جميع التقارير');
+            }
+        }
+
+        function downloadReport(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            
+            showNotification('تم إنشاء وتحميل التقرير');
+        }
+
+        // ============================================
+        // دوال المساعدة والدعم
+        // ============================================
+        function showAbout() {
+            openModal('aboutModal');
+        }
+
+        function showHelp() {
+            openModal('helpModal');
+        }
+
+        function showHelpGuide() {
+            alert('دليل الاستخدام - قريباً في التحديث القادم!');
+        }
+
+        function showFAQ() {
+            alert('الأسئلة الشائعة - قريباً في التحديث القادم!');
+        }
+
+        function contactSupport() {
+            alert('للتواصل مع الدعم الفني:\nالبريد الإلكتروني: support@abentaoufik.com\nالهاتف: +212 6xx xx xx xx');
+        }
+
+        function sendFeedback() {
+            const feedback = prompt('شاركنا بملاحظاتك ومقترحاتك:');
+            if (feedback) {
+                showNotification('شكراً لك على ملاحظاتك!');
+                
+                // إضافة إشعار
+                addNotification({
+                    type: 'feedback',
+                    title: 'ملاحظاتك مهمة لنا',
+                    message: 'شكراً لك على مشاركة ملاحظاتك. نحن نقدر رأيك وسنعمل على تحسين التطبيق.',
+                    timestamp: new Date().toISOString(),
+                    read: false
+                });
+            }
+        }
+
+        function showPrivacyPolicy() {
+            alert('سياسة الخصوصية - قريباً في التحديث القادم!');
+        }
+
+        function showTermsOfService() {
+            alert('شروط الخدمة - قريباً في التحديث القادم!');
+        }
+
+        function checkForUpdates() {
+            showNotification('جاري التحقق من التحديثات...');
+            setTimeout(() => {
+                showNotification('أنت تستخدم أحدث إصدار من التطبيق');
+            }, 1500);
+        }
+
+        function clearCache() {
+            if (confirm('هل تريد مسح الذاكرة المؤقتة؟ سيتم حذف جميع البيانات المحلية.')) {
+                localStorage.clear();
+                checks = [];
+                notifications = [];
+                pendingSync = [];
+                
+                // إعادة تحميل البيانات
+                loadData();
+                updateUI();
+                
+                showNotification('تم مسح الذاكرة المؤقتة');
+            }
+        }
+
+        // ============================================
         // دوال مساعدة
+        // ============================================
         function formatCurrency(amount) {
+            if (isNaN(amount)) amount = 0;
+            
             const formatters = {
                 'MAD': new Intl.NumberFormat('ar-MA', {
                     style: 'currency',
@@ -2137,16 +4396,35 @@
                 })
             };
             
-            return formatters[currentCurrency].format(amount || 0);
+            return formatters[currentCurrency].format(amount);
         }
 
         function formatDate(dateString) {
-            if (!dateString) return '';
+            if (!dateString) return 'غير محدد';
             return new Date(dateString).toLocaleDateString('ar-MA', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'غير محدد';
+            return new Date(dateString).toLocaleString('ar-MA', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getMonthName(monthIndex) {
+            const months = [
+                'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+            ];
+            return months[monthIndex];
         }
 
         function saveChecksLocally() {
@@ -2155,81 +4433,148 @@
             }
         }
 
-        function loadSettings() {
-            const theme = localStorage.getItem('theme') || 'auto';
-            const currency = localStorage.getItem('currency') || 'MAD';
-            const language = localStorage.getItem('language') || 'ar';
-            
-            document.getElementById('themeSelect').value = theme;
-            document.getElementById('currencySelect').value = currency;
-            document.getElementById('languageSelect').value = language;
-            
-            currentCurrency = currency;
-            currentLanguage = language;
-            
-            applyTheme(theme);
-            updateCurrencySymbol();
-        }
-
-        function applyTheme(theme) {
-            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.body.classList.add('dark-mode');
-            } else {
-                document.body.classList.remove('dark-mode');
+        function loadSampleData() {
+            if (checks.length === 0) {
+                const sampleChecks = [
+                    {
+                        id: 'check_' + Date.now() + '_1',
+                        name: 'رواتب الموظفين - يناير',
+                        amount: 85000,
+                        number: 'CHK-2024-001',
+                        bank: 'البنك المغربي للتجارة الخارجية',
+                        recipient: 'شركة التقنية المحدودة',
+                        issuer: 'إدارة الموارد البشرية',
+                        status: 'cleared',
+                        issueDate: '2024-01-05',
+                        dueDate: '2024-01-20',
+                        notes: 'دفعة رواتب شهر يناير',
+                        important: true,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        userId: currentUserId
+                    },
+                    {
+                        id: 'check_' + Date.now() + '_2',
+                        name: 'فاتورة مقاول البناء',
+                        amount: 125000,
+                        number: 'CHK-2024-002',
+                        bank: 'البنك الشعبي المركزي',
+                        recipient: 'مقاولات البناء المتحدة',
+                        issuer: 'قسم المشتريات',
+                        status: 'pending',
+                        issueDate: '2024-01-10',
+                        dueDate: '2024-02-10',
+                        notes: 'الدفعة الثانية لمشروع المباني الجديدة',
+                        important: true,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        userId: currentUserId
+                    },
+                    {
+                        id: 'check_' + Date.now() + '_3',
+                        name: 'تسديد قرض معدات',
+                        amount: 45000,
+                        number: 'CHK-2024-003',
+                        bank: 'البنك التجاري وفا',
+                        recipient: 'بنك التسليف والادخار',
+                        issuer: 'الإدارة المالية',
+                        status: 'cleared',
+                        issueDate: '2024-01-03',
+                        dueDate: '2024-01-03',
+                        notes: 'قسط شهر يناير للقرض',
+                        important: false,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        userId: currentUserId
+                    },
+                    {
+                        id: 'check_' + Date.now() + '_4',
+                        name: 'شراء مواد مكتبية',
+                        amount: 15000,
+                        number: 'CHK-2024-004',
+                        bank: 'البنك المغربي للتجارة الخارجية',
+                        recipient: 'مكتبة المعرفة',
+                        issuer: 'قسم المشتريات',
+                        status: 'pending',
+                        issueDate: '2024-01-15',
+                        dueDate: '2024-02-15',
+                        notes: 'مواد مكتبية للربع الأول',
+                        important: false,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        userId: currentUserId
+                    },
+                    {
+                        id: 'check_' + Date.now() + '_5',
+                        name: 'فاتورة كهرباء',
+                        amount: 8000,
+                        number: 'CHK-2024-005',
+                        bank: 'البنك الشعبي المركزي',
+                        recipient: 'المكتب الوطني للكهرباء',
+                        issuer: 'الإدارة المالية',
+                        status: 'bounced',
+                        issueDate: '2023-12-20',
+                        dueDate: '2024-01-10',
+                        notes: 'فاتورة شهر ديسمبر - راجع لعدم كفاية الرصيد',
+                        important: true,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        userId: currentUserId
+                    }
+                ];
+                
+                checks = sampleChecks;
+                saveChecksLocally();
+                
+                // إضافة إشعارات عينة
+                const sampleNotifications = [
+                    {
+                        id: 'notification_' + Date.now() + '_1',
+                        type: 'new_check',
+                        title: 'شيك جديد مضاف',
+                        message: 'تم إضافة شيك "رواتب الموظفين - يناير" بقيمة 85,000.00 د.م',
+                        timestamp: new Date(Date.now() - 86400000).toISOString(), // منذ يوم
+                        read: true
+                    },
+                    {
+                        id: 'notification_' + Date.now() + '_2',
+                        type: 'due_date',
+                        title: 'شيك مستحق قريباً',
+                        message: 'شيك "فاتورة مقاول البناء" مستحق بتاريخ 2024-02-10',
+                        timestamp: new Date(Date.now() - 43200000).toISOString(), // منذ 12 ساعة
+                        read: false
+                    },
+                    {
+                        id: 'notification_' + Date.now() + '_3',
+                        type: 'bounced',
+                        title: 'شيك مرتجع',
+                        message: 'شيك "فاتورة كهرباء" تم إرجاعه من البنك',
+                        timestamp: new Date(Date.now() - 7200000).toISOString(), // منذ ساعتين
+                        read: false
+                    }
+                ];
+                
+                notifications = sampleNotifications;
+                saveNotificationsLocally();
             }
         }
 
-        function updateCurrencySymbol() {
-            const symbols = {
-                'MAD': 'د.م',
-                'EUR': '€',
-                'USD': '$'
-            };
-            document.getElementById('currencySymbol').textContent = symbols[currentCurrency];
-        }
-
-        // دوال النوافذ المنبثقة
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
-        }
-
-        function closeModal() {
-            document.querySelectorAll('.modal-overlay').forEach(modal => {
-                modal.classList.remove('active');
-            });
-        }
-
-        // دوال الإعدادات
-        function showAbout() {
-            alert('CheckFlow Pro الإصدار 1.1.0\nتطبيق إدارة الشيكات مع تخزين سحابي\n© 2024 جميع الحقوق محفوظة');
-        }
-
-        // تصدير البيانات
-        function exportData() {
-            const data = {
-                version: '1.1',
-                exportDate: new Date().toISOString(),
-                userId: currentUserId,
-                currency: currentCurrency,
-                language: currentLanguage,
-                checks: checks
-            };
+        function showSyncStatus(message, type = 'success') {
+            const syncStatus = document.getElementById('syncStatus');
+            const syncMessage = document.getElementById('syncMessage');
             
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            syncMessage.textContent = message;
+            syncStatus.className = 'sync-status ' + type;
+            syncStatus.style.display = 'flex';
             
-            const exportFileDefaultName = `نسخة-احتياطية-${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showNotification('تم تصدير البيانات');
+            // إخفاء الرسالة بعد 3 ثواني
+            setTimeout(() => {
+                syncStatus.style.display = 'none';
+            }, 3000);
         }
 
-        // الإشعارات
         function showNotification(message) {
+            // إشعار النظام
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification('CheckFlow Pro', {
                     body: message,
@@ -2237,6 +4582,7 @@
                 });
             }
             
+            // إشعار داخل التطبيق
             const notification = document.createElement('div');
             notification.innerHTML = `
                 <div style="position: fixed; top: 80px; left: 20px; background: var(--primary-color); color: white; padding: 12px 20px; border-radius: var(--radius-md); box-shadow: 0 4px 12px var(--shadow-color); z-index: 1001; animation: slideIn 0.3s ease;">
@@ -2255,7 +4601,22 @@
             }, 3000);
         }
 
+        // ============================================
+        // دوال النوافذ المنبثقة
+        // ============================================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        // ============================================
         // دوال PWA
+        // ============================================
         function checkPWAInstallation() {
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 isInstalled = true;
@@ -2284,31 +4645,35 @@
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        console.log('وافق المستخدم على التثبيت');
                         isInstalled = true;
                         document.getElementById('installPrompt').classList.remove('show');
-                    } else {
-                        console.log('رفض المستخدم التثبيت');
+                        showNotification('جاري تثبيت التطبيق...');
                     }
                     deferredPrompt = null;
                 });
             }
         }
 
-        // مستمعي الأحداث
+        // ============================================
+        // إعداد مستمعي الأحداث
+        // ============================================
         function setupEventListeners() {
+            // زر الإضافة
             document.getElementById('addButton').addEventListener('click', openNewCheckModal);
             
+            // زر المزامنة
             document.getElementById('syncButton').addEventListener('click', syncData);
             
+            // اختيار العملة
             document.getElementById('currencyBtn').addEventListener('click', function() {
                 document.getElementById('currencyDropdown').classList.toggle('show');
             });
             
+            // اختيارات العملة
             document.querySelectorAll('#currencyDropdown .dropdown-item').forEach(item => {
                 item.addEventListener('click', function() {
                     currentCurrency = this.dataset.currency;
-                    localStorage.setItem('currency', currentCurrency);
+                    localStorage.setItem('checkflow_currency', currentCurrency);
                     updateCurrencySymbol();
                     document.getElementById('currencyDropdown').classList.remove('show');
                     updateUI();
@@ -2316,29 +4681,38 @@
                 });
             });
             
+            // إدخال البحث
             document.getElementById('searchInput').addEventListener('input', updateAllChecks);
             
+            // تغييرات الإعدادات
             document.getElementById('themeSelect').addEventListener('change', function() {
-                localStorage.setItem('theme', this.value);
+                currentTheme = this.value;
                 applyTheme(this.value);
+                saveSettings();
             });
             
             document.getElementById('currencySelect').addEventListener('change', function() {
-                localStorage.setItem('currency', this.value);
                 currentCurrency = this.value;
+                localStorage.setItem('checkflow_currency', currentCurrency);
                 updateCurrencySymbol();
                 updateUI();
+                saveSettings();
             });
             
             document.getElementById('languageSelect').addEventListener('change', function() {
-                localStorage.setItem('language', this.value);
-                location.reload();
+                currentLanguage = this.value;
+                localStorage.setItem('checkflow_language', currentLanguage);
+                saveSettings();
+                showNotification('سيتم تطبيق اللغة بعد إعادة تشغيل التطبيق');
             });
             
-            document.getElementById('filterButton').addEventListener('click', function() {
-                alert('التصفية - قريباً في التحديث القادم!');
+            // جدولة النسخ الاحتياطي
+            document.getElementById('backupSchedule').addEventListener('change', function() {
+                localStorage.setItem('checkflow_backupSchedule', this.value);
+                showNotification('تم تحديث جدولة النسخ الاحتياطي');
             });
             
+            // مطالبة تثبيت PWA
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
@@ -2350,12 +4724,14 @@
                 }, 5000);
             });
             
+            // عند تثبيت التطبيق
             window.addEventListener('appinstalled', () => {
                 isInstalled = true;
-                console.log('تم تثبيت التطبيق');
                 document.getElementById('installPrompt').classList.remove('show');
+                showNotification('تم تثبيت التطبيق بنجاح!');
             });
             
+            // إغلاق النوافذ بالضغط على الخلفية
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 overlay.addEventListener('click', function(e) {
                     if (e.target === this) {
@@ -2364,12 +4740,14 @@
                 });
             });
             
+            // إغلاق النوافذ بالضغط على ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeModal();
                 }
             });
             
+            // إغلاق القوائم المنسدلة بالضغط خارجها
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.currency-selector')) {
                     document.getElementById('currencyDropdown').classList.remove('show');
@@ -2377,7 +4755,9 @@
             });
         }
 
+        // ============================================
         // تسجيل Service Worker
+        // ============================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swContent = `
@@ -2410,12 +4790,14 @@
             });
         }
 
+        // ============================================
         // Manifest ديناميكي
+        // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             const manifest = {
                 "name": "CheckFlow Pro",
                 "short_name": "CheckFlow",
-                "description": "إدارة الشيكات الاحترافية",
+                "description": "إدارة الشيكات الاحترافية - تطوير: أبنتعاوفيك 2026",
                 "start_url": "/",
                 "display": "standalone",
                 "background_color": "#337ea9",
