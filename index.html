@@ -23,6 +23,9 @@
     <!-- SheetJS for Excel handling -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -219,7 +222,7 @@
         /* المحتوى الرئيسي */
         .main-content {
             padding: calc(56px + var(--spacing-lg)) var(--spacing-md) var(--spacing-xl);
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -315,6 +318,12 @@
             grid-template-columns: repeat(2, 1fr);
             gap: var(--spacing-md);
             margin-bottom: var(--spacing-lg);
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .stat-card {
@@ -446,7 +455,7 @@
         }
 
         /* عرض جميع الشيكات */
-        .checks-view {
+        .checks-view, .analytics-view {
             display: grid;
             gap: var(--spacing-md);
         }
@@ -689,6 +698,11 @@
             color: white;
         }
 
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
         /* علامات الحالة */
         .status-badge {
             display: inline-flex;
@@ -776,22 +790,6 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        /* تصميم متجاوب */
-        @media (min-width: 768px) {
-            .main-content {
-                padding-right: 24px;
-                padding-left: 24px;
-            }
-            
-            .quick-actions {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
         }
 
         /* مطالبة التثبيت */
@@ -931,7 +929,7 @@
             background: var(--text-tertiary);
         }
 
-        /* التحديد */
+        /* التحديث */
         ::selection {
             background: var(--primary-color);
             color: white;
@@ -1112,6 +1110,176 @@
             border: 1px solid rgba(15, 123, 108, 0.2);
             color: var(--status-cleared);
         }
+
+        /* عرض الإحصائيات */
+        .analytics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .analytics-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            grid-column: 1 / -1;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .stat-change.down {
+            color: var(--danger-color);
+        }
+
+        /* بطاقات المخططات */
+        .chart-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: var(--spacing-md);
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-item i {
+            font-size: 8px;
+        }
+
+        .chart-filter {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        /* الجداول */
+        .table-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            grid-column: 1 / -1;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .analytics-table th {
+            background: var(--surface-color);
+            padding: 12px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .analytics-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .analytics-table tr:hover {
+            background: var(--surface-color);
+        }
+
+        /* بطاقات الملخص */
+        .summary-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            grid-column: 1 / -1;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .summary-item {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .summary-item.warning .summary-value {
+            color: var(--warning-color);
+        }
+
+        .summary-item.danger .summary-value {
+            color: var(--danger-color);
+        }
+
+        .summary-item.success .summary-value {
+            color: var(--success-color);
+        }
+
+        /* المخططات */
+        canvas {
+            max-height: 300px;
+            width: 100% !important;
+        }
     </style>
 </head>
 <body>
@@ -1286,6 +1454,163 @@
                 <!-- جميع الشيكات سيتم تحميلها هنا -->
             </div>
         </div>
+
+        <!-- عرض الإحصائيات -->
+        <div class="analytics-view" id="analyticsView" style="display: none;">
+            <div class="view-header">
+                <div class="view-title">الإحصائيات والتحليلات</div>
+                <div class="view-controls">
+                    <select class="filter-btn" id="analyticsPeriod">
+                        <option value="all">جميع الفترات</option>
+                        <option value="month">هذا الشهر</option>
+                        <option value="quarter">هذا الربع</option>
+                        <option value="year">هذا العام</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="analytics-container">
+                <!-- بطاقات الإحصائيات الرئيسية -->
+                <div class="analytics-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalChecksAnalytics">0</div>
+                        <div class="stat-label">إجمالي الشيكات</div>
+                        <div class="stat-change" id="checksChange">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalAmountAnalytics">0 د.م</div>
+                        <div class="stat-label">إجمالي المبالغ</div>
+                        <div class="stat-change" id="amountChange">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingAnalytics">0</div>
+                        <div class="stat-label">قيد الانتظار</div>
+                        <div class="stat-change" id="pendingChange">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="clearedAnalytics">0</div>
+                        <div class="stat-label">تم الصرف</div>
+                        <div class="stat-change" id="clearedChange">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مخطط توزيع الحالات -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">توزيع الشيكات حسب الحالة</div>
+                        <div class="chart-legend">
+                            <span class="legend-item" style="color: var(--status-pending);">
+                                <i class="fas fa-circle"></i> قيد الانتظار
+                            </span>
+                            <span class="legend-item" style="color: var(--status-cleared);">
+                                <i class="fas fa-circle"></i> تم الصرف
+                            </span>
+                            <span class="legend-item" style="color: var(--status-bounced);">
+                                <i class="fas fa-circle"></i> مرتجع
+                            </span>
+                        </div>
+                    </div>
+                    <canvas id="statusChart"></canvas>
+                </div>
+
+                <!-- مخطط توزيع البنوك -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">توزيع المبالغ حسب البنك</div>
+                        <select class="chart-filter" id="bankChartType">
+                            <option value="amount">حسب المبلغ</option>
+                            <option value="count">حسب العدد</option>
+                        </select>
+                    </div>
+                    <canvas id="bankChart"></canvas>
+                </div>
+
+                <!-- مخطط التدفق الشهري -->
+                <div class="chart-card full-width">
+                    <div class="chart-header">
+                        <div class="chart-title">التدفق الشهري للمبالغ</div>
+                        <select class="chart-filter" id="monthlyChartType">
+                            <option value="amount">المبالغ</option>
+                            <option value="count">عدد الشيكات</option>
+                        </select>
+                    </div>
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+
+                <!-- أهم 10 بنوك -->
+                <div class="table-card">
+                    <div class="chart-header">
+                        <div class="chart-title">أهم 10 بنوك حسب المبلغ</div>
+                    </div>
+                    <div class="table-container">
+                        <table class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>الترتيب</th>
+                                    <th>اسم البنك</th>
+                                    <th>عدد الشيكات</th>
+                                    <th>إجمالي المبلغ</th>
+                                    <th>النسبة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topBanksTable">
+                                <!-- سيتم ملؤها تلقائياً -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- تقرير المخاطر -->
+                <div class="table-card">
+                    <div class="chart-header">
+                        <div class="chart-title">تقرير المخاطر - الشيكات المتأخرة</div>
+                        <button class="btn btn-secondary btn-sm" onclick="exportRiskReport()">
+                            <i class="fas fa-download"></i>
+                            تصدير
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الشيك</th>
+                                    <th>اسم الشيك</th>
+                                    <th>المبلغ</th>
+                                    <th>تاريخ الاستحقاق</th>
+                                    <th>الأيام المتأخرة</th>
+                                    <th>المستلم</th>
+                                </tr>
+                            </thead>
+                            <tbody id="riskReportTable">
+                                <!-- سيتم ملؤها تلقائياً -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ملخص التكرارات -->
+                <div class="summary-card">
+                    <div class="chart-header">
+                        <div class="chart-title">ملخص التكرارات والمشكلات</div>
+                    </div>
+                    <div class="summary-grid" id="duplicatesSummary">
+                        <!-- سيتم ملؤها تلقائياً -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- التنقل السفلي -->
@@ -1309,6 +1634,7 @@
         </a>
     </nav>
 
+    <!-- نوافذ التطبيق تبدأ هنا -->
     <!-- نافذة تسجيل الدخول -->
     <div class="modal-overlay" id="loginModal" style="display: flex;">
         <div class="login-modal">
@@ -1426,6 +1752,7 @@
         </div>
     </div>
 
+    <!-- نوافذ أخرى (استيراد Excel، الإعدادات، التصفية) -->
     <!-- نافذة استيراد Excel -->
     <div class="modal-overlay" id="importExcelModal">
         <div class="modal">
@@ -1667,6 +1994,11 @@
         let excelData = [];
         let activeFilters = {};
         let duplicateReport = null;
+        
+        // متغيرات المخططات
+        let statusChart = null;
+        let bankChart = null;
+        let monthlyChart = null;
 
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', async function() {
@@ -1810,6 +2142,11 @@
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 isInstalled = true;
                 console.log('التطبيق مثبت كـ PWA');
+            }
+            
+            // إضافة مستمع لحدث تغيير البيانات لتحديث الإحصائيات
+            if (currentView === 'analytics') {
+                updateAnalytics();
             }
         }
 
@@ -2200,11 +2537,519 @@
             showNotification(`تم حذف ${duplicateChecks.length} شيك مكرر`);
         }
 
-        // إدارة العروض
+        // دوال الإحصائيات
+        function showAnalytics() {
+            currentView = 'analytics';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('analyticsView').style.display = 'block';
+            document.getElementById('pageTitle').textContent = 'الإحصائيات';
+            updateNav('stats');
+            
+            // تحديث الإحصائيات
+            updateAnalytics();
+        }
+
+        function updateAnalytics() {
+            // تحديث البطاقات الإحصائية
+            updateAnalyticsCards();
+            
+            // تحديث المخططات
+            updateStatusChart();
+            updateBankChart();
+            updateMonthlyChart();
+            
+            // تحديث الجداول
+            updateTopBanksTable();
+            updateRiskReportTable();
+            updateDuplicatesSummary();
+        }
+
+        function updateAnalyticsCards() {
+            const totalChecks = checks.length;
+            const totalAmount = checks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const pendingChecks = checks.filter(c => c.status === 'pending').length;
+            const clearedChecks = checks.filter(c => c.status === 'cleared').length;
+            
+            // حساب التغيرات (بسيط - يمكن تطويره)
+            const checksChange = 0; // يمكن حساب التغير عن الفترة السابقة
+            const amountChange = 0;
+            const pendingChange = 0;
+            const clearedChange = 0;
+            
+            document.getElementById('totalChecksAnalytics').textContent = totalChecks;
+            document.getElementById('totalAmountAnalytics').textContent = formatCurrency(totalAmount);
+            document.getElementById('pendingAnalytics').textContent = pendingChecks;
+            document.getElementById('clearedAnalytics').textContent = clearedChecks;
+            
+            updateChangeIndicator('checksChange', checksChange);
+            updateChangeIndicator('amountChange', amountChange);
+            updateChangeIndicator('pendingChange', pendingChange);
+            updateChangeIndicator('clearedChange', clearedChange);
+        }
+
+        function updateChangeIndicator(elementId, change) {
+            const element = document.getElementById(elementId);
+            if (change > 0) {
+                element.className = 'stat-change';
+                element.innerHTML = `<i class="fas fa-arrow-up"></i><span>${Math.abs(change)}%</span>`;
+            } else if (change < 0) {
+                element.className = 'stat-change down';
+                element.innerHTML = `<i class="fas fa-arrow-down"></i><span>${Math.abs(change)}%</span>`;
+            } else {
+                element.className = 'stat-change';
+                element.innerHTML = `<i class="fas fa-minus"></i><span>0%</span>`;
+            }
+        }
+
+        // مخطط توزيع الحالات
+        function updateStatusChart() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            
+            // تجميع البيانات حسب الحالة
+            const statusData = {
+                pending: checks.filter(c => c.status === 'pending').length,
+                cleared: checks.filter(c => c.status === 'cleared').length,
+                bounced: checks.filter(c => c.status === 'bounced').length
+            };
+            
+            if (statusChart) {
+                statusChart.destroy();
+            }
+            
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['قيد الانتظار', 'تم الصرف', 'مرتجع'],
+                    datasets: [{
+                        data: [statusData.pending, statusData.cleared, statusData.bounced],
+                        backgroundColor: [
+                            'rgba(255, 184, 0, 0.8)',
+                            'rgba(15, 123, 108, 0.8)',
+                            'rgba(209, 69, 59, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(255, 184, 0)',
+                            'rgb(15, 123, 108)',
+                            'rgb(209, 69, 59)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true,
+                            labels: {
+                                font: {
+                                    family: 'Cairo',
+                                    size: 12
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // مخطط توزيع البنوك
+        function updateBankChart() {
+            const ctx = document.getElementById('bankChart').getContext('2d');
+            const chartType = document.getElementById('bankChartType').value;
+            
+            // تجميع البيانات حسب البنك
+            const bankData = {};
+            checks.forEach(check => {
+                const bank = check.bank || 'غير محدد';
+                if (!bankData[bank]) {
+                    bankData[bank] = { count: 0, amount: 0 };
+                }
+                bankData[bank].count++;
+                bankData[bank].amount += check.amount || 0;
+            });
+            
+            // ترتيب البنوك حسب المبلغ (تنازلياً)
+            const sortedBanks = Object.entries(bankData)
+                .sort((a, b) => b[1].amount - a[1].amount)
+                .slice(0, 8); // أول 8 بنوك فقط
+            
+            const labels = sortedBanks.map(([bank]) => bank);
+            const data = sortedBanks.map(([, stats]) => 
+                chartType === 'amount' ? stats.amount : stats.count
+            );
+            
+            if (bankChart) {
+                bankChart.destroy();
+            }
+            
+            bankChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: chartType === 'amount' ? 'المبلغ (د.م)' : 'عدد الشيكات',
+                        data: data,
+                        backgroundColor: 'rgba(51, 126, 169, 0.8)',
+                        borderColor: 'rgb(51, 126, 169)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (chartType === 'amount') {
+                                        return `المبلغ: ${formatCurrency(context.raw)}`;
+                                    }
+                                    return `العدد: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (chartType === 'amount') {
+                                        return formatCurrency(value);
+                                    }
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // مخطط التدفق الشهري
+        function updateMonthlyChart() {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const chartType = document.getElementById('monthlyChartType').value;
+            const period = document.getElementById('analyticsPeriod').value;
+            
+            // تحديد نطاق التاريخ
+            const now = new Date();
+            let startDate = new Date(2000, 0, 1); // تاريخ قديم
+            
+            if (period === 'month') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            } else if (period === 'quarter') {
+                const quarter = Math.floor(now.getMonth() / 3);
+                startDate = new Date(now.getFullYear(), quarter * 3, 1);
+            } else if (period === 'year') {
+                startDate = new Date(now.getFullYear(), 0, 1);
+            }
+            
+            // تجميع البيانات الشهرية
+            const monthlyData = {};
+            
+            checks.forEach(check => {
+                const checkDate = new Date(check.issueDate);
+                
+                // تصفية حسب الفترة المحددة
+                if (checkDate < startDate) return;
+                
+                const monthKey = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { count: 0, amount: 0 };
+                }
+                
+                monthlyData[monthKey].count++;
+                monthlyData[monthKey].amount += check.amount || 0;
+            });
+            
+            // إنشاء مصفوفة من الأشهر (آخر 12 شهراً)
+            const months = [];
+            const data = [];
+            
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const monthName = date.toLocaleDateString('ar-MA', { month: 'long', year: 'numeric' });
+                
+                months.push(monthName);
+                
+                if (monthlyData[monthKey]) {
+                    data.push(chartType === 'amount' ? monthlyData[monthKey].amount : monthlyData[monthKey].count);
+                } else {
+                    data.push(0);
+                }
+            }
+            
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
+            
+            monthlyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: chartType === 'amount' ? 'المبلغ (د.م)' : 'عدد الشيكات',
+                        data: data,
+                        backgroundColor: 'rgba(51, 126, 169, 0.1)',
+                        borderColor: 'rgb(51, 126, 169)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (chartType === 'amount') {
+                                        return `المبلغ: ${formatCurrency(context.raw)}`;
+                                    }
+                                    return `العدد: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (chartType === 'amount') {
+                                        return formatCurrency(value);
+                                    }
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // تحديث جدول أهم البنوك
+        function updateTopBanksTable() {
+            const tableBody = document.getElementById('topBanksTable');
+            
+            // تجميع بيانات البنوك
+            const bankData = {};
+            checks.forEach(check => {
+                const bank = check.bank || 'غير محدد';
+                if (!bankData[bank]) {
+                    bankData[bank] = { count: 0, amount: 0 };
+                }
+                bankData[bank].count++;
+                bankData[bank].amount += check.amount || 0;
+            });
+            
+            // ترتيب حسب المبلغ (تنازلياً)
+            const sortedBanks = Object.entries(bankData)
+                .sort((a, b) => b[1].amount - a[1].amount)
+                .slice(0, 10); // أول 10 بنوك
+            
+            const totalAmount = checks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            
+            let tableHTML = '';
+            
+            sortedBanks.forEach(([bank, stats], index) => {
+                const percentage = totalAmount > 0 ? ((stats.amount / totalAmount) * 100).toFixed(1) : 0;
+                
+                tableHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${bank}</td>
+                        <td>${stats.count}</td>
+                        <td>${formatCurrency(stats.amount)}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span>${percentage}%</span>
+                                <div style="flex: 1; background: var(--surface-color); height: 8px; border-radius: 4px;">
+                                    <div style="width: ${percentage}%; background: var(--primary-color); height: 100%; border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = tableHTML || '<tr><td colspan="5" style="text-align: center; padding: 20px;">لا توجد بيانات</td></tr>';
+        }
+
+        // تحديث تقرير المخاطر
+        function updateRiskReportTable() {
+            const tableBody = document.getElementById('riskReportTable');
+            const today = new Date();
+            
+            // فلترة الشيكات المتأخرة (قيد الانتظار وتاريخ استحقاقها قد مر)
+            const overdueChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                
+                const dueDate = new Date(check.dueDate);
+                return dueDate < today;
+            }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)); // ترتيب حسب تاريخ الاستحقاق
+            
+            let tableHTML = '';
+            
+            overdueChecks.forEach(check => {
+                const dueDate = new Date(check.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                
+                tableHTML += `
+                    <tr>
+                        <td>${check.number}</td>
+                        <td>${check.name}</td>
+                        <td>${formatCurrency(check.amount)}</td>
+                        <td>
+                            ${formatDate(check.dueDate)}
+                            ${daysOverdue > 30 ? '<span style="color: var(--danger-color); margin-right: 8px;">⚠</span>' : ''}
+                        </td>
+                        <td>
+                            <span class="${daysOverdue > 30 ? 'status-badge status-bounced-badge' : 'status-badge status-pending-badge'}">
+                                ${daysOverdue} يوم
+                            </span>
+                        </td>
+                        <td>${check.recipient}</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = tableHTML || '<tr><td colspan="6" style="text-align: center; padding: 20px;">لا توجد شيكات متأخرة</td></tr>';
+        }
+
+        // تحديث ملخص التكرارات
+        function updateDuplicatesSummary() {
+            const container = document.getElementById('duplicatesSummary');
+            
+            // حساب التكرارات
+            const checkNumbers = checks.map(c => c.number);
+            const duplicates = checkNumbers.filter((num, index) => checkNumbers.indexOf(num) !== index);
+            const uniqueDuplicates = [...new Set(duplicates)];
+            
+            // حساب الشيكات المتأخرة
+            const today = new Date();
+            const overdueChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                return new Date(check.dueDate) < today;
+            });
+            
+            // حساب الشيكات القريبة من الاستحقاق (خلال 7 أيام)
+            const upcomingChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                
+                const dueDate = new Date(check.dueDate);
+                const daysUntilDue = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+                return daysUntilDue >= 0 && daysUntilDue <= 7;
+            });
+            
+            // حساب المبالغ الإجمالية حسب الحالة
+            const pendingAmount = checks
+                .filter(c => c.status === 'pending')
+                .reduce((sum, c) => sum + (c.amount || 0), 0);
+            
+            const clearedAmount = checks
+                .filter(c => c.status === 'cleared')
+                .reduce((sum, c) => sum + (c.amount || 0), 0);
+            
+            container.innerHTML = `
+                <div class="summary-item ${uniqueDuplicates.length > 0 ? 'warning' : 'success'}">
+                    <div class="summary-value">${uniqueDuplicates.length}</div>
+                    <div class="summary-label">شيك مكرر</div>
+                </div>
+                <div class="summary-item ${overdueChecks.length > 0 ? 'danger' : 'success'}">
+                    <div class="summary-value">${overdueChecks.length}</div>
+                    <div class="summary-label">شيك متأخر</div>
+                </div>
+                <div class="summary-item ${upcomingChecks.length > 0 ? 'warning' : 'success'}">
+                    <div class="summary-value">${upcomingChecks.length}</div>
+                    <div class="summary-label">قريب من الاستحقاق</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${formatCurrency(pendingAmount)}</div>
+                    <div class="summary-label">إجمالي المبالغ المعلقة</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${formatCurrency(clearedAmount)}</div>
+                    <div class="summary-label">إجمالي المبالغ المصروفة</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">${checks.length}</div>
+                    <div class="summary-label">إجمالي الشيكات</div>
+                </div>
+            `;
+        }
+
+        // تصدير تقرير المخاطر
+        function exportRiskReport() {
+            const today = new Date();
+            const overdueChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                return new Date(check.dueDate) < today;
+            });
+            
+            const report = {
+                exportDate: new Date().toISOString(),
+                totalOverdue: overdueChecks.length,
+                totalOverdueAmount: overdueChecks.reduce((sum, c) => sum + (c.amount || 0), 0),
+                checks: overdueChecks.map(check => {
+                    const dueDate = new Date(check.dueDate);
+                    const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                    
+                    return {
+                        number: check.number,
+                        name: check.name,
+                        amount: check.amount,
+                        dueDate: check.dueDate,
+                        daysOverdue: daysOverdue,
+                        recipient: check.recipient,
+                        bank: check.bank
+                    };
+                })
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `تقرير-المخاطر-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير تقرير المخاطر');
+        }
+
+        // بقية الدوال الأساسية
         function showDashboard() {
             currentView = 'dashboard';
             document.getElementById('dashboardView').style.display = 'grid';
             document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('analyticsView').style.display = 'none';
             document.getElementById('pageTitle').textContent = 'لوحة التحكم';
             updateNav('home');
             updateStats();
@@ -2215,6 +3060,7 @@
             currentView = 'allChecks';
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('allChecksView').style.display = 'grid';
+            document.getElementById('analyticsView').style.display = 'none';
             document.getElementById('pageTitle').textContent = 'جميع الشيكات';
             updateNav('checks');
             updateAllChecks();
@@ -2224,11 +3070,6 @@
             showAllChecks();
             document.getElementById('searchInput').value = 'قيد الانتظار';
             document.getElementById('searchInput').dispatchEvent(new Event('input'));
-        }
-
-        function showAnalytics() {
-            alert('الإحصائيات - قريباً في التحديث القادم!');
-            updateNav('stats');
         }
 
         function showSettings() {
@@ -2396,6 +3237,11 @@
             updateRecentChecks();
             updateAllChecks();
             updateBadges();
+            
+            // تحديث الإحصائيات إذا كانت الصفحة مفتوحة
+            if (currentView === 'analytics') {
+                updateAnalytics();
+            }
         }
 
         function updateStats() {
@@ -2715,13 +3561,13 @@
 
         // دوال الإعدادات
         function showAbout() {
-            alert('CheckFlow Pro الإصدار 1.2.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- فحص ومعالجة التكرارات\n© 2024 جميع الحقوق محفوظة');
+            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n© 2024 جميع الحقوق محفوظة');
         }
 
         // تصدير البيانات
         function exportData() {
             const data = {
-                version: '1.2',
+                version: '2.0',
                 exportDate: new Date().toISOString(),
                 userId: currentUserId,
                 currency: currentCurrency,
@@ -3217,6 +4063,19 @@
                 } else {
                     document.getElementById('duplicateAlert').style.display = 'none';
                 }
+            });
+            
+            // مستمعات الإحصائيات
+            document.getElementById('analyticsPeriod').addEventListener('change', function() {
+                updateMonthlyChart();
+            });
+            
+            document.getElementById('bankChartType').addEventListener('change', function() {
+                updateBankChart();
+            });
+            
+            document.getElementById('monthlyChartType').addEventListener('change', function() {
+                updateMonthlyChart();
             });
             
             window.addEventListener('beforeinstallprompt', (e) => {
