@@ -30,7 +30,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
     
     <style>
         :root {
@@ -76,6 +75,14 @@
             /* Safe Areas */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            /* تصغير حجم الخطوط */
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-xxl: 20px;
         }
 
         /* الوضع الداكن */
@@ -120,13 +127,14 @@
             font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             background: var(--background-color);
             color: var(--text-primary);
-            line-height: 1.6;
+            line-height: 1.5;
             transition: background-color var(--transition-normal);
             min-height: 100vh;
             padding-top: var(--safe-top);
             padding-bottom: calc(80px + var(--safe-bottom));
             overflow-x: hidden;
             direction: rtl;
+            font-size: var(--font-size-md);
         }
 
         /* رأس التطبيق */
@@ -153,7 +161,7 @@
         }
 
         .app-title {
-            font-size: 18px;
+            font-size: var(--font-size-lg);
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -172,7 +180,7 @@
             bottom: 0;
             right: 0;
             left: 0;
-            height: 80px;
+            height: 70px;
             background: var(--surface-color);
             border-top: 1px solid var(--border-color);
             display: flex;
@@ -186,11 +194,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: var(--spacing-xs);
+            gap: 4px;
             color: var(--text-tertiary);
             text-decoration: none;
             transition: var(--transition-fast);
             position: relative;
+            font-size: var(--font-size-xs);
         }
 
         .nav-item.active {
@@ -198,30 +207,33 @@
         }
 
         .nav-item i {
-            font-size: 22px;
+            font-size: 20px;
         }
 
         .nav-label {
-            font-size: 11px;
+            font-size: var(--font-size-xs);
             font-weight: 500;
         }
 
         .nav-badge {
             position: absolute;
-            top: 12px;
-            left: 30px;
+            top: 10px;
+            left: 28px;
             background: var(--danger-color);
             color: white;
-            font-size: 10px;
-            padding: 2px 5px;
-            border-radius: 10px;
-            min-width: 16px;
-            text-align: center;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 8px;
+            min-width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* المحتوى الرئيسي */
         .main-content {
-            padding: calc(56px + var(--spacing-lg)) var(--spacing-md) var(--spacing-xl);
+            padding: calc(56px + var(--spacing-md)) var(--spacing-md) var(--spacing-lg);
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -235,20 +247,20 @@
         .welcome-section {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
-            padding: var(--spacing-lg);
+            padding: var(--spacing-md);
             border-radius: var(--radius-lg);
             margin-bottom: var(--spacing-md);
             text-align: right;
         }
 
         .welcome-title {
-            font-size: 24px;
+            font-size: var(--font-size-xl);
             font-weight: 700;
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 4px;
         }
 
         .welcome-subtitle {
-            font-size: 14px;
+            font-size: var(--font-size-sm);
             opacity: 0.9;
         }
 
@@ -264,11 +276,11 @@
             background: var(--card-color);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: var(--spacing-sm);
+            gap: 6px;
             transition: var(--transition-fast);
             cursor: pointer;
             text-align: center;
@@ -280,14 +292,14 @@
         }
 
         .quick-action-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .quick-action-btn:nth-child(1) .quick-action-icon {
@@ -307,7 +319,7 @@
         }
 
         .quick-action-label {
-            font-size: 12px;
+            font-size: var(--font-size-xs);
             font-weight: 500;
             color: var(--text-primary);
         }
@@ -316,7 +328,7 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: var(--spacing-md);
+            gap: var(--spacing-sm);
             margin-bottom: var(--spacing-lg);
         }
 
@@ -329,20 +341,20 @@
         .stat-card {
             background: var(--card-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            box-shadow: 0 2px 8px var(--shadow-color);
+            padding: var(--spacing-sm);
+            box-shadow: 0 2px 4px var(--shadow-color);
             text-align: center;
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: var(--font-size-lg);
             font-weight: 700;
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 4px;
             color: var(--primary-color);
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: var(--font-size-xs);
             color: var(--text-secondary);
             font-weight: 500;
         }
@@ -351,8 +363,8 @@
         .recent-section {
             background: var(--card-color);
             border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            box-shadow: 0 2px 8px var(--shadow-color);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
 
         .section-header {
@@ -363,13 +375,13 @@
         }
 
         .section-title {
-            font-size: 18px;
+            font-size: var(--font-size-lg);
             font-weight: 600;
         }
 
         .see-all-btn {
             color: var(--primary-color);
-            font-size: 14px;
+            font-size: var(--font-size-sm);
             font-weight: 500;
             text-decoration: none;
         }
@@ -377,20 +389,21 @@
         /* قائمة الشيكات */
         .check-list {
             display: grid;
-            gap: var(--spacing-sm);
+            gap: 8px;
         }
 
         .check-item {
             background: var(--surface-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: var(--spacing-sm);
             border-right: 4px solid var(--status-pending);
             transition: var(--transition-fast);
             cursor: pointer;
             position: relative;
+            font-size: var(--font-size-sm);
         }
 
         .check-item:active {
@@ -406,56 +419,61 @@
         }
 
         .check-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: var(--radius-md);
             background: var(--primary-color);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .check-info {
             flex: 1;
             text-align: right;
+            min-width: 0;
         }
 
         .check-name {
-            font-size: 14px;
+            font-size: var(--font-size-sm);
             font-weight: 600;
             margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .check-details {
-            font-size: 12px;
+            font-size: var(--font-size-xs);
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .check-amount {
             font-weight: 700;
             color: var(--text-primary);
+            font-size: var(--font-size-sm);
         }
 
         .duplicate-badge {
             position: absolute;
-            top: 8px;
-            left: 8px;
+            top: 6px;
+            left: 6px;
             background: var(--danger-color);
             color: white;
-            font-size: 10px;
+            font-size: 9px;
             padding: 2px 6px;
             border-radius: 4px;
             z-index: 1;
         }
 
         /* عرض جميع الشيكات */
-        .checks-view, .analytics-view {
+        .checks-view, .analytics-view, .recipients-view {
             display: grid;
             gap: var(--spacing-md);
         }
@@ -468,25 +486,25 @@
         }
 
         .view-title {
-            font-size: 20px;
+            font-size: var(--font-size-xl);
             font-weight: 700;
         }
 
         .view-controls {
             display: flex;
-            gap: var(--spacing-sm);
+            gap: 6px;
         }
 
         .filter-btn {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 8px 12px;
-            font-size: 14px;
+            padding: 6px 10px;
+            font-size: var(--font-size-sm);
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: var(--spacing-xs);
+            gap: 6px;
             cursor: pointer;
         }
 
@@ -498,11 +516,11 @@
 
         .search-input {
             width: 100%;
-            padding: 14px 48px 14px 16px;
+            padding: 12px 40px 12px 16px;
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            font-size: 16px;
+            font-size: var(--font-size-md);
             color: var(--text-primary);
             transition: var(--transition-fast);
             text-align: right;
@@ -520,32 +538,32 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-tertiary);
-            font-size: 16px;
+            font-size: 14px;
         }
 
         /* حالة فارغة */
         .empty-state {
             text-align: center;
-            padding: var(--spacing-xl) var(--spacing-md);
+            padding: var(--spacing-lg) var(--spacing-md);
             color: var(--text-tertiary);
         }
 
         .empty-icon {
-            font-size: 48px;
+            font-size: 40px;
             margin-bottom: var(--spacing-md);
             opacity: 0.5;
         }
 
         .empty-title {
-            font-size: 18px;
+            font-size: var(--font-size-lg);
             font-weight: 600;
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 4px;
             color: var(--text-primary);
         }
 
         .empty-description {
-            font-size: 14px;
-            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-md);
         }
 
         /* نظام النوافذ المنبثقة */
@@ -582,7 +600,7 @@
         }
 
         .modal-header {
-            padding: var(--spacing-lg);
+            padding: var(--spacing-md);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -590,13 +608,13 @@
         }
 
         .modal-title {
-            font-size: 20px;
+            font-size: var(--font-size-xl);
             font-weight: 700;
         }
 
         .modal-close {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -608,20 +626,20 @@
         }
 
         .modal-body {
-            padding: var(--spacing-lg);
+            padding: var(--spacing-md);
             overflow-y: auto;
             max-height: 60vh;
         }
 
         /* عناصر النموذج */
         .form-group {
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
         }
 
         .form-label {
             display: block;
-            margin-bottom: var(--spacing-xs);
-            font-size: 14px;
+            margin-bottom: 6px;
+            font-size: var(--font-size-sm);
             font-weight: 500;
             color: var(--text-primary);
             text-align: right;
@@ -629,11 +647,11 @@
 
         .form-input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 12px 14px;
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            font-size: 16px;
+            font-size: var(--font-size-md);
             color: var(--text-primary);
             transition: var(--transition-fast);
             text-align: right;
@@ -648,12 +666,12 @@
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-md);
+            gap: var(--spacing-sm);
         }
 
         .form-select {
             appearance: none;
-            background: var(--surface-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E") no-repeat left 16px center;
+            background: var(--surface-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E") no-repeat left 14px center;
             padding-left: 40px;
         }
 
@@ -662,10 +680,10 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: var(--spacing-sm);
-            padding: 14px 24px;
+            gap: 8px;
+            padding: 12px 20px;
             border-radius: var(--radius-md);
-            font-size: 16px;
+            font-size: var(--font-size-md);
             font-weight: 600;
             border: none;
             cursor: pointer;
@@ -699,8 +717,8 @@
         }
 
         .btn-sm {
-            padding: 8px 16px;
-            font-size: 14px;
+            padding: 8px 12px;
+            font-size: var(--font-size-sm);
         }
 
         /* علامات الحالة */
@@ -708,9 +726,9 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: var(--font-size-xs);
             font-weight: 600;
         }
 
@@ -779,8 +797,8 @@
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border: 3px solid var(--border-color);
             border-top-color: var(--primary-color);
             border-radius: 50%;
@@ -795,12 +813,12 @@
         /* مطالبة التثبيت */
         .install-prompt {
             position: fixed;
-            bottom: 90px;
+            bottom: 80px;
             right: var(--spacing-md);
             left: var(--spacing-md);
             background: var(--card-color);
             border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             box-shadow: 0 10px 40px var(--shadow-color);
             display: none;
             z-index: 1500;
@@ -815,19 +833,19 @@
         .install-content {
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: var(--spacing-sm);
         }
 
         .install-icon {
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-md);
             background: var(--primary-color);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
         }
 
         .install-text {
@@ -835,19 +853,19 @@
         }
 
         .install-title {
-            font-size: 16px;
+            font-size: var(--font-size-md);
             font-weight: 600;
             margin-bottom: 2px;
         }
 
         .install-description {
-            font-size: 14px;
+            font-size: var(--font-size-sm);
             color: var(--text-secondary);
         }
 
         .install-actions {
             display: flex;
-            gap: var(--spacing-sm);
+            gap: 6px;
         }
 
         /* شاشة البداية */
@@ -867,37 +885,37 @@
         }
 
         .splash-logo {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: white;
-            border-radius: 20px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
             animation: bounce 1s infinite alternate;
         }
 
         .splash-logo i {
-            font-size: 40px;
+            font-size: 32px;
             color: var(--primary-color);
         }
 
         .splash-title {
             color: white;
-            font-size: 24px;
+            font-size: var(--font-size-xl);
             font-weight: 700;
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 4px;
         }
 
         .splash-subtitle {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
+            font-size: var(--font-size-sm);
         }
 
         @keyframes bounce {
             from { transform: translateY(0); }
-            to { transform: translateY(-10px); }
+            to { transform: translateY(-8px); }
         }
 
         /* إخفاء شريط التمرير */
@@ -929,7 +947,7 @@
             background: var(--text-tertiary);
         }
 
-        /* التحديث */
+        /* التحديد */
         ::selection {
             background: var(--primary-color);
             color: white;
@@ -937,8 +955,8 @@
 
         /* الأزرار الصغيرة */
         .icon-button {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -948,6 +966,7 @@
             color: var(--text-primary);
             cursor: pointer;
             transition: var(--transition-fast);
+            font-size: 16px;
         }
 
         .icon-button:hover {
@@ -963,11 +982,11 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 6px 10px;
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: var(--radius-md);
-            font-size: 13px;
+            font-size: var(--font-size-xs);
             color: white;
             cursor: pointer;
         }
@@ -992,14 +1011,15 @@
         }
 
         .dropdown-item {
-            padding: 10px 16px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             cursor: pointer;
             transition: var(--transition-fast);
             border-bottom: 1px solid var(--border-color);
             text-align: right;
+            font-size: var(--font-size-sm);
         }
 
         .dropdown-item:last-child {
@@ -1021,19 +1041,19 @@
             border-radius: var(--radius-xl);
             width: 100%;
             max-width: 400px;
-            padding: var(--spacing-xl);
+            padding: var(--spacing-lg);
             text-align: center;
         }
 
         .login-title {
-            font-size: 24px;
+            font-size: var(--font-size-xl);
             font-weight: 700;
             margin-bottom: var(--spacing-md);
             color: var(--primary-color);
         }
 
         .login-subtitle {
-            font-size: 14px;
+            font-size: var(--font-size-sm);
             color: var(--text-secondary);
             margin-bottom: var(--spacing-lg);
         }
@@ -1044,10 +1064,10 @@
             top: 56px;
             right: 0;
             left: 0;
-            padding: 8px 16px;
+            padding: 8px 12px;
             background: var(--success-color);
             color: white;
-            font-size: 14px;
+            font-size: var(--font-size-sm);
             display: none;
             align-items: center;
             justify-content: center;
@@ -1081,16 +1101,18 @@
             justify-content: center;
             color: white;
             font-weight: 600;
+            font-size: var(--font-size-sm);
         }
 
         /* تنبيهات */
         .alert {
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             border-radius: var(--radius-md);
             margin-bottom: var(--spacing-md);
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
+            gap: 8px;
+            font-size: var(--font-size-sm);
         }
 
         .alert-danger {
@@ -1121,12 +1143,12 @@
         .analytics-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--spacing-md);
+            gap: var(--spacing-sm);
             grid-column: 1 / -1;
         }
 
         .stat-change {
-            font-size: 12px;
+            font-size: var(--font-size-xs);
             color: var(--success-color);
             display: flex;
             align-items: center;
@@ -1142,8 +1164,8 @@
         .chart-card {
             background: var(--card-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            box-shadow: 0 2px 8px var(--shadow-color);
+            padding: var(--spacing-sm);
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
 
         .chart-card.full-width {
@@ -1154,18 +1176,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
         }
 
         .chart-title {
-            font-size: 16px;
+            font-size: var(--font-size-md);
             font-weight: 600;
         }
 
         .chart-legend {
             display: flex;
-            gap: var(--spacing-md);
-            font-size: 12px;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xs);
         }
 
         .legend-item {
@@ -1182,8 +1204,8 @@
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
-            padding: 6px 12px;
-            font-size: 14px;
+            padding: 6px 10px;
+            font-size: var(--font-size-sm);
             color: var(--text-primary);
         }
 
@@ -1191,34 +1213,39 @@
         .table-card {
             background: var(--card-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            box-shadow: 0 2px 8px var(--shadow-color);
+            padding: var(--spacing-sm);
+            box-shadow: 0 2px 4px var(--shadow-color);
             grid-column: 1 / -1;
+            overflow-x: auto;
         }
 
         .table-container {
             overflow-x: auto;
+            font-size: var(--font-size-sm);
         }
 
         .analytics-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: var(--font-size-sm);
+            min-width: 600px;
         }
 
         .analytics-table th {
             background: var(--surface-color);
-            padding: 12px;
+            padding: 10px;
             text-align: right;
             font-weight: 600;
             color: var(--text-secondary);
             border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
         }
 
         .analytics-table td {
-            padding: 12px;
+            padding: 10px;
             text-align: right;
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
         }
 
         .analytics-table tr:hover {
@@ -1229,21 +1256,21 @@
         .summary-card {
             background: var(--card-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            box-shadow: 0 2px 8px var(--shadow-color);
+            padding: var(--spacing-sm);
+            box-shadow: 0 2px 4px var(--shadow-color);
             grid-column: 1 / -1;
         }
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--spacing-md);
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-sm);
         }
 
         .summary-item {
             background: var(--surface-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-md);
+            padding: var(--spacing-sm);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1252,13 +1279,13 @@
         }
 
         .summary-value {
-            font-size: 24px;
+            font-size: var(--font-size-lg);
             font-weight: 700;
             margin-bottom: 4px;
         }
 
         .summary-label {
-            font-size: 12px;
+            font-size: var(--font-size-xs);
             color: var(--text-secondary);
             font-weight: 500;
         }
@@ -1277,8 +1304,88 @@
 
         /* المخططات */
         canvas {
-            max-height: 300px;
+            max-height: 250px;
             width: 100% !important;
+        }
+
+        /* إشعارات داخل التطبيق */
+        .in-app-notification {
+            position: fixed;
+            top: 70px;
+            left: 16px;
+            right: 16px;
+            background: var(--warning-color);
+            color: white;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+        }
+
+        .in-app-notification i {
+            margin-left: 8px;
+        }
+
+        .in-app-notification button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        /* تحسينات للشاشات الصغيرة جداً */
+        @media (max-width: 480px) {
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .view-controls {
+                flex-wrap: wrap;
+            }
+            
+            .filter-btn {
+                padding: 4px 8px;
+                font-size: var(--font-size-xs);
+            }
+            
+            .check-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+        }
+
+        /* إضافة خطوط توجيهية */
+        .hint-text {
+            font-size: var(--font-size-xs);
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        /* زر الحذف السريع */
+        .quick-delete-btn {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 2;
         }
     </style>
 </head>
@@ -1442,6 +1549,10 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>فحص التكرار</span>
                     </button>
+                    <button class="filter-btn" onclick="openDeleteAllModal()">
+                        <i class="fas fa-trash"></i>
+                        <span>حذف الكل</span>
+                    </button>
                 </div>
             </div>
 
@@ -1452,6 +1563,28 @@
 
             <div class="check-list" id="allChecksList">
                 <!-- جميع الشيكات سيتم تحميلها هنا -->
+            </div>
+        </div>
+
+        <!-- عرض المستلمين -->
+        <div class="recipients-view" id="recipientsView" style="display: none;">
+            <div class="view-header">
+                <div class="view-title">المستلمين</div>
+                <div class="view-controls">
+                    <button class="filter-btn" onclick="exportAllRecipientsReport()">
+                        <i class="fas fa-download"></i>
+                        <span>تصدير الكل</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="recipientSearch" placeholder="بحث في المستلمين...">
+            </div>
+
+            <div class="check-list" id="recipientsList">
+                <!-- المستلمين سيتم تحميلهم هنا -->
             </div>
         </div>
 
@@ -1624,6 +1757,10 @@
             <span class="nav-label">الشيكات</span>
             <span class="nav-badge" id="checksBadge">0</span>
         </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showRecipients()">
+            <i class="fas fa-users"></i>
+            <span class="nav-label">المستلمين</span>
+        </a>
         <a href="javascript:void(0)" class="nav-item" onclick="showAnalytics()">
             <i class="fas fa-chart-bar"></i>
             <span class="nav-label">إحصائيات</span>
@@ -1634,7 +1771,7 @@
         </a>
     </nav>
 
-    <!-- نوافذ التطبيق تبدأ هنا -->
+    <!-- نوافذ التطبيق -->
     <!-- نافذة تسجيل الدخول -->
     <div class="modal-overlay" id="loginModal" style="display: flex;">
         <div class="login-modal">
@@ -1649,7 +1786,7 @@
                 <input type="password" class="form-input" id="userPassword" placeholder="كلمة المرور (اختياري)" value="password123">
             </div>
             
-            <div class="form-group" style="text-align: left; font-size: 14px; color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+            <div class="form-group" style="text-align: left; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="checkbox" id="rememberMe" checked>
                     <span>تذكرني</span>
@@ -1661,7 +1798,7 @@
                 تسجيل الدخول
             </button>
             
-            <div style="margin-top: var(--spacing-lg); font-size: 12px; color: var(--text-tertiary);">
+            <div style="margin-top: var(--spacing-md); font-size: var(--font-size-xs); color: var(--text-tertiary);">
                 سيتم إنشاء حساب تلقائياً إذا كان أول استخدام
             </div>
         </div>
@@ -1735,7 +1872,7 @@
 
                     <div class="form-group">
                         <label class="form-label" for="notes">ملاحظات</label>
-                        <textarea class="form-input" id="notes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+                        <textarea class="form-input" id="notes" rows="2" placeholder="ملاحظات إضافية..."></textarea>
                     </div>
 
                     <div id="duplicateAlert" style="display: none;" class="alert alert-danger">
@@ -1752,7 +1889,6 @@
         </div>
     </div>
 
-    <!-- نوافذ أخرى (استيراد Excel، الإعدادات، التصفية) -->
     <!-- نافذة استيراد Excel -->
     <div class="modal-overlay" id="importExcelModal">
         <div class="modal">
@@ -1766,14 +1902,14 @@
                 <div class="form-group">
                     <label class="form-label" for="excelFile">اختر ملف Excel</label>
                     <input type="file" class="form-input" id="excelFile" accept=".xlsx,.xls,.csv">
-                    <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 8px;">
+                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px;">
                         يدعم: .xlsx, .xls, .csv
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">خيارات الاستيراد</label>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <input type="checkbox" id="skipFirstRow" checked>
                             <span>تجاهل الصف الأول (العناوين)</span>
@@ -1790,7 +1926,7 @@
                 </div>
 
                 <div class="form-group">
-                    <div id="importPreview" style="max-height: 200px; overflow-y: auto; background: var(--surface-color); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; display: none;">
+                    <div id="importPreview" style="max-height: 150px; overflow-y: auto; background: var(--surface-color); border-radius: var(--radius-sm); padding: 8px; font-size: var(--font-size-xs); display: none;">
                         <div id="previewContent"></div>
                     </div>
                 </div>
@@ -1806,9 +1942,9 @@
                     </button>
                 </div>
 
-                <div style="margin-top: 16px; padding: 12px; background: var(--surface-color); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary);">
+                <div style="margin-top: var(--spacing-md); padding: 8px; background: var(--surface-color); border-radius: var(--radius-sm); font-size: var(--font-size-xs); color: var(--text-secondary);">
                     <strong>تعليمات الاستيراد:</strong>
-                    <ul style="margin-top: 8px; padding-right: 16px;">
+                    <ul style="margin-top: 4px; padding-right: 12px;">
                         <li><strong>Nom du client</strong> → سيصبح <strong>اسم الشيك</strong></li>
                         <li><strong>Fournisseur</strong> → سيصبح <strong>المستلم</strong></li>
                         <li><strong>REMARQUE</strong> → سيصبح <strong>المعطي</strong></li>
@@ -1861,6 +1997,24 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">إشعارات الاستحقاق</label>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="notifyTwoDays" checked>
+                            <span>إشعار قبل يومين</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="notifyDueDate" checked>
+                            <span>إشعار في يوم الاستحقاق</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="notifyOverdue" checked>
+                            <span>إشعارات التأخير</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <button class="btn btn-secondary" onclick="checkForDuplicates()">
                         <i class="fas fa-exclamation-triangle"></i>
                         فحص الشيكات المكررة
@@ -1892,6 +2046,13 @@
                     <button class="btn btn-secondary" onclick="syncData()">
                         <i class="fas fa-sync-alt"></i>
                         مزامنة البيانات
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-danger" onclick="openDeleteAllModal()">
+                        <i class="fas fa-trash"></i>
+                        حذف جميع الشيكات
                     </button>
                 </div>
 
@@ -1994,6 +2155,7 @@
         let excelData = [];
         let activeFilters = {};
         let duplicateReport = null;
+        let notificationsEnabled = true;
         
         // متغيرات المخططات
         let statusChart = null;
@@ -2091,6 +2253,7 @@
             loadData();
             updateUI();
             setupEventListeners();
+            setupNotifications();
             checkPWAInstallation();
             
             showNotification('تم تسجيل الدخول بنجاح');
@@ -2254,6 +2417,8 @@
                         await saveCheckToDatabase(action.data);
                     } else if (action.type === 'delete') {
                         await deleteCheckFromDatabase(action.checkId);
+                    } else if (action.type === 'delete_all') {
+                        await database.ref('users/' + currentUserId + '/checks').remove();
                     }
                 } catch (error) {
                     failedSyncs.push(action);
@@ -2438,20 +2603,20 @@
             
             duplicateReport.forEach((report, index) => {
                 modalContent += `
-                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); background: var(--surface-color); border-radius: var(--radius-md);">
-                        <div style="font-weight: 600; margin-bottom: var(--spacing-sm);">
+                    <div style="margin-bottom: var(--spacing-md); padding: var(--spacing-sm); background: var(--surface-color); border-radius: var(--radius-md);">
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-sm); font-size: var(--font-size-sm);">
                             ${index + 1}. رقم الشيك: ${report.number} (${report.count} نسخة)
                         </div>
-                        <div style="font-size: 14px; margin-bottom: var(--spacing-sm);">
+                        <div style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-sm);">
                             <strong>النسخ المتاحة:</strong>
                         </div>
                 `;
                 
                 report.checks.forEach((check, i) => {
                     modalContent += `
-                        <div style="padding: var(--spacing-sm); margin-bottom: 4px; background: var(--card-color); border-radius: var(--radius-sm);">
+                        <div style="padding: 8px; margin-bottom: 4px; background: var(--card-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm);">
                             <div><strong>${i + 1}. ${check.name}</strong></div>
-                            <div style="font-size: 12px; color: var(--text-secondary);">
+                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">
                                 ${formatCurrency(check.amount)} | ${check.bank} | ${formatDate(check.date)}
                             </div>
                         </div>
@@ -2460,11 +2625,11 @@
                 
                 modalContent += `
                         <div style="margin-top: var(--spacing-sm);">
-                            <button class="btn btn-secondary" onclick="mergeDuplicate('${report.number}')" style="font-size: 12px; padding: 8px 12px;">
+                            <button class="btn btn-secondary" onclick="mergeDuplicate('${report.number}')" style="font-size: var(--font-size-xs); padding: 6px 10px;">
                                 <i class="fas fa-compress-alt"></i>
                                 دمج هذه النسخ
                             </button>
-                            <button class="btn btn-danger" onclick="deleteDuplicates('${report.number}')" style="font-size: 12px; padding: 8px 12px; margin-top: 4px;">
+                            <button class="btn btn-danger" onclick="deleteDuplicates('${report.number}')" style="font-size: var(--font-size-xs); padding: 6px 10px; margin-top: 4px;">
                                 <i class="fas fa-trash"></i>
                                 حذف جميع النسخ
                             </button>
@@ -2474,7 +2639,7 @@
             });
             
             modalContent += `
-                        <div style="margin-top: var(--spacing-lg);">
+                        <div style="margin-top: var(--spacing-md);">
                             <button class="btn btn-primary" onclick="exportDuplicateReport()">
                                 <i class="fas fa-download"></i>
                                 تصدير تقرير التكرار
@@ -2542,6 +2707,7 @@
             currentView = 'analytics';
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('recipientsView').style.display = 'none';
             document.getElementById('analyticsView').style.display = 'block';
             document.getElementById('pageTitle').textContent = 'الإحصائيات';
             updateNav('stats');
@@ -3044,11 +3210,566 @@
             showNotification('تم تصدير تقرير المخاطر');
         }
 
-        // بقية الدوال الأساسية
+        // دوال المستلمين
+        function showRecipients() {
+            currentView = 'recipients';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('analyticsView').style.display = 'none';
+            document.getElementById('recipientsView').style.display = 'grid';
+            document.getElementById('pageTitle').textContent = 'المستلمين';
+            updateNav('recipients');
+            updateRecipientsList();
+        }
+
+        function updateRecipientsList() {
+            const container = document.getElementById('recipientsList');
+            const searchTerm = document.getElementById('recipientSearch') ? document.getElementById('recipientSearch').value.toLowerCase() : '';
+            
+            // تجميع البيانات حسب المستلم
+            const recipientsData = {};
+            
+            checks.forEach(check => {
+                const recipient = check.recipient || 'غير محدد';
+                if (!recipientsData[recipient]) {
+                    recipientsData[recipient] = {
+                        checks: [],
+                        totalAmount: 0,
+                        pendingCount: 0,
+                        clearedCount: 0
+                    };
+                }
+                
+                recipientsData[recipient].checks.push(check);
+                recipientsData[recipient].totalAmount += check.amount || 0;
+                
+                if (check.status === 'pending') {
+                    recipientsData[recipient].pendingCount++;
+                } else if (check.status === 'cleared') {
+                    recipientsData[recipient].clearedCount++;
+                }
+            });
+            
+            // تحويل إلى مصفوفة وترتيب حسب المبلغ
+            let recipientsArray = Object.entries(recipientsData).map(([name, data]) => ({
+                name,
+                ...data
+            })).sort((a, b) => b.totalAmount - a.totalAmount);
+            
+            // تطبيق البحث
+            if (searchTerm) {
+                recipientsArray = recipientsArray.filter(recipient => 
+                    recipient.name.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (recipientsArray.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="empty-title">لا توجد مستلمين</div>
+                        <div class="empty-description">${searchTerm ? 'جرب بحثاً آخر' : 'أضف شيكات أولاً'}</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = recipientsArray.map(recipient => `
+                <div class="check-item fade-in" onclick="showRecipientDetails('${recipient.name.replace(/'/g, "\\'")}')">
+                    <div class="check-icon" style="background: var(--secondary-color);">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="check-info">
+                        <div class="check-name">${recipient.name}</div>
+                        <div class="check-details">
+                            <span><i class="fas fa-receipt"></i> ${recipient.checks.length} شيك</span>
+                            <span class="check-amount">${formatCurrency(recipient.totalAmount)}</span>
+                            <span class="status-badge status-pending-badge">${recipient.pendingCount} معلق</span>
+                            <span class="status-badge status-cleared-badge">${recipient.clearedCount} منفذ</span>
+                        </div>
+                    </div>
+                    <div class="icon-button" onclick="event.stopPropagation(); exportRecipientReport('${recipient.name.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-download"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showRecipientDetails(recipientName) {
+            const recipientChecks = checks.filter(check => check.recipient === recipientName);
+            const totalAmount = recipientChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const pendingChecks = recipientChecks.filter(c => c.status === 'pending');
+            const pendingAmount = pendingChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const clearedChecks = recipientChecks.filter(c => c.status === 'cleared');
+            const clearedAmount = clearedChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            
+            let modalContent = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-title">تفاصيل المستلم: ${recipientName}</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                <div class="stat-card">
+                                    <div class="stat-value">${recipientChecks.length}</div>
+                                    <div class="stat-label">عدد الشيكات</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${formatCurrency(totalAmount)}</div>
+                                    <div class="stat-label">إجمالي المبلغ</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${pendingChecks.length}</div>
+                                    <div class="stat-label">معلقة</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${formatCurrency(pendingAmount)}</div>
+                                    <div class="stat-label">مبلغ معلق</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${clearedChecks.length}</div>
+                                    <div class="stat-label">منفذة</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${formatCurrency(clearedAmount)}</div>
+                                    <div class="stat-label">مبلغ منفذ</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="section-header">
+                            <div class="section-title">شيكات ${recipientName}</div>
+                        </div>
+                        
+                        <div style="max-height: 300px; overflow-y: auto;">
+            `;
+            
+            recipientChecks.forEach(check => {
+                const statusBadge = check.status === 'pending' ? 
+                    '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
+                    check.status === 'cleared' ?
+                    '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
+                    '<span class="status-badge status-bounced-badge">مرتجع</span>';
+                
+                modalContent += `
+                    <div class="check-item" style="margin-bottom: 8px;" onclick="editCheck('${check.id}'); closeModal();">
+                        <div class="check-info">
+                            <div class="check-name">${check.name}</div>
+                            <div class="check-details">
+                                <span>${check.number}</span>
+                                <span class="check-amount">${formatCurrency(check.amount)}</span>
+                                ${statusBadge}
+                                <span>${formatDate(check.dueDate)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modalContent += `
+                        </div>
+                        
+                        <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm);">
+                            <button class="btn btn-secondary" onclick="exportRecipientReport('${recipientName.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-download"></i>
+                                تصدير تقرير
+                            </button>
+                            <button class="btn btn-primary" onclick="sendReminderToRecipient('${recipientName.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-bell"></i>
+                                إرسال تذكير
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = modalContent;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
+        function exportRecipientReport(recipientName) {
+            const recipientChecks = checks.filter(check => check.recipient === recipientName);
+            
+            const report = {
+                recipient: recipientName,
+                exportDate: new Date().toISOString(),
+                totalChecks: recipientChecks.length,
+                totalAmount: recipientChecks.reduce((sum, c) => sum + (c.amount || 0), 0),
+                checks: recipientChecks.map(check => ({
+                    number: check.number,
+                    name: check.name,
+                    amount: check.amount,
+                    status: check.status,
+                    issueDate: check.issueDate,
+                    dueDate: check.dueDate,
+                    bank: check.bank,
+                    issuer: check.issuer
+                }))
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `تقرير-${recipientName}-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير تقرير المستلم');
+        }
+
+        function sendReminderToRecipient(recipientName) {
+            const recipientChecks = checks.filter(check => 
+                check.recipient === recipientName && 
+                check.status === 'pending'
+            );
+            
+            if (recipientChecks.length === 0) {
+                alert('لا توجد شيكات معلقة لهذا المستلم');
+                return;
+            }
+            
+            let message = `تذكير للمستلم ${recipientName}:\n\n`;
+            message += `لديك ${recipientChecks.length} شيك معلق:\n\n`;
+            
+            recipientChecks.forEach((check, index) => {
+                const daysUntilDue = check.dueDate ? 
+                    Math.ceil((new Date(check.dueDate) - new Date()) / (1000 * 60 * 60 * 24)) : 
+                    'غير محدد';
+                
+                message += `${index + 1}. ${check.number} - ${formatCurrency(check.amount)}\n`;
+                message += `   تاريخ الاستحقاق: ${formatDate(check.dueDate)}`;
+                if (daysUntilDue !== 'غير محدد') {
+                    message += ` (${daysUntilDue > 0 ? `بعد ${daysUntilDue} يوم` : 'متأخر'})`;
+                }
+                message += '\n\n';
+            });
+            
+            alert(message);
+            showNotification('تم إنشاء رسالة التذكير');
+        }
+
+        function exportAllRecipientsReport() {
+            const recipientsData = {};
+            
+            checks.forEach(check => {
+                const recipient = check.recipient || 'غير محدد';
+                if (!recipientsData[recipient]) {
+                    recipientsData[recipient] = {
+                        checks: [],
+                        totalAmount: 0,
+                        pendingCount: 0,
+                        clearedCount: 0
+                    };
+                }
+                
+                recipientsData[recipient].checks.push(check);
+                recipientsData[recipient].totalAmount += check.amount || 0;
+                
+                if (check.status === 'pending') {
+                    recipientsData[recipient].pendingCount++;
+                } else if (check.status === 'cleared') {
+                    recipientsData[recipient].clearedCount++;
+                }
+            });
+            
+            const report = {
+                exportDate: new Date().toISOString(),
+                totalRecipients: Object.keys(recipientsData).length,
+                recipients: Object.entries(recipientsData).map(([name, data]) => ({
+                    name,
+                    totalChecks: data.checks.length,
+                    totalAmount: data.totalAmount,
+                    pendingCount: data.pendingCount,
+                    clearedCount: data.clearedCount,
+                    checks: data.checks.map(c => ({
+                        number: c.number,
+                        name: c.name,
+                        amount: c.amount,
+                        status: c.status,
+                        dueDate: c.dueDate
+                    }))
+                }))
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `جميع-المستلمين-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير تقرير جميع المستلمين');
+        }
+
+        // دوال حذف جميع الشيكات
+        function openDeleteAllModal() {
+            if (checks.length === 0) {
+                alert('لا توجد شيكات لحذفها');
+                return;
+            }
+            
+            let modalContent = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-title">حذف جميع الشيكات</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه</span>
+                        </div>
+                        
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div class="stat-card" style="background: var(--surface-color);">
+                                <div class="stat-value">${checks.length}</div>
+                                <div class="stat-label">عدد الشيكات</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">السبب (اختياري)</label>
+                            <input type="text" class="form-input" id="deleteReason" placeholder="سبب الحذف...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="confirmDelete" onchange="document.getElementById('deleteAllBtn').disabled = !this.checked">
+                                <span style="color: var(--danger-color);">أؤكد أنني أريد حذف جميع الشيكات</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="exportBeforeDelete">
+                                <span>تصدير نسخة احتياطية قبل الحذف</span>
+                            </label>
+                        </div>
+                        
+                        <button id="deleteAllBtn" class="btn btn-danger" onclick="deleteAllChecks()" disabled>
+                            <i class="fas fa-trash"></i>
+                            حذف جميع الشيكات
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="closeModal()" style="margin-top: var(--spacing-sm);">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = modalContent;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
+        function deleteAllChecks() {
+            const exportBeforeDelete = document.getElementById('exportBeforeDelete').checked;
+            const deleteReason = document.getElementById('deleteReason').value;
+            
+            if (exportBeforeDelete) {
+                exportData();
+            }
+            
+            // تسجيل عملية الحذف
+            const deleteLog = {
+                timestamp: new Date().toISOString(),
+                userId: currentUserId,
+                totalChecks: checks.length,
+                totalAmount: checks.reduce((sum, c) => sum + (c.amount || 0), 0),
+                reason: deleteReason || 'لا يوجد',
+                deletedChecks: checks.map(c => ({
+                    id: c.id,
+                    number: c.number,
+                    name: c.name,
+                    amount: c.amount
+                }))
+            };
+            
+            // حفظ سجل الحذف
+            const deleteLogs = JSON.parse(localStorage.getItem('checkflow_delete_logs') || '[]');
+            deleteLogs.push(deleteLog);
+            localStorage.setItem('checkflow_delete_logs', JSON.stringify(deleteLogs));
+            
+            // حذف جميع الشيكات
+            checks = [];
+            saveChecksLocally();
+            
+            // حذف من Firebase إذا كان متصلاً
+            if (isOnline && database && currentUserId) {
+                database.ref('users/' + currentUserId + '/checks').remove()
+                    .then(() => {
+                        showSyncStatus('تم حذف جميع الشيكات من السحابة', 'success');
+                    })
+                    .catch(error => {
+                        console.error('Error deleting from Firebase:', error);
+                        pendingSync.push({ type: 'delete_all' });
+                    });
+            } else {
+                pendingSync.push({ type: 'delete_all' });
+            }
+            
+            closeModal();
+            updateUI();
+            showNotification('تم حذف جميع الشيكات');
+        }
+
+        // نظام الإشعارات
+        function setupNotifications() {
+            // التحقق من الإشعارات كل ساعة
+            setInterval(checkDueDateNotifications, 60 * 60 * 1000);
+            
+            // التحقق فور التحميل
+            setTimeout(checkDueDateNotifications, 5000);
+            
+            // تحميل إعدادات الإشعارات
+            loadNotificationSettings();
+        }
+
+        function loadNotificationSettings() {
+            const notifyTwoDays = localStorage.getItem('notifyTwoDays') !== 'false';
+            const notifyDueDate = localStorage.getItem('notifyDueDate') !== 'false';
+            const notifyOverdue = localStorage.getItem('notifyOverdue') !== 'false';
+            
+            document.getElementById('notifyTwoDays').checked = notifyTwoDays;
+            document.getElementById('notifyDueDate').checked = notifyDueDate;
+            document.getElementById('notifyOverdue').checked = notifyOverdue;
+        }
+
+        function saveNotificationSettings() {
+            const notifyTwoDays = document.getElementById('notifyTwoDays').checked;
+            const notifyDueDate = document.getElementById('notifyDueDate').checked;
+            const notifyOverdue = document.getElementById('notifyOverdue').checked;
+            
+            localStorage.setItem('notifyTwoDays', notifyTwoDays);
+            localStorage.setItem('notifyDueDate', notifyDueDate);
+            localStorage.setItem('notifyOverdue', notifyOverdue);
+        }
+
+        function checkDueDateNotifications() {
+            if (!notificationsEnabled) return;
+            
+            const today = new Date();
+            const notifyTwoDays = document.getElementById('notifyTwoDays').checked;
+            const notifyDueDate = document.getElementById('notifyDueDate').checked;
+            const notifyOverdue = document.getElementById('notifyOverdue').checked;
+            
+            const notifications = [];
+            
+            checks.forEach(check => {
+                if (check.status !== 'pending' || !check.dueDate) return;
+                
+                const dueDate = new Date(check.dueDate);
+                const daysDifference = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                
+                // إشعار قبل يومين
+                if (daysDifference === 2 && notifyTwoDays) {
+                    notifications.push({
+                        type: 'two_days_before',
+                        check: check,
+                        message: `شيك ${check.number} مستحق بعد يومين (${formatDate(check.dueDate)})`
+                    });
+                }
+                
+                // إشعار في اليوم الأخير
+                if (daysDifference === 0 && notifyDueDate) {
+                    notifications.push({
+                        type: 'due_today',
+                        check: check,
+                        message: `شيك ${check.number} مستحق اليوم!`
+                    });
+                }
+                
+                // إشعار إذا تأخر
+                if (daysDifference < 0 && notifyOverdue) {
+                    notifications.push({
+                        type: 'overdue',
+                        check: check,
+                        message: `شيك ${check.number} تأخر ${Math.abs(daysDifference)} يوم`
+                    });
+                }
+            });
+            
+            // عرض الإشعارات
+            notifications.forEach(notification => {
+                // إشعارات النظام
+                if (Notification.permission === 'granted') {
+                    new Notification('تذكير بالشيكات', {
+                        body: notification.message,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                        tag: 'check_reminder'
+                    });
+                }
+                
+                // عرض في الواجهة أيضاً
+                showInAppNotification(notification.message);
+            });
+        }
+
+        function showInAppNotification(message) {
+            // إزالة الإشعارات القديمة
+            const oldNotifications = document.querySelectorAll('.in-app-notification');
+            oldNotifications.forEach(notification => notification.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = 'in-app-notification';
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-bell"></i>
+                    <span>${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // إزالة تلقائية بعد 10 ثواني
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 10000);
+        }
+
+        // دوال العرض الرئيسية
         function showDashboard() {
             currentView = 'dashboard';
             document.getElementById('dashboardView').style.display = 'grid';
             document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('recipientsView').style.display = 'none';
             document.getElementById('analyticsView').style.display = 'none';
             document.getElementById('pageTitle').textContent = 'لوحة التحكم';
             updateNav('home');
@@ -3060,6 +3781,7 @@
             currentView = 'allChecks';
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('allChecksView').style.display = 'grid';
+            document.getElementById('recipientsView').style.display = 'none';
             document.getElementById('analyticsView').style.display = 'none';
             document.getElementById('pageTitle').textContent = 'جميع الشيكات';
             updateNav('checks');
@@ -3082,8 +3804,10 @@
                 item.classList.remove('active');
             });
             
-            const navIndex = ['home', 'checks', 'stats', 'settings'].indexOf(active);
-            document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            const navIndex = ['home', 'checks', 'recipients', 'stats', 'settings'].indexOf(active);
+            if (navIndex >= 0) {
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
         }
 
         // إدارة الشيكات
@@ -3187,10 +3911,8 @@
             updateUI();
             showNotification(isEdit ? 'تم تحديث الشيك' : 'تم إضافة الشيك');
             
-            // عرض لوحة التحكم بعد الإضافة
-            if (!isEdit) {
-                setTimeout(() => showDashboard(), 500);
-            }
+            // التحقق من الإشعارات بعد إضافة شيك جديد
+            setTimeout(checkDueDateNotifications, 1000);
         }
 
         async function deleteCheck(checkId) {
@@ -3241,6 +3963,11 @@
             // تحديث الإحصائيات إذا كانت الصفحة مفتوحة
             if (currentView === 'analytics') {
                 updateAnalytics();
+            }
+            
+            // تحديث المستلمين إذا كانت الصفحة مفتوحة
+            if (currentView === 'recipients') {
+                updateRecipientsList();
             }
         }
 
@@ -3561,7 +4288,7 @@
 
         // دوال الإعدادات
         function showAbout() {
-            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n© 2024 جميع الحقوق محفوظة');
+            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n© 2024 جميع الحقوق محفوظة');
         }
 
         // تصدير البيانات
@@ -3846,7 +4573,7 @@
                         <div style="margin-bottom: 8px;">
                             <strong>التعيين التلقائي:</strong>
                         </div>
-                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">
+                        <div style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 12px;">
                             <div>Nom du client ← اسم الشيك</div>
                             <div>Fournisseur ← المستلم</div>
                             <div>REMARQUE ← المعطي</div>
@@ -3862,7 +4589,7 @@
                     const sampleRows = excelData.slice(0, 3);
                     sampleRows.forEach((row, index) => {
                         previewContent.innerHTML += `
-                            <div style="padding: 8px; margin-top: 4px; background: var(--card-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                            <div style="padding: 8px; margin-top: 4px; background: var(--card-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-sm);">
                                 <div><strong>الصف ${index + 1}:</strong></div>
                                 <div><strong>اسم الشيك:</strong> ${row.client || 'غير محدد'}</div>
                                 <div><strong>المبلغ:</strong> ${row.amount || 'غير محدد'}</div>
@@ -4032,6 +4759,8 @@
             
             document.getElementById('searchInput').addEventListener('input', updateAllChecks);
             
+            document.getElementById('recipientSearch').addEventListener('input', updateRecipientsList);
+            
             document.getElementById('themeSelect').addEventListener('change', function() {
                 localStorage.setItem('theme', this.value);
                 applyTheme(this.value);
@@ -4048,6 +4777,11 @@
                 localStorage.setItem('language', this.value);
                 location.reload();
             });
+            
+            // حفظ إعدادات الإشعارات
+            document.getElementById('notifyTwoDays').addEventListener('change', saveNotificationSettings);
+            document.getElementById('notifyDueDate').addEventListener('change', saveNotificationSettings);
+            document.getElementById('notifyOverdue').addEventListener('change', saveNotificationSettings);
             
             document.getElementById('excelFile').addEventListener('change', function() {
                 document.getElementById('importPreview').style.display = 'none';
