@@ -5969,6 +5969,462 @@
             link.href = url;
             document.head.appendChild(link);
         });
+
+        // دوال جديدة لعرض تفاصيل المعطي وتحميل PDF
+        function showIssuerDetails(issuerName) {
+            currentView = 'issuerDetails';
+            
+            // إنشاء نافذة منبثقة لعرض شيكات المعطي
+            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+            
+            let modalContent = `
+                <div class="modal" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <i class="fas fa-hand-holding-usd"></i>
+                            جميع الشيكات الصادرة من: ${issuerName}
+                        </div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                            <div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    إجمالي الشيكات: <strong>${issuerChecks.length}</strong>
+                                </div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    إجمالي المبلغ: <strong>${formatCurrency(issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0))}</strong>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="downloadIssuerPDF('${issuerName.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-download"></i>
+                                تحميل PDF
+                            </button>
+                        </div>
+            `;
+            
+            if (issuerChecks.length === 0) {
+                modalContent += `
+                    <div class="empty-state" style="padding: 40px 0;">
+                        <div class="empty-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="empty-title">لا توجد شيكات</div>
+                        <div class="empty-description">لم يصدر هذا المعطي أي شيكات بعد</div>
+                    </div>
+                `;
+            } else {
+                // إحصائيات سريعة
+                const stats = {
+                    pending: issuerChecks.filter(c => c.status === 'pending').length,
+                    cleared: issuerChecks.filter(c => c.status === 'cleared').length,
+                    bounced: issuerChecks.filter(c => c.status === 'bounced').length,
+                    totalAmount: issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+                    avgAmount: issuerChecks.length > 0 ? 
+                        issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0) / issuerChecks.length : 0
+                };
+                
+                modalContent += `
+                    <div class="stats-grid" style="margin-bottom: var(--spacing-md);">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--warning-color);">${stats.pending}</div>
+                            <div class="stat-label">قيد الانتظار</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--success-color);">${stats.cleared}</div>
+                            <div class="stat-label">تم الصرف</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--danger-color);">${stats.bounced}</div>
+                            <div class="stat-label">مرتجعة</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${formatCurrency(stats.avgAmount)}</div>
+                            <div class="stat-label">متوسط المبلغ</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table class="analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الشيك</th>
+                                    <th>اسم الشيك</th>
+                                    <th>المبلغ</th>
+                                    <th>المستلم</th>
+                                    <th>البنك</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ الإصدار</th>
+                                    <th>تاريخ الاستحقاق</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                issuerChecks.sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate))
+                    .forEach(check => {
+                        const statusBadge = check.status === 'pending' ? 
+                            '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
+                            check.status === 'cleared' ?
+                            '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
+                            '<span class="status-badge status-bounced-badge">مرتجع</span>';
+                        
+                        modalContent += `
+                            <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
+                                <td>${check.number}</td>
+                                <td>${check.name}</td>
+                                <td>${formatCurrency(check.amount)}</td>
+                                <td>${check.recipient}</td>
+                                <td>${check.bank}</td>
+                                <td>${statusBadge}</td>
+                                <td>${formatDate(check.issueDate)}</td>
+                                <td>${check.dueDate ? formatDate(check.dueDate) : '-'}</td>
+                            </tr>
+                        `;
+                    });
+                
+                modalContent += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            modalContent += `
+                        <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                            <button class="btn btn-secondary" onclick="exportIssuerChecksExcel('${issuerName.replace(/'/g, "\\'")}')" style="margin-right: var(--spacing-sm);">
+                                <i class="fas fa-file-excel"></i>
+                                تصدير Excel
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportIssuerChecksJSON('${issuerName.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-file-code"></i>
+                                تصدير JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = modalContent;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
+        // دالة لتحميل PDF لشيكات معطي معين
+        async function downloadIssuerPDF(issuerName) {
+            try {
+                const issuerChecks = checks.filter(check => check.issuer === issuerName);
+                
+                if (issuerChecks.length === 0) {
+                    alert('لا توجد شيكات لتحميلها');
+                    return;
+                }
+                
+                showNotification('جاري إنشاء تقرير PDF...');
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // بيانات التقرير
+                const totalAmount = issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+                const pendingCount = issuerChecks.filter(c => c.status === 'pending').length;
+                const clearedCount = issuerChecks.filter(c => c.status === 'cleared').length;
+                const bouncedCount = issuerChecks.filter(c => c.status === 'bounced').length;
+                
+                // الصفحة الأولى: غلاف
+                doc.setFillColor(51, 126, 169);
+                doc.rect(0, 0, 210, 297, 'F');
+                
+                doc.setFillColor(255, 255, 255);
+                doc.rect(20, 50, 170, 180, 'F');
+                
+                doc.setFontSize(32);
+                doc.setTextColor(51, 126, 169);
+                doc.setFont('helvetica', 'bold');
+                doc.text('تقرير الشيكات', 105, 90, { align: 'center' });
+                
+                doc.setFontSize(24);
+                doc.setTextColor(30, 30, 30);
+                doc.text('الصادرة من', 105, 110, { align: 'center' });
+                
+                doc.setFontSize(20);
+                doc.text(issuerName, 105, 130, { align: 'center' });
+                
+                doc.setFontSize(14);
+                doc.setTextColor(100, 100, 100);
+                const dateText = `تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}`;
+                doc.text(dateText, 105, 160, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text(`${issuerChecks.length} شيك | ${formatCurrency(totalAmount)}`, 105, 175, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.setTextColor(150, 150, 150);
+                doc.text('CheckFlow Pro', 105, 280, { align: 'center' });
+                
+                // الصفحة الثانية: ملخص
+                doc.addPage();
+                
+                doc.setFontSize(18);
+                doc.setTextColor(51, 126, 169);
+                doc.text('ملخص الإحصائيات', 20, 20);
+                
+                doc.setDrawColor(51, 126, 169);
+                doc.setLineWidth(0.5);
+                doc.line(20, 25, 190, 25);
+                
+                // جدول الإحصائيات
+                const summaryData = [
+                    ['إجمالي الشيكات', issuerChecks.length.toString()],
+                    ['إجمالي المبلغ', formatCurrency(totalAmount)],
+                    ['الشيكات المعلقة', pendingCount.toString()],
+                    ['الشيكات المنفذة', clearedCount.toString()],
+                    ['الشيكات المرتجعة', bouncedCount.toString()],
+                    ['متوسط المبلغ', formatCurrency(totalAmount / issuerChecks.length)],
+                    ['أعلى مبلغ', formatCurrency(Math.max(...issuerChecks.map(c => c.amount)))],
+                    ['أقل مبلغ', formatCurrency(Math.min(...issuerChecks.map(c => c.amount)))]
+                ];
+                
+                doc.autoTable({
+                    startY: 30,
+                    head: [[
+                        { content: 'المؤشر', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } },
+                        { content: 'القيمة', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } }
+                    ]],
+                    body: summaryData,
+                    theme: 'grid',
+                    styles: { fontSize: 10, cellPadding: 3, halign: 'center' },
+                    headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255] },
+                    alternateRowStyles: { fillColor: [248, 248, 248] },
+                    margin: { left: 20, right: 20 }
+                });
+                
+                // الصفحة الثالثة: جدول الشيكات
+                doc.addPage();
+                
+                doc.setFontSize(18);
+                doc.setTextColor(51, 126, 169);
+                doc.text('قائمة الشيكات', 20, 20);
+                
+                doc.setDrawColor(51, 126, 169);
+                doc.setLineWidth(0.5);
+                doc.line(20, 25, 190, 25);
+                
+                // تحضير بيانات الجدول
+                const tableData = issuerChecks.map(check => [
+                    check.number,
+                    check.name,
+                    formatCurrency(check.amount),
+                    check.recipient,
+                    check.bank,
+                    check.status === 'pending' ? 'قيد الانتظار' : 
+                    check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
+                    formatDate(check.issueDate),
+                    check.dueDate ? formatDate(check.dueDate) : '-'
+                ]);
+                
+                doc.autoTable({
+                    startY: 30,
+                    head: [['رقم الشيك', 'اسم الشيك', 'المبلغ', 'المستلم', 'البنك', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق']],
+                    body: tableData,
+                    theme: 'grid',
+                    styles: { fontSize: 8, cellPadding: 2 },
+                    headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+                    columnStyles: {
+                        0: { cellWidth: 25, halign: 'center' },
+                        1: { cellWidth: 30 },
+                        2: { cellWidth: 25, halign: 'right' },
+                        3: { cellWidth: 30 },
+                        4: { cellWidth: 25 },
+                        5: { cellWidth: 20, halign: 'center' },
+                        6: { cellWidth: 25, halign: 'center' },
+                        7: { cellWidth: 25, halign: 'center' }
+                    },
+                    didParseCell: function(data) {
+                        if (data.column.index === 5) { // عمود الحالة
+                            const status = data.cell.raw;
+                            if (status === 'قيد الانتظار') {
+                                data.cell.styles.fillColor = [255, 255, 200];
+                            } else if (status === 'تم الصرف') {
+                                data.cell.styles.fillColor = [200, 255, 200];
+                            } else if (status === 'مرتجع') {
+                                data.cell.styles.fillColor = [255, 200, 200];
+                            }
+                        }
+                        
+                        if (data.column.index === 2) { // عمود المبلغ
+                            data.cell.styles.fontStyle = 'bold';
+                        }
+                    },
+                    margin: { left: 10, right: 10 }
+                });
+                
+                // صفحة إضافية للرسوم البيانية إذا كانت هناك بيانات كافية
+                if (issuerChecks.length > 3) {
+                    doc.addPage();
+                    
+                    doc.setFontSize(18);
+                    doc.setTextColor(51, 126, 169);
+                    doc.text('تحليل البيانات', 20, 20);
+                    
+                    doc.setDrawColor(51, 126, 169);
+                    doc.setLineWidth(0.5);
+                    doc.line(20, 25, 190, 25);
+                    
+                    // تحليل حسب البنك
+                    const bankAnalysis = {};
+                    issuerChecks.forEach(check => {
+                        const bank = check.bank || 'غير محدد';
+                        if (!bankAnalysis[bank]) {
+                            bankAnalysis[bank] = { count: 0, amount: 0 };
+                        }
+                        bankAnalysis[bank].count++;
+                        bankAnalysis[bank].amount += check.amount || 0;
+                    });
+                    
+                    doc.setFontSize(12);
+                    doc.setTextColor(30, 30, 30);
+                    doc.text('توزيع الشيكات حسب البنك:', 20, 40);
+                    
+                    let yPos = 50;
+                    Object.entries(bankAnalysis)
+                        .sort((a, b) => b[1].amount - a[1].amount)
+                        .forEach(([bank, data], index) => {
+                            const percentage = (data.amount / totalAmount * 100).toFixed(1);
+                            doc.text(`${index + 1}. ${bank}: ${data.count} شيك (${formatCurrency(data.amount)}) - ${percentage}%`, 25, yPos);
+                            yPos += 8;
+                        });
+                    
+                    // تحليل حسب الشهور
+                    doc.text('التوزيع الشهري:', 20, yPos + 10);
+                    yPos += 20;
+                    
+                    const monthlyAnalysis = {};
+                    issuerChecks.forEach(check => {
+                        const date = new Date(check.issueDate);
+                        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                        const monthName = date.toLocaleDateString('ar-MA', { month: 'long', year: 'numeric' });
+                        
+                        if (!monthlyAnalysis[monthKey]) {
+                            monthlyAnalysis[monthKey] = { name: monthName, count: 0, amount: 0 };
+                        }
+                        monthlyAnalysis[monthKey].count++;
+                        monthlyAnalysis[monthKey].amount += check.amount || 0;
+                    });
+                    
+                    Object.entries(monthlyAnalysis)
+                        .sort()
+                        .forEach(([key, data], index) => {
+                            doc.text(`${data.name}: ${data.count} شيك (${formatCurrency(data.amount)})`, 25, yPos);
+                            yPos += 8;
+                        });
+                }
+                
+                // الخاتمة
+                const finalPage = doc.internal.pages.length;
+                doc.setPage(finalPage);
+                
+                const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 260;
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.setFont('helvetica', 'italic');
+                doc.text(`تم إنشاء هذا التقرير تلقائياً بواسطة CheckFlow Pro`, 105, finalY, { align: 'center' });
+                
+                doc.text(`عدد الصفحات: ${doc.internal.pages.length}`, 105, finalY + 10, { align: 'center' });
+                
+                // حفظ الملف
+                const fileName = `شيكات_${issuerName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+                
+                showNotification('تم إنشاء وتحميل تقرير PDF بنجاح');
+                
+            } catch (error) {
+                console.error('Error generating issuer PDF:', error);
+                alert('حدث خطأ أثناء إنشاء التقرير');
+            }
+        }
+
+        // دوال تصدير إضافية للمعطي
+        function exportIssuerChecksExcel(issuerName) {
+            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+            
+            if (issuerChecks.length === 0) {
+                alert('لا توجد شيكات للتصدير');
+                return;
+            }
+            
+            const wsData = [
+                ['تقرير الشيكات الصادرة من:', issuerName],
+                ['تاريخ التقرير:', new Date().toLocaleDateString('ar-MA')],
+                [],
+                ['رقم الشيك', 'اسم الشيك', 'المبلغ', 'المستلم', 'البنك', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق', 'ملاحظات'],
+                ...issuerChecks.map(check => [
+                    check.number,
+                    check.name,
+                    check.amount,
+                    check.recipient,
+                    check.bank,
+                    check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
+                    check.issueDate,
+                    check.dueDate || '',
+                    check.notes || ''
+                ])
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'شيكات المعطي');
+            
+            XLSX.writeFile(wb, `شيكات_${issuerName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
+            
+            showNotification('تم التصدير إلى Excel بنجاح');
+        }
+
+        function exportIssuerChecksJSON(issuerName) {
+            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+            
+            if (issuerChecks.length === 0) {
+                alert('لا توجد شيكات للتصدير');
+                return;
+            }
+            
+            const report = {
+                issuer: issuerName,
+                exportDate: new Date().toISOString(),
+                totalChecks: issuerChecks.length,
+                totalAmount: issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+                checks: issuerChecks.map(check => ({
+                    number: check.number,
+                    name: check.name,
+                    amount: check.amount,
+                    recipient: check.recipient,
+                    bank: check.bank,
+                    status: check.status,
+                    issueDate: check.issueDate,
+                    dueDate: check.dueDate,
+                    notes: check.notes
+                }))
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `شيكات_${issuerName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم التصدير إلى JSON بنجاح');
+        }
     </script>
 </body>
 </html>
