@@ -190,6 +190,7 @@
 
         .nav-item {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -200,6 +201,7 @@
             transition: var(--transition-fast);
             position: relative;
             font-size: var(--font-size-xs);
+            padding: 4px 2px;
         }
 
         .nav-item.active {
@@ -207,17 +209,21 @@
         }
 
         .nav-item i {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .nav-label {
-            font-size: var(--font-size-xs);
+            font-size: 10px;
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
 
         .nav-badge {
             position: absolute;
-            top: 10px;
+            top: 8px;
             left: 28px;
             background: var(--danger-color);
             color: white;
@@ -473,7 +479,7 @@
         }
 
         /* عرض جميع الشيكات */
-        .checks-view, .analytics-view, .recipients-view {
+        .checks-view, .analytics-view, .recipients-view, .issuers-view {
             display: grid;
             gap: var(--spacing-md);
         }
@@ -1588,6 +1594,28 @@
             </div>
         </div>
 
+        <!-- عرض المعطيين -->
+        <div class="issuers-view" id="issuersView" style="display: none;">
+            <div class="view-header">
+                <div class="view-title">المعطيون</div>
+                <div class="view-controls">
+                    <button class="filter-btn" onclick="exportAllIssuersReport()">
+                        <i class="fas fa-download"></i>
+                        <span>تصدير الكل</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="issuerSearch" placeholder="بحث في المعطيين...">
+            </div>
+
+            <div class="check-list" id="issuersList">
+                <!-- المعطيون سيتم تحميلهم هنا -->
+            </div>
+        </div>
+
         <!-- عرض الإحصائيات -->
         <div class="analytics-view" id="analyticsView" style="display: none;">
             <div class="view-header">
@@ -1760,6 +1788,10 @@
         <a href="javascript:void(0)" class="nav-item" onclick="showRecipients()">
             <i class="fas fa-users"></i>
             <span class="nav-label">المستلمين</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showIssuers()">
+            <i class="fas fa-hand-holding-usd"></i>
+            <span class="nav-label">المعطيون</span>
         </a>
         <a href="javascript:void(0)" class="nav-item" onclick="showAnalytics()">
             <i class="fas fa-chart-bar"></i>
@@ -2708,6 +2740,7 @@
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('allChecksView').style.display = 'none';
             document.getElementById('recipientsView').style.display = 'none';
+            document.getElementById('issuersView').style.display = 'none';
             document.getElementById('analyticsView').style.display = 'block';
             document.getElementById('pageTitle').textContent = 'الإحصائيات';
             updateNav('stats');
@@ -3215,6 +3248,7 @@
             currentView = 'recipients';
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('issuersView').style.display = 'none';
             document.getElementById('analyticsView').style.display = 'none';
             document.getElementById('recipientsView').style.display = 'grid';
             document.getElementById('pageTitle').textContent = 'المستلمين';
@@ -3519,6 +3553,504 @@
             showNotification('تم تصدير تقرير جميع المستلمين');
         }
 
+        // دوال المعطيين
+        function showIssuers() {
+            currentView = 'issuers';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('allChecksView').style.display = 'none';
+            document.getElementById('recipientsView').style.display = 'none';
+            document.getElementById('issuersView').style.display = 'grid';
+            document.getElementById('analyticsView').style.display = 'none';
+            document.getElementById('pageTitle').textContent = 'المعطيون';
+            updateNav('issuers');
+            updateIssuersList();
+        }
+
+        function updateIssuersList() {
+            const container = document.getElementById('issuersList');
+            const searchTerm = document.getElementById('issuerSearch') ? document.getElementById('issuerSearch').value.toLowerCase() : '';
+            
+            // تجميع البيانات حسب المعطي
+            const issuersData = {};
+            
+            checks.forEach(check => {
+                const issuer = check.issuer || 'غير محدد';
+                if (!issuersData[issuer]) {
+                    issuersData[issuer] = {
+                        checks: [],
+                        totalAmount: 0,
+                        pendingCount: 0,
+                        clearedCount: 0,
+                        bouncedCount: 0,
+                        recipientCount: 0
+                    };
+                }
+                
+                issuersData[issuer].checks.push(check);
+                issuersData[issuer].totalAmount += check.amount || 0;
+                
+                if (check.status === 'pending') {
+                    issuersData[issuer].pendingCount++;
+                } else if (check.status === 'cleared') {
+                    issuersData[issuer].clearedCount++;
+                } else if (check.status === 'bounced') {
+                    issuersData[issuer].bouncedCount++;
+                }
+                
+                // حساب عدد المستلمين المختلفين لهذا المعطي
+                if (!issuersData[issuer].uniqueRecipients) {
+                    issuersData[issuer].uniqueRecipients = new Set();
+                }
+                issuersData[issuer].uniqueRecipients.add(check.recipient);
+            });
+            
+            // تحويل إلى مصفوفة وترتيب حسب المبلغ
+            let issuersArray = Object.entries(issuersData).map(([name, data]) => ({
+                name,
+                checks: data.checks,
+                totalAmount: data.totalAmount,
+                pendingCount: data.pendingCount,
+                clearedCount: data.clearedCount,
+                bouncedCount: data.bouncedCount,
+                recipientCount: data.uniqueRecipients ? data.uniqueRecipients.size : 0
+            })).sort((a, b) => b.totalAmount - a.totalAmount);
+            
+            // تطبيق البحث
+            if (searchTerm) {
+                issuersArray = issuersArray.filter(issuer => 
+                    issuer.name.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (issuersArray.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <div class="empty-title">لا توجد معطيين</div>
+                        <div class="empty-description">${searchTerm ? 'جرب بحثاً آخر' : 'أضف شيكات أولاً'}</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = issuersArray.map(issuer => `
+                <div class="check-item fade-in" onclick="showIssuerDetails('${issuer.name.replace(/'/g, "\\'")}')">
+                    <div class="check-icon" style="background: var(--primary-color);">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="check-info">
+                        <div class="check-name">${issuer.name}</div>
+                        <div class="check-details">
+                            <span><i class="fas fa-receipt"></i> ${issuer.checks.length} شيك</span>
+                            <span class="check-amount">${formatCurrency(issuer.totalAmount)}</span>
+                            <span><i class="fas fa-users"></i> ${issuer.recipientCount} مستلم</span>
+                            <span class="status-badge status-pending-badge">${issuer.pendingCount} معلق</span>
+                            <span class="status-badge status-cleared-badge">${issuer.clearedCount} منفذ</span>
+                            ${issuer.bouncedCount > 0 ? 
+                                `<span class="status-badge status-bounced-badge">${issuer.bouncedCount} مرتجع</span>` : 
+                                ''}
+                        </div>
+                    </div>
+                    <div class="icon-button" onclick="event.stopPropagation(); exportIssuerReport('${issuer.name.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-download"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showIssuerDetails(issuerName) {
+            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+            const totalAmount = issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const pendingChecks = issuerChecks.filter(c => c.status === 'pending');
+            const pendingAmount = pendingChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const clearedChecks = issuerChecks.filter(c => c.status === 'cleared');
+            const clearedAmount = clearedChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const bouncedChecks = issuerChecks.filter(c => c.status === 'bounced');
+            const bouncedAmount = bouncedChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            
+            // الحصول على قائمة المستلمين الفريدة
+            const uniqueRecipients = [...new Set(issuerChecks.map(c => c.recipient))];
+            
+            // الحصول على قائمة البنوك الفريدة
+            const uniqueBanks = [...new Set(issuerChecks.map(c => c.bank))];
+            
+            let modalContent = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-title">تفاصيل المعطي: ${issuerName}</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                <div class="stat-card">
+                                    <div class="stat-value">${issuerChecks.length}</div>
+                                    <div class="stat-label">عدد الشيكات</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${formatCurrency(totalAmount)}</div>
+                                    <div class="stat-label">إجمالي المبلغ</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${uniqueRecipients.length}</div>
+                                    <div class="stat-label">عدد المستلمين</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${uniqueBanks.length}</div>
+                                    <div class="stat-label">عدد البنوك</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${pendingChecks.length}</div>
+                                    <div class="stat-label">معلقة</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${formatCurrency(pendingAmount)}</div>
+                                    <div class="stat-label">مبلغ معلق</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${clearedChecks.length}</div>
+                                    <div class="stat-label">منفذة</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">${formatCurrency(clearedAmount)}</div>
+                                    <div class="stat-label">مبلغ منفذ</div>
+                                </div>
+                                ${bouncedChecks.length > 0 ? `
+                                    <div class="stat-card">
+                                        <div class="stat-value">${bouncedChecks.length}</div>
+                                        <div class="stat-label">مرتجعة</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-value">${formatCurrency(bouncedAmount)}</div>
+                                        <div class="stat-label">مبلغ مرتجع</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div class="section-header">
+                                <div class="section-title">المستلمون</div>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                                ${uniqueRecipients.map(recipient => `
+                                    <span class="status-badge status-cleared-badge">${recipient}</span>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="section-header">
+                                <div class="section-title">البنوك المستخدمة</div>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                                ${uniqueBanks.map(bank => `
+                                    <span class="status-badge status-pending-badge">${bank}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="section-header">
+                            <div class="section-title">شيكات ${issuerName}</div>
+                        </div>
+                        
+                        <div style="max-height: 300px; overflow-y: auto;">
+            `;
+            
+            issuerChecks.forEach(check => {
+                const statusBadge = check.status === 'pending' ? 
+                    '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
+                    check.status === 'cleared' ?
+                    '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
+                    '<span class="status-badge status-bounced-badge">مرتجع</span>';
+                
+                modalContent += `
+                    <div class="check-item" style="margin-bottom: 8px;" onclick="editCheck('${check.id}'); closeModal();">
+                        <div class="check-info">
+                            <div class="check-name">${check.name}</div>
+                            <div class="check-details">
+                                <span>${check.number}</span>
+                                <span class="check-amount">${formatCurrency(check.amount)}</span>
+                                ${statusBadge}
+                                <span>${check.recipient}</span>
+                                <span>${formatDate(check.dueDate)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modalContent += `
+                        </div>
+                        
+                        <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm);">
+                            <button class="btn btn-secondary" onclick="exportIssuerReport('${issuerName.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-download"></i>
+                                تصدير تقرير
+                            </button>
+                            <button class="btn btn-primary" onclick="showIssuerTrends('${issuerName.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-chart-line"></i>
+                                تحليل التوجهات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = modalContent;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
+        function exportIssuerReport(issuerName) {
+            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+            
+            // تجميع البيانات حسب المستلم
+            const recipientsData = {};
+            issuerChecks.forEach(check => {
+                if (!recipientsData[check.recipient]) {
+                    recipientsData[check.recipient] = {
+                        checks: [],
+                        totalAmount: 0
+                    };
+                }
+                recipientsData[check.recipient].checks.push(check);
+                recipientsData[check.recipient].totalAmount += check.amount;
+            });
+            
+            // تحويل إلى مصفوفة
+            const recipientsArray = Object.entries(recipientsData).map(([name, data]) => ({
+                name,
+                totalAmount: data.totalAmount,
+                checkCount: data.checks.length
+            })).sort((a, b) => b.totalAmount - a.totalAmount);
+            
+            const report = {
+                issuer: issuerName,
+                exportDate: new Date().toISOString(),
+                totalChecks: issuerChecks.length,
+                totalAmount: issuerChecks.reduce((sum, c) => sum + (c.amount || 0), 0),
+                pendingChecks: issuerChecks.filter(c => c.status === 'pending').length,
+                clearedChecks: issuerChecks.filter(c => c.status === 'cleared').length,
+                bouncedChecks: issuerChecks.filter(c => c.status === 'bounced').length,
+                uniqueRecipients: [...new Set(issuerChecks.map(c => c.recipient))].length,
+                uniqueBanks: [...new Set(issuerChecks.map(c => c.bank))].length,
+                recipients: recipientsArray,
+                checks: issuerChecks.map(check => ({
+                    number: check.number,
+                    name: check.name,
+                    amount: check.amount,
+                    status: check.status,
+                    issueDate: check.issueDate,
+                    dueDate: check.dueDate,
+                    recipient: check.recipient,
+                    bank: check.bank
+                }))
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `تقرير-المعطي-${issuerName}-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير تقرير المعطي');
+        }
+
+        function exportAllIssuersReport() {
+            const issuersData = {};
+            
+            checks.forEach(check => {
+                const issuer = check.issuer || 'غير محدد';
+                if (!issuersData[issuer]) {
+                    issuersData[issuer] = {
+                        checks: [],
+                        totalAmount: 0,
+                        pendingCount: 0,
+                        clearedCount: 0,
+                        bouncedCount: 0,
+                        uniqueRecipients: new Set()
+                    };
+                }
+                
+                issuersData[issuer].checks.push(check);
+                issuersData[issuer].totalAmount += check.amount || 0;
+                issuersData[issuer].uniqueRecipients.add(check.recipient);
+                
+                if (check.status === 'pending') {
+                    issuersData[issuer].pendingCount++;
+                } else if (check.status === 'cleared') {
+                    issuersData[issuer].clearedCount++;
+                } else if (check.status === 'bounced') {
+                    issuersData[issuer].bouncedCount++;
+                }
+            });
+            
+            const report = {
+                exportDate: new Date().toISOString(),
+                totalIssuers: Object.keys(issuersData).length,
+                issuers: Object.entries(issuersData).map(([name, data]) => ({
+                    name,
+                    totalChecks: data.checks.length,
+                    totalAmount: data.totalAmount,
+                    pendingCount: data.pendingCount,
+                    clearedCount: data.clearedCount,
+                    bouncedCount: data.bouncedCount,
+                    uniqueRecipientsCount: data.uniqueRecipients.size,
+                    averageAmountPerCheck: data.checks.length > 0 ? (data.totalAmount / data.checks.length) : 0,
+                    checks: data.checks.map(c => ({
+                        number: c.number,
+                        name: c.name,
+                        amount: c.amount,
+                        status: c.status,
+                        recipient: c.recipient
+                    }))
+                }))
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `جميع-المعطيين-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير تقرير جميع المعطيين');
+        }
+
+        function showIssuerTrends(issuerName) {
+            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+            
+            // تجميع البيانات الشهرية
+            const monthlyData = {};
+            
+            issuerChecks.forEach(check => {
+                const date = new Date(check.issueDate);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        count: 0,
+                        amount: 0,
+                        pending: 0,
+                        cleared: 0
+                    };
+                }
+                
+                monthlyData[monthKey].count++;
+                monthlyData[monthKey].amount += check.amount || 0;
+                
+                if (check.status === 'pending') {
+                    monthlyData[monthKey].pending++;
+                } else if (check.status === 'cleared') {
+                    monthlyData[monthKey].cleared++;
+                }
+            });
+            
+            // إنشاء محتوى النافذة المنبثقة
+            let modalContent = `
+                <div class="modal" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <div class="modal-title">تحليل توجهات المعطي: ${issuerName}</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div class="section-header">
+                                <div class="section-title">التوزيع الشهري</div>
+                            </div>
+                            
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                <table style="width: 100%; font-size: var(--font-size-sm); border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: var(--surface-color);">
+                                            <th style="padding: 8px; text-align: right;">الشهر</th>
+                                            <th style="padding: 8px; text-align: right;">عدد الشيكات</th>
+                                            <th style="padding: 8px; text-align: right;">المبلغ الإجمالي</th>
+                                            <th style="padding: 8px; text-align: right;">المتوسط</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+            `;
+            
+            // تحويل إلى مصفوفة وترتيب حسب التاريخ
+            const sortedMonths = Object.entries(monthlyData)
+                .sort((a, b) => b[0].localeCompare(a[0])); // الأحدث أولاً
+            
+            sortedMonths.forEach(([month, data]) => {
+                const average = data.count > 0 ? (data.amount / data.count) : 0;
+                
+                modalContent += `
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 8px; text-align: right;">${month}</td>
+                        <td style="padding: 8px; text-align: right;">${data.count}</td>
+                        <td style="padding: 8px; text-align: right;">${formatCurrency(data.amount)}</td>
+                        <td style="padding: 8px; text-align: right;">${formatCurrency(average)}</td>
+                    </tr>
+                `;
+            });
+            
+            // حساب الإحصائيات الإجمالية
+            const totalMonths = Object.keys(monthlyData).length;
+            const totalChecks = issuerChecks.length;
+            const totalAmount = issuerChecks.reduce((sum, c) => sum + (c.amount || 0), 0);
+            const avgPerMonth = totalMonths > 0 ? (totalChecks / totalMonths).toFixed(1) : 0;
+            const avgAmountPerCheck = totalChecks > 0 ? (totalAmount / totalChecks) : 0;
+            
+            modalContent += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="stat-card">
+                                <div class="stat-value">${totalMonths}</div>
+                                <div class="stat-label">عدد الأشهر النشطة</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${avgPerMonth}</div>
+                                <div class="stat-label">متوسط الشيكات/شهر</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${formatCurrency(avgAmountPerCheck)}</div>
+                                <div class="stat-label">متوسط المبلغ/شيك</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${formatCurrency(totalAmount)}</div>
+                                <div class="stat-label">المجموع الكلي</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = modalContent;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
         // دوال حذف جميع الشيكات
         function openDeleteAllModal() {
             if (checks.length === 0) {
@@ -3770,6 +4302,7 @@
             document.getElementById('dashboardView').style.display = 'grid';
             document.getElementById('allChecksView').style.display = 'none';
             document.getElementById('recipientsView').style.display = 'none';
+            document.getElementById('issuersView').style.display = 'none';
             document.getElementById('analyticsView').style.display = 'none';
             document.getElementById('pageTitle').textContent = 'لوحة التحكم';
             updateNav('home');
@@ -3782,6 +4315,7 @@
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('allChecksView').style.display = 'grid';
             document.getElementById('recipientsView').style.display = 'none';
+            document.getElementById('issuersView').style.display = 'none';
             document.getElementById('analyticsView').style.display = 'none';
             document.getElementById('pageTitle').textContent = 'جميع الشيكات';
             updateNav('checks');
@@ -3804,7 +4338,7 @@
                 item.classList.remove('active');
             });
             
-            const navIndex = ['home', 'checks', 'recipients', 'stats', 'settings'].indexOf(active);
+            const navIndex = ['home', 'checks', 'recipients', 'issuers', 'stats', 'settings'].indexOf(active);
             if (navIndex >= 0) {
                 document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
             }
@@ -3968,6 +4502,11 @@
             // تحديث المستلمين إذا كانت الصفحة مفتوحة
             if (currentView === 'recipients') {
                 updateRecipientsList();
+            }
+            
+            // تحديث المعطيين إذا كانت الصفحة مفتوحة
+            if (currentView === 'issuers') {
+                updateIssuersList();
             }
         }
 
@@ -4288,7 +4827,7 @@
 
         // دوال الإعدادات
         function showAbout() {
-            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n© 2024 جميع الحقوق محفوظة');
+            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n© 2024 جميع الحقوق محفوظة');
         }
 
         // تصدير البيانات
@@ -4760,6 +5299,8 @@
             document.getElementById('searchInput').addEventListener('input', updateAllChecks);
             
             document.getElementById('recipientSearch').addEventListener('input', updateRecipientsList);
+            
+            document.getElementById('issuerSearch').addEventListener('input', updateIssuersList);
             
             document.getElementById('themeSelect').addEventListener('change', function() {
                 localStorage.setItem('theme', this.value);
