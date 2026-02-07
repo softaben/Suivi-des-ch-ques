@@ -20,11 +20,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- SheetJS for Excel handling -->
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -1393,6 +1393,136 @@
             cursor: pointer;
             z-index: 2;
         }
+
+        /* أنماط التصدير */
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .export-option-btn {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .export-option-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .export-option-btn i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .export-option-label {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .export-option-desc {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .export-date-range {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .range-options {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .range-option {
+            flex: 1;
+            padding: 8px;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: var(--transition-fast);
+        }
+
+        .range-option.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .custom-range-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .export-include-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .include-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--surface-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .include-option input[type="checkbox"] {
+            accent-color: var(--primary-color);
+        }
+
+        .export-section-title {
+            font-size: var(--font-size-md);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .export-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .custom-range-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .range-options {
+                flex-wrap: wrap;
+            }
+            
+            .range-option {
+                min-width: calc(50% - var(--spacing-sm));
+            }
+        }
     </style>
 </head>
 <body>
@@ -1547,7 +1677,7 @@
                         <i class="fas fa-filter"></i>
                         <span>تصفية</span>
                     </button>
-                    <button class="filter-btn" onclick="exportData()">
+                    <button class="filter-btn" onclick="openExportModal()">
                         <i class="fas fa-download"></i>
                         <span>تصدير</span>
                     </button>
@@ -2061,7 +2191,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button class="btn btn-secondary" onclick="exportData()">
+                    <button class="btn btn-secondary" onclick="openExportModal()">
                         <i class="fas fa-download"></i>
                         تصدير جميع البيانات
                     </button>
@@ -2159,6 +2289,143 @@
         </div>
     </div>
 
+    <!-- نافذة خيارات التصدير -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">خيارات التصدير</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <div class="export-option-btn" onclick="openPDFExportModal()">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="export-option-label">تصدير إلى PDF</div>
+                        <div class="export-option-desc">تقرير متكامل بجداول ملونة</div>
+                    </div>
+                    
+                    <div class="export-option-btn" onclick="exportToJSON()">
+                        <i class="fas fa-file-code"></i>
+                        <div class="export-option-label">تصدير إلى JSON</div>
+                        <div class="export-option-desc">للاستخدام في برامج أخرى</div>
+                    </div>
+                    
+                    <div class="export-option-btn" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i>
+                        <div class="export-option-label">تصدير إلى Excel</div>
+                        <div class="export-option-desc">للتحرير والتحليل</div>
+                    </div>
+                    
+                    <div class="export-option-btn" onclick="exportToCSV()">
+                        <i class="fas fa-file-csv"></i>
+                        <div class="export-option-label">تصدير إلى CSV</div>
+                        <div class="export-option-desc">للاستيراد في أي برنامج</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تصدير PDF -->
+    <div class="modal-overlay" id="pdfExportModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">تصدير إلى PDF</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="export-date-range">
+                    <label class="form-label">الفترة الزمنية</label>
+                    <div class="range-options">
+                        <div class="range-option active" onclick="selectRangeOption(this, 'all')">كل الفترات</div>
+                        <div class="range-option" onclick="selectRangeOption(this, 'month')">هذا الشهر</div>
+                        <div class="range-option" onclick="selectRangeOption(this, 'quarter')">هذا الربع</div>
+                        <div class="range-option" onclick="selectRangeOption(this, 'year')">هذا العام</div>
+                        <div class="range-option" onclick="selectRangeOption(this, 'custom')">مخصص</div>
+                    </div>
+                    
+                    <div class="custom-range-inputs" id="customRangeInputs" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">من تاريخ</label>
+                            <input type="date" class="form-input" id="exportFromDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">إلى تاريخ</label>
+                            <input type="date" class="form-input" id="exportToDate">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="export-include-options">
+                    <div class="export-section-title">إدراج في التقرير</div>
+                    
+                    <label class="include-option">
+                        <input type="checkbox" id="includeSummary" checked>
+                        <span>ملخص الإحصائيات</span>
+                    </label>
+                    
+                    <label class="include-option">
+                        <input type="checkbox" id="includeChecksTable" checked>
+                        <span>جدول الشيكات</span>
+                    </label>
+                    
+                    <label class="include-option">
+                        <input type="checkbox" id="includeCharts">
+                        <span>الرسوم البيانية</span>
+                    </label>
+                    
+                    <label class="include-option">
+                        <input type="checkbox" id="includeRecipientsTable">
+                        <span>جدول المستلمين</span>
+                    </label>
+                    
+                    <label class="include-option">
+                        <input type="checkbox" id="includeIssuersTable">
+                        <span>جدول المعطيين</span>
+                    </label>
+                    
+                    <label class="include-option">
+                        <input type="checkbox" id="includeOverdueChecks" checked>
+                        <span>الشيكات المتأخرة</span>
+                    </label>
+                    
+                    <label class="include-option">
+                        <input type="checkbox" id="includeDuplicates">
+                        <span>تقرير التكرارات</span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">تنسيق التقرير</label>
+                    <select class="form-input form-select" id="exportLanguage">
+                        <option value="fr">Français (الفرنسية)</option>
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">نوع التقرير</label>
+                    <select class="form-input form-select" id="reportType">
+                        <option value="comprehensive">تقرير شامل</option>
+                        <option value="executive">تقرير تنفيذي</option>
+                        <option value="detailed">تقرير مفصل</option>
+                        <option value="financial">تقرير مالي</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="generatePDFReport()">
+                    <i class="fas fa-file-pdf"></i>
+                    إنشاء وتحميل PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // تهيئة Firebase
         const firebaseConfig = {
@@ -2188,6 +2455,7 @@
         let activeFilters = {};
         let duplicateReport = null;
         let notificationsEnabled = true;
+        let selectedRangeOption = 'all';
         
         // متغيرات المخططات
         let statusChart = null;
@@ -2242,6 +2510,14 @@
                 isOnline = false;
                 showSyncStatus('أنت غير متصل - وضع العمل المحلي مفعل', 'error');
             });
+            
+            // تهيئة التواريخ
+            const today = new Date();
+            const lastMonth = new Date();
+            lastMonth.setMonth(lastMonth.getMonth() - 1);
+            
+            document.getElementById('exportFromDate').value = lastMonth.toISOString().split('T')[0];
+            document.getElementById('exportToDate').value = today.toISOString().split('T')[0];
         });
 
         // دوال تسجيل الدخول
@@ -2615,125 +2891,6 @@
             }
         }
 
-        function openDuplicateResolutionModal() {
-            if (!duplicateReport || duplicateReport.length === 0) return;
-            
-            let modalContent = `
-                <div class="modal">
-                    <div class="modal-header">
-                        <div class="modal-title">معالجة الشيكات المكررة</div>
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span>تم العثور على ${duplicateReport.length} شيك مكرر</span>
-                        </div>
-            `;
-            
-            duplicateReport.forEach((report, index) => {
-                modalContent += `
-                    <div style="margin-bottom: var(--spacing-md); padding: var(--spacing-sm); background: var(--surface-color); border-radius: var(--radius-md);">
-                        <div style="font-weight: 600; margin-bottom: var(--spacing-sm); font-size: var(--font-size-sm);">
-                            ${index + 1}. رقم الشيك: ${report.number} (${report.count} نسخة)
-                        </div>
-                        <div style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-sm);">
-                            <strong>النسخ المتاحة:</strong>
-                        </div>
-                `;
-                
-                report.checks.forEach((check, i) => {
-                    modalContent += `
-                        <div style="padding: 8px; margin-bottom: 4px; background: var(--card-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm);">
-                            <div><strong>${i + 1}. ${check.name}</strong></div>
-                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">
-                                ${formatCurrency(check.amount)} | ${check.bank} | ${formatDate(check.date)}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                modalContent += `
-                        <div style="margin-top: var(--spacing-sm);">
-                            <button class="btn btn-secondary" onclick="mergeDuplicate('${report.number}')" style="font-size: var(--font-size-xs); padding: 6px 10px;">
-                                <i class="fas fa-compress-alt"></i>
-                                دمج هذه النسخ
-                            </button>
-                            <button class="btn btn-danger" onclick="deleteDuplicates('${report.number}')" style="font-size: var(--font-size-xs); padding: 6px 10px; margin-top: 4px;">
-                                <i class="fas fa-trash"></i>
-                                حذف جميع النسخ
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            modalContent += `
-                        <div style="margin-top: var(--spacing-md);">
-                            <button class="btn btn-primary" onclick="exportDuplicateReport()">
-                                <i class="fas fa-download"></i>
-                                تصدير تقرير التكرار
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            const modalContainer = document.createElement('div');
-            modalContainer.className = 'modal-overlay active';
-            modalContainer.innerHTML = modalContent;
-            modalContainer.onclick = function(e) {
-                if (e.target === this) closeModal();
-            };
-            
-            document.body.appendChild(modalContainer);
-        }
-
-        function mergeDuplicate(checkNumber) {
-            const duplicateChecks = checks.filter(c => c.number === checkNumber);
-            
-            if (duplicateChecks.length < 2) return;
-            
-            // نسخة من الشيك الأول كأساس للدمج
-            const mergedCheck = { ...duplicateChecks[0] };
-            
-            // جمع جميع الملاحظات
-            const allNotes = duplicateChecks.map(c => c.notes || '').filter(n => n).join('\n');
-            mergedCheck.notes = `مدمج من ${duplicateChecks.length} شيك مكرر:\n\n${allNotes}`;
-            
-            // تعيين المبلغ الأكبر (أو يمكن اختيار منطق آخر)
-            const maxAmount = Math.max(...duplicateChecks.map(c => c.amount));
-            mergedCheck.amount = maxAmount;
-            
-            // إضافة علامة مهم
-            mergedCheck.important = true;
-            
-            // حذف جميع النسخ المكررة
-            checks = checks.filter(c => c.number !== checkNumber);
-            
-            // إضافة الشيك المدمج
-            checks.push(mergedCheck);
-            
-            saveChecksLocally();
-            updateUI();
-            closeModal();
-            showNotification(`تم دمج ${duplicateChecks.length} شيك مكرر`);
-        }
-
-        function deleteDuplicates(checkNumber) {
-            if (!confirm(`هل تريد حذف جميع الشيكات برقم ${checkNumber}؟`)) return;
-            
-            const duplicateChecks = checks.filter(c => c.number === checkNumber);
-            checks = checks.filter(c => c.number !== checkNumber);
-            
-            saveChecksLocally();
-            updateUI();
-            closeModal();
-            showNotification(`تم حذف ${duplicateChecks.length} شيك مكرر`);
-        }
-
         // دوال الإحصائيات
         function showAnalytics() {
             currentView = 'analytics';
@@ -2771,7 +2928,7 @@
             const clearedChecks = checks.filter(c => c.status === 'cleared').length;
             
             // حساب التغيرات (بسيط - يمكن تطويره)
-            const checksChange = 0; // يمكن حساب التغير عن الفترة السابقة
+            const checksChange = 0;
             const amountChange = 0;
             const pendingChange = 0;
             const clearedChange = 0;
@@ -2884,7 +3041,7 @@
             // ترتيب البنوك حسب المبلغ (تنازلياً)
             const sortedBanks = Object.entries(bankData)
                 .sort((a, b) => b[1].amount - a[1].amount)
-                .slice(0, 8); // أول 8 بنوك فقط
+                .slice(0, 8);
             
             const labels = sortedBanks.map(([bank]) => bank);
             const data = sortedBanks.map(([, stats]) => 
@@ -2950,7 +3107,7 @@
             
             // تحديد نطاق التاريخ
             const now = new Date();
-            let startDate = new Date(2000, 0, 1); // تاريخ قديم
+            let startDate = new Date(2000, 0, 1);
             
             if (period === 'month') {
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -2967,7 +3124,6 @@
             checks.forEach(check => {
                 const checkDate = new Date(check.issueDate);
                 
-                // تصفية حسب الفترة المحددة
                 if (checkDate < startDate) return;
                 
                 const monthKey = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}`;
@@ -3065,7 +3221,7 @@
             // ترتيب حسب المبلغ (تنازلياً)
             const sortedBanks = Object.entries(bankData)
                 .sort((a, b) => b[1].amount - a[1].amount)
-                .slice(0, 10); // أول 10 بنوك
+                .slice(0, 10);
             
             const totalAmount = checks.reduce((sum, check) => sum + (check.amount || 0), 0);
             
@@ -3100,14 +3256,12 @@
             const tableBody = document.getElementById('riskReportTable');
             const today = new Date();
             
-            // فلترة الشيكات المتأخرة (قيد الانتظار وتاريخ استحقاقها قد مر)
             const overdueChecks = checks.filter(check => {
                 if (check.status !== 'pending') return false;
                 if (!check.dueDate) return false;
-                
                 const dueDate = new Date(check.dueDate);
                 return dueDate < today;
-            }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)); // ترتيب حسب تاريخ الاستحقاق
+            }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
             
             let tableHTML = '';
             
@@ -3141,12 +3295,10 @@
         function updateDuplicatesSummary() {
             const container = document.getElementById('duplicatesSummary');
             
-            // حساب التكرارات
             const checkNumbers = checks.map(c => c.number);
             const duplicates = checkNumbers.filter((num, index) => checkNumbers.indexOf(num) !== index);
             const uniqueDuplicates = [...new Set(duplicates)];
             
-            // حساب الشيكات المتأخرة
             const today = new Date();
             const overdueChecks = checks.filter(check => {
                 if (check.status !== 'pending') return false;
@@ -3154,17 +3306,14 @@
                 return new Date(check.dueDate) < today;
             });
             
-            // حساب الشيكات القريبة من الاستحقاق (خلال 7 أيام)
             const upcomingChecks = checks.filter(check => {
                 if (check.status !== 'pending') return false;
                 if (!check.dueDate) return false;
-                
                 const dueDate = new Date(check.dueDate);
                 const daysUntilDue = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
                 return daysUntilDue >= 0 && daysUntilDue <= 7;
             });
             
-            // حساب المبالغ الإجمالية حسب الحالة
             const pendingAmount = checks
                 .filter(c => c.status === 'pending')
                 .reduce((sum, c) => sum + (c.amount || 0), 0);
@@ -3243,7 +3392,7 @@
             showNotification('تم تصدير تقرير المخاطر');
         }
 
-        // دوال المستلمين
+        // دوال المستلمين والمعطيين (مختصرة)
         function showRecipients() {
             currentView = 'recipients';
             document.getElementById('dashboardView').style.display = 'none';
@@ -3260,7 +3409,6 @@
             const container = document.getElementById('recipientsList');
             const searchTerm = document.getElementById('recipientSearch') ? document.getElementById('recipientSearch').value.toLowerCase() : '';
             
-            // تجميع البيانات حسب المستلم
             const recipientsData = {};
             
             checks.forEach(check => {
@@ -3284,13 +3432,11 @@
                 }
             });
             
-            // تحويل إلى مصفوفة وترتيب حسب المبلغ
             let recipientsArray = Object.entries(recipientsData).map(([name, data]) => ({
                 name,
                 ...data
             })).sort((a, b) => b.totalAmount - a.totalAmount);
             
-            // تطبيق البحث
             if (searchTerm) {
                 recipientsArray = recipientsArray.filter(recipient => 
                     recipient.name.toLowerCase().includes(searchTerm)
@@ -3324,243 +3470,17 @@
                             <span class="status-badge status-cleared-badge">${recipient.clearedCount} منفذ</span>
                         </div>
                     </div>
-                    <div class="icon-button" onclick="event.stopPropagation(); exportRecipientReport('${recipient.name.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-download"></i>
-                    </div>
                 </div>
             `).join('');
         }
 
-        function showRecipientDetails(recipientName) {
-            const recipientChecks = checks.filter(check => check.recipient === recipientName);
-            const totalAmount = recipientChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            const pendingChecks = recipientChecks.filter(c => c.status === 'pending');
-            const pendingAmount = pendingChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            const clearedChecks = recipientChecks.filter(c => c.status === 'cleared');
-            const clearedAmount = clearedChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            
-            let modalContent = `
-                <div class="modal">
-                    <div class="modal-header">
-                        <div class="modal-title">تفاصيل المستلم: ${recipientName}</div>
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div style="margin-bottom: var(--spacing-md);">
-                            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
-                                <div class="stat-card">
-                                    <div class="stat-value">${recipientChecks.length}</div>
-                                    <div class="stat-label">عدد الشيكات</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${formatCurrency(totalAmount)}</div>
-                                    <div class="stat-label">إجمالي المبلغ</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${pendingChecks.length}</div>
-                                    <div class="stat-label">معلقة</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${formatCurrency(pendingAmount)}</div>
-                                    <div class="stat-label">مبلغ معلق</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${clearedChecks.length}</div>
-                                    <div class="stat-label">منفذة</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${formatCurrency(clearedAmount)}</div>
-                                    <div class="stat-label">مبلغ منفذ</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="section-header">
-                            <div class="section-title">شيكات ${recipientName}</div>
-                        </div>
-                        
-                        <div style="max-height: 300px; overflow-y: auto;">
-            `;
-            
-            recipientChecks.forEach(check => {
-                const statusBadge = check.status === 'pending' ? 
-                    '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
-                    check.status === 'cleared' ?
-                    '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
-                    '<span class="status-badge status-bounced-badge">مرتجع</span>';
-                
-                modalContent += `
-                    <div class="check-item" style="margin-bottom: 8px;" onclick="editCheck('${check.id}'); closeModal();">
-                        <div class="check-info">
-                            <div class="check-name">${check.name}</div>
-                            <div class="check-details">
-                                <span>${check.number}</span>
-                                <span class="check-amount">${formatCurrency(check.amount)}</span>
-                                ${statusBadge}
-                                <span>${formatDate(check.dueDate)}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            modalContent += `
-                        </div>
-                        
-                        <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm);">
-                            <button class="btn btn-secondary" onclick="exportRecipientReport('${recipientName.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-download"></i>
-                                تصدير تقرير
-                            </button>
-                            <button class="btn btn-primary" onclick="sendReminderToRecipient('${recipientName.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-bell"></i>
-                                إرسال تذكير
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            const modalContainer = document.createElement('div');
-            modalContainer.className = 'modal-overlay active';
-            modalContainer.innerHTML = modalContent;
-            modalContainer.onclick = function(e) {
-                if (e.target === this) closeModal();
-            };
-            
-            document.body.appendChild(modalContainer);
-        }
-
-        function exportRecipientReport(recipientName) {
-            const recipientChecks = checks.filter(check => check.recipient === recipientName);
-            
-            const report = {
-                recipient: recipientName,
-                exportDate: new Date().toISOString(),
-                totalChecks: recipientChecks.length,
-                totalAmount: recipientChecks.reduce((sum, c) => sum + (c.amount || 0), 0),
-                checks: recipientChecks.map(check => ({
-                    number: check.number,
-                    name: check.name,
-                    amount: check.amount,
-                    status: check.status,
-                    issueDate: check.issueDate,
-                    dueDate: check.dueDate,
-                    bank: check.bank,
-                    issuer: check.issuer
-                }))
-            };
-            
-            const dataStr = JSON.stringify(report, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `تقرير-${recipientName}-${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showNotification('تم تصدير تقرير المستلم');
-        }
-
-        function sendReminderToRecipient(recipientName) {
-            const recipientChecks = checks.filter(check => 
-                check.recipient === recipientName && 
-                check.status === 'pending'
-            );
-            
-            if (recipientChecks.length === 0) {
-                alert('لا توجد شيكات معلقة لهذا المستلم');
-                return;
-            }
-            
-            let message = `تذكير للمستلم ${recipientName}:\n\n`;
-            message += `لديك ${recipientChecks.length} شيك معلق:\n\n`;
-            
-            recipientChecks.forEach((check, index) => {
-                const daysUntilDue = check.dueDate ? 
-                    Math.ceil((new Date(check.dueDate) - new Date()) / (1000 * 60 * 60 * 24)) : 
-                    'غير محدد';
-                
-                message += `${index + 1}. ${check.number} - ${formatCurrency(check.amount)}\n`;
-                message += `   تاريخ الاستحقاق: ${formatDate(check.dueDate)}`;
-                if (daysUntilDue !== 'غير محدد') {
-                    message += ` (${daysUntilDue > 0 ? `بعد ${daysUntilDue} يوم` : 'متأخر'})`;
-                }
-                message += '\n\n';
-            });
-            
-            alert(message);
-            showNotification('تم إنشاء رسالة التذكير');
-        }
-
-        function exportAllRecipientsReport() {
-            const recipientsData = {};
-            
-            checks.forEach(check => {
-                const recipient = check.recipient || 'غير محدد';
-                if (!recipientsData[recipient]) {
-                    recipientsData[recipient] = {
-                        checks: [],
-                        totalAmount: 0,
-                        pendingCount: 0,
-                        clearedCount: 0
-                    };
-                }
-                
-                recipientsData[recipient].checks.push(check);
-                recipientsData[recipient].totalAmount += check.amount || 0;
-                
-                if (check.status === 'pending') {
-                    recipientsData[recipient].pendingCount++;
-                } else if (check.status === 'cleared') {
-                    recipientsData[recipient].clearedCount++;
-                }
-            });
-            
-            const report = {
-                exportDate: new Date().toISOString(),
-                totalRecipients: Object.keys(recipientsData).length,
-                recipients: Object.entries(recipientsData).map(([name, data]) => ({
-                    name,
-                    totalChecks: data.checks.length,
-                    totalAmount: data.totalAmount,
-                    pendingCount: data.pendingCount,
-                    clearedCount: data.clearedCount,
-                    checks: data.checks.map(c => ({
-                        number: c.number,
-                        name: c.name,
-                        amount: c.amount,
-                        status: c.status,
-                        dueDate: c.dueDate
-                    }))
-                }))
-            };
-            
-            const dataStr = JSON.stringify(report, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `جميع-المستلمين-${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showNotification('تم تصدير تقرير جميع المستلمين');
-        }
-
-        // دوال المعطيين
         function showIssuers() {
             currentView = 'issuers';
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('allChecksView').style.display = 'none';
             document.getElementById('recipientsView').style.display = 'none';
-            document.getElementById('issuersView').style.display = 'grid';
             document.getElementById('analyticsView').style.display = 'none';
+            document.getElementById('issuersView').style.display = 'grid';
             document.getElementById('pageTitle').textContent = 'المعطيون';
             updateNav('issuers');
             updateIssuersList();
@@ -3570,7 +3490,6 @@
             const container = document.getElementById('issuersList');
             const searchTerm = document.getElementById('issuerSearch') ? document.getElementById('issuerSearch').value.toLowerCase() : '';
             
-            // تجميع البيانات حسب المعطي
             const issuersData = {};
             
             checks.forEach(check => {
@@ -3597,14 +3516,12 @@
                     issuersData[issuer].bouncedCount++;
                 }
                 
-                // حساب عدد المستلمين المختلفين لهذا المعطي
                 if (!issuersData[issuer].uniqueRecipients) {
                     issuersData[issuer].uniqueRecipients = new Set();
                 }
                 issuersData[issuer].uniqueRecipients.add(check.recipient);
             });
             
-            // تحويل إلى مصفوفة وترتيب حسب المبلغ
             let issuersArray = Object.entries(issuersData).map(([name, data]) => ({
                 name,
                 checks: data.checks,
@@ -3615,7 +3532,6 @@
                 recipientCount: data.uniqueRecipients ? data.uniqueRecipients.size : 0
             })).sort((a, b) => b.totalAmount - a.totalAmount);
             
-            // تطبيق البحث
             if (searchTerm) {
                 issuersArray = issuersArray.filter(issuer => 
                     issuer.name.toLowerCase().includes(searchTerm)
@@ -3653,534 +3569,14 @@
                                 ''}
                         </div>
                     </div>
-                    <div class="icon-button" onclick="event.stopPropagation(); exportIssuerReport('${issuer.name.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-download"></i>
-                    </div>
                 </div>
             `).join('');
         }
 
-        function showIssuerDetails(issuerName) {
-            const issuerChecks = checks.filter(check => check.issuer === issuerName);
-            const totalAmount = issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            const pendingChecks = issuerChecks.filter(c => c.status === 'pending');
-            const pendingAmount = pendingChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            const clearedChecks = issuerChecks.filter(c => c.status === 'cleared');
-            const clearedAmount = clearedChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            const bouncedChecks = issuerChecks.filter(c => c.status === 'bounced');
-            const bouncedAmount = bouncedChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            
-            // الحصول على قائمة المستلمين الفريدة
-            const uniqueRecipients = [...new Set(issuerChecks.map(c => c.recipient))];
-            
-            // الحصول على قائمة البنوك الفريدة
-            const uniqueBanks = [...new Set(issuerChecks.map(c => c.bank))];
-            
-            let modalContent = `
-                <div class="modal">
-                    <div class="modal-header">
-                        <div class="modal-title">تفاصيل المعطي: ${issuerName}</div>
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div style="margin-bottom: var(--spacing-md);">
-                            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
-                                <div class="stat-card">
-                                    <div class="stat-value">${issuerChecks.length}</div>
-                                    <div class="stat-label">عدد الشيكات</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${formatCurrency(totalAmount)}</div>
-                                    <div class="stat-label">إجمالي المبلغ</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${uniqueRecipients.length}</div>
-                                    <div class="stat-label">عدد المستلمين</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${uniqueBanks.length}</div>
-                                    <div class="stat-label">عدد البنوك</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${pendingChecks.length}</div>
-                                    <div class="stat-label">معلقة</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${formatCurrency(pendingAmount)}</div>
-                                    <div class="stat-label">مبلغ معلق</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${clearedChecks.length}</div>
-                                    <div class="stat-label">منفذة</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-value">${formatCurrency(clearedAmount)}</div>
-                                    <div class="stat-label">مبلغ منفذ</div>
-                                </div>
-                                ${bouncedChecks.length > 0 ? `
-                                    <div class="stat-card">
-                                        <div class="stat-value">${bouncedChecks.length}</div>
-                                        <div class="stat-label">مرتجعة</div>
-                                    </div>
-                                    <div class="stat-card">
-                                        <div class="stat-value">${formatCurrency(bouncedAmount)}</div>
-                                        <div class="stat-label">مبلغ مرتجع</div>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: var(--spacing-md);">
-                            <div class="section-header">
-                                <div class="section-title">المستلمون</div>
-                            </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-                                ${uniqueRecipients.map(recipient => `
-                                    <span class="status-badge status-cleared-badge">${recipient}</span>
-                                `).join('')}
-                            </div>
-                            
-                            <div class="section-header">
-                                <div class="section-title">البنوك المستخدمة</div>
-                            </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-                                ${uniqueBanks.map(bank => `
-                                    <span class="status-badge status-pending-badge">${bank}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                        
-                        <div class="section-header">
-                            <div class="section-title">شيكات ${issuerName}</div>
-                        </div>
-                        
-                        <div style="max-height: 300px; overflow-y: auto;">
-            `;
-            
-            issuerChecks.forEach(check => {
-                const statusBadge = check.status === 'pending' ? 
-                    '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
-                    check.status === 'cleared' ?
-                    '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
-                    '<span class="status-badge status-bounced-badge">مرتجع</span>';
-                
-                modalContent += `
-                    <div class="check-item" style="margin-bottom: 8px;" onclick="editCheck('${check.id}'); closeModal();">
-                        <div class="check-info">
-                            <div class="check-name">${check.name}</div>
-                            <div class="check-details">
-                                <span>${check.number}</span>
-                                <span class="check-amount">${formatCurrency(check.amount)}</span>
-                                ${statusBadge}
-                                <span>${check.recipient}</span>
-                                <span>${formatDate(check.dueDate)}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            modalContent += `
-                        </div>
-                        
-                        <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm);">
-                            <button class="btn btn-secondary" onclick="exportIssuerReport('${issuerName.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-download"></i>
-                                تصدير تقرير
-                            </button>
-                            <button class="btn btn-primary" onclick="showIssuerTrends('${issuerName.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-chart-line"></i>
-                                تحليل التوجهات
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            const modalContainer = document.createElement('div');
-            modalContainer.className = 'modal-overlay active';
-            modalContainer.innerHTML = modalContent;
-            modalContainer.onclick = function(e) {
-                if (e.target === this) closeModal();
-            };
-            
-            document.body.appendChild(modalContainer);
-        }
-
-        function exportIssuerReport(issuerName) {
-            const issuerChecks = checks.filter(check => check.issuer === issuerName);
-            
-            // تجميع البيانات حسب المستلم
-            const recipientsData = {};
-            issuerChecks.forEach(check => {
-                if (!recipientsData[check.recipient]) {
-                    recipientsData[check.recipient] = {
-                        checks: [],
-                        totalAmount: 0
-                    };
-                }
-                recipientsData[check.recipient].checks.push(check);
-                recipientsData[check.recipient].totalAmount += check.amount;
-            });
-            
-            // تحويل إلى مصفوفة
-            const recipientsArray = Object.entries(recipientsData).map(([name, data]) => ({
-                name,
-                totalAmount: data.totalAmount,
-                checkCount: data.checks.length
-            })).sort((a, b) => b.totalAmount - a.totalAmount);
-            
-            const report = {
-                issuer: issuerName,
-                exportDate: new Date().toISOString(),
-                totalChecks: issuerChecks.length,
-                totalAmount: issuerChecks.reduce((sum, c) => sum + (c.amount || 0), 0),
-                pendingChecks: issuerChecks.filter(c => c.status === 'pending').length,
-                clearedChecks: issuerChecks.filter(c => c.status === 'cleared').length,
-                bouncedChecks: issuerChecks.filter(c => c.status === 'bounced').length,
-                uniqueRecipients: [...new Set(issuerChecks.map(c => c.recipient))].length,
-                uniqueBanks: [...new Set(issuerChecks.map(c => c.bank))].length,
-                recipients: recipientsArray,
-                checks: issuerChecks.map(check => ({
-                    number: check.number,
-                    name: check.name,
-                    amount: check.amount,
-                    status: check.status,
-                    issueDate: check.issueDate,
-                    dueDate: check.dueDate,
-                    recipient: check.recipient,
-                    bank: check.bank
-                }))
-            };
-            
-            const dataStr = JSON.stringify(report, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `تقرير-المعطي-${issuerName}-${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showNotification('تم تصدير تقرير المعطي');
-        }
-
-        function exportAllIssuersReport() {
-            const issuersData = {};
-            
-            checks.forEach(check => {
-                const issuer = check.issuer || 'غير محدد';
-                if (!issuersData[issuer]) {
-                    issuersData[issuer] = {
-                        checks: [],
-                        totalAmount: 0,
-                        pendingCount: 0,
-                        clearedCount: 0,
-                        bouncedCount: 0,
-                        uniqueRecipients: new Set()
-                    };
-                }
-                
-                issuersData[issuer].checks.push(check);
-                issuersData[issuer].totalAmount += check.amount || 0;
-                issuersData[issuer].uniqueRecipients.add(check.recipient);
-                
-                if (check.status === 'pending') {
-                    issuersData[issuer].pendingCount++;
-                } else if (check.status === 'cleared') {
-                    issuersData[issuer].clearedCount++;
-                } else if (check.status === 'bounced') {
-                    issuersData[issuer].bouncedCount++;
-                }
-            });
-            
-            const report = {
-                exportDate: new Date().toISOString(),
-                totalIssuers: Object.keys(issuersData).length,
-                issuers: Object.entries(issuersData).map(([name, data]) => ({
-                    name,
-                    totalChecks: data.checks.length,
-                    totalAmount: data.totalAmount,
-                    pendingCount: data.pendingCount,
-                    clearedCount: data.clearedCount,
-                    bouncedCount: data.bouncedCount,
-                    uniqueRecipientsCount: data.uniqueRecipients.size,
-                    averageAmountPerCheck: data.checks.length > 0 ? (data.totalAmount / data.checks.length) : 0,
-                    checks: data.checks.map(c => ({
-                        number: c.number,
-                        name: c.name,
-                        amount: c.amount,
-                        status: c.status,
-                        recipient: c.recipient
-                    }))
-                }))
-            };
-            
-            const dataStr = JSON.stringify(report, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `جميع-المعطيين-${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showNotification('تم تصدير تقرير جميع المعطيين');
-        }
-
-        function showIssuerTrends(issuerName) {
-            const issuerChecks = checks.filter(check => check.issuer === issuerName);
-            
-            // تجميع البيانات الشهرية
-            const monthlyData = {};
-            
-            issuerChecks.forEach(check => {
-                const date = new Date(check.issueDate);
-                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                
-                if (!monthlyData[monthKey]) {
-                    monthlyData[monthKey] = {
-                        count: 0,
-                        amount: 0,
-                        pending: 0,
-                        cleared: 0
-                    };
-                }
-                
-                monthlyData[monthKey].count++;
-                monthlyData[monthKey].amount += check.amount || 0;
-                
-                if (check.status === 'pending') {
-                    monthlyData[monthKey].pending++;
-                } else if (check.status === 'cleared') {
-                    monthlyData[monthKey].cleared++;
-                }
-            });
-            
-            // إنشاء محتوى النافذة المنبثقة
-            let modalContent = `
-                <div class="modal" style="max-width: 600px;">
-                    <div class="modal-header">
-                        <div class="modal-title">تحليل توجهات المعطي: ${issuerName}</div>
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div style="margin-bottom: var(--spacing-md);">
-                            <div class="section-header">
-                                <div class="section-title">التوزيع الشهري</div>
-                            </div>
-                            
-                            <div style="max-height: 400px; overflow-y: auto;">
-                                <table style="width: 100%; font-size: var(--font-size-sm); border-collapse: collapse;">
-                                    <thead>
-                                        <tr style="background: var(--surface-color);">
-                                            <th style="padding: 8px; text-align: right;">الشهر</th>
-                                            <th style="padding: 8px; text-align: right;">عدد الشيكات</th>
-                                            <th style="padding: 8px; text-align: right;">المبلغ الإجمالي</th>
-                                            <th style="padding: 8px; text-align: right;">المتوسط</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-            `;
-            
-            // تحويل إلى مصفوفة وترتيب حسب التاريخ
-            const sortedMonths = Object.entries(monthlyData)
-                .sort((a, b) => b[0].localeCompare(a[0])); // الأحدث أولاً
-            
-            sortedMonths.forEach(([month, data]) => {
-                const average = data.count > 0 ? (data.amount / data.count) : 0;
-                
-                modalContent += `
-                    <tr style="border-bottom: 1px solid var(--border-color);">
-                        <td style="padding: 8px; text-align: right;">${month}</td>
-                        <td style="padding: 8px; text-align: right;">${data.count}</td>
-                        <td style="padding: 8px; text-align: right;">${formatCurrency(data.amount)}</td>
-                        <td style="padding: 8px; text-align: right;">${formatCurrency(average)}</td>
-                    </tr>
-                `;
-            });
-            
-            // حساب الإحصائيات الإجمالية
-            const totalMonths = Object.keys(monthlyData).length;
-            const totalChecks = issuerChecks.length;
-            const totalAmount = issuerChecks.reduce((sum, c) => sum + (c.amount || 0), 0);
-            const avgPerMonth = totalMonths > 0 ? (totalChecks / totalMonths).toFixed(1) : 0;
-            const avgAmountPerCheck = totalChecks > 0 ? (totalAmount / totalChecks) : 0;
-            
-            modalContent += `
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
-                            <div class="stat-card">
-                                <div class="stat-value">${totalMonths}</div>
-                                <div class="stat-label">عدد الأشهر النشطة</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${avgPerMonth}</div>
-                                <div class="stat-label">متوسط الشيكات/شهر</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${formatCurrency(avgAmountPerCheck)}</div>
-                                <div class="stat-label">متوسط المبلغ/شيك</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${formatCurrency(totalAmount)}</div>
-                                <div class="stat-label">المجموع الكلي</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            const modalContainer = document.createElement('div');
-            modalContainer.className = 'modal-overlay active';
-            modalContainer.innerHTML = modalContent;
-            modalContainer.onclick = function(e) {
-                if (e.target === this) closeModal();
-            };
-            
-            document.body.appendChild(modalContainer);
-        }
-
-        // دوال حذف جميع الشيكات
-        function openDeleteAllModal() {
-            if (checks.length === 0) {
-                alert('لا توجد شيكات لحذفها');
-                return;
-            }
-            
-            let modalContent = `
-                <div class="modal">
-                    <div class="modal-header">
-                        <div class="modal-title">حذف جميع الشيكات</div>
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه</span>
-                        </div>
-                        
-                        <div style="margin-bottom: var(--spacing-md);">
-                            <div class="stat-card" style="background: var(--surface-color);">
-                                <div class="stat-value">${checks.length}</div>
-                                <div class="stat-label">عدد الشيكات</div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">السبب (اختياري)</label>
-                            <input type="text" class="form-input" id="deleteReason" placeholder="سبب الحذف...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="confirmDelete" onchange="document.getElementById('deleteAllBtn').disabled = !this.checked">
-                                <span style="color: var(--danger-color);">أؤكد أنني أريد حذف جميع الشيكات</span>
-                            </label>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="exportBeforeDelete">
-                                <span>تصدير نسخة احتياطية قبل الحذف</span>
-                            </label>
-                        </div>
-                        
-                        <button id="deleteAllBtn" class="btn btn-danger" onclick="deleteAllChecks()" disabled>
-                            <i class="fas fa-trash"></i>
-                            حذف جميع الشيكات
-                        </button>
-                        
-                        <button class="btn btn-secondary" onclick="closeModal()" style="margin-top: var(--spacing-sm);">
-                            <i class="fas fa-times"></i>
-                            إلغاء
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            const modalContainer = document.createElement('div');
-            modalContainer.className = 'modal-overlay active';
-            modalContainer.innerHTML = modalContent;
-            modalContainer.onclick = function(e) {
-                if (e.target === this) closeModal();
-            };
-            
-            document.body.appendChild(modalContainer);
-        }
-
-        function deleteAllChecks() {
-            const exportBeforeDelete = document.getElementById('exportBeforeDelete').checked;
-            const deleteReason = document.getElementById('deleteReason').value;
-            
-            if (exportBeforeDelete) {
-                exportData();
-            }
-            
-            // تسجيل عملية الحذف
-            const deleteLog = {
-                timestamp: new Date().toISOString(),
-                userId: currentUserId,
-                totalChecks: checks.length,
-                totalAmount: checks.reduce((sum, c) => sum + (c.amount || 0), 0),
-                reason: deleteReason || 'لا يوجد',
-                deletedChecks: checks.map(c => ({
-                    id: c.id,
-                    number: c.number,
-                    name: c.name,
-                    amount: c.amount
-                }))
-            };
-            
-            // حفظ سجل الحذف
-            const deleteLogs = JSON.parse(localStorage.getItem('checkflow_delete_logs') || '[]');
-            deleteLogs.push(deleteLog);
-            localStorage.setItem('checkflow_delete_logs', JSON.stringify(deleteLogs));
-            
-            // حذف جميع الشيكات
-            checks = [];
-            saveChecksLocally();
-            
-            // حذف من Firebase إذا كان متصلاً
-            if (isOnline && database && currentUserId) {
-                database.ref('users/' + currentUserId + '/checks').remove()
-                    .then(() => {
-                        showSyncStatus('تم حذف جميع الشيكات من السحابة', 'success');
-                    })
-                    .catch(error => {
-                        console.error('Error deleting from Firebase:', error);
-                        pendingSync.push({ type: 'delete_all' });
-                    });
-            } else {
-                pendingSync.push({ type: 'delete_all' });
-            }
-            
-            closeModal();
-            updateUI();
-            showNotification('تم حذف جميع الشيكات');
-        }
-
         // نظام الإشعارات
         function setupNotifications() {
-            // التحقق من الإشعارات كل ساعة
             setInterval(checkDueDateNotifications, 60 * 60 * 1000);
-            
-            // التحقق فور التحميل
             setTimeout(checkDueDateNotifications, 5000);
-            
-            // تحميل إعدادات الإشعارات
             loadNotificationSettings();
         }
 
@@ -4192,108 +3588,6 @@
             document.getElementById('notifyTwoDays').checked = notifyTwoDays;
             document.getElementById('notifyDueDate').checked = notifyDueDate;
             document.getElementById('notifyOverdue').checked = notifyOverdue;
-        }
-
-        function saveNotificationSettings() {
-            const notifyTwoDays = document.getElementById('notifyTwoDays').checked;
-            const notifyDueDate = document.getElementById('notifyDueDate').checked;
-            const notifyOverdue = document.getElementById('notifyOverdue').checked;
-            
-            localStorage.setItem('notifyTwoDays', notifyTwoDays);
-            localStorage.setItem('notifyDueDate', notifyDueDate);
-            localStorage.setItem('notifyOverdue', notifyOverdue);
-        }
-
-        function checkDueDateNotifications() {
-            if (!notificationsEnabled) return;
-            
-            const today = new Date();
-            const notifyTwoDays = document.getElementById('notifyTwoDays').checked;
-            const notifyDueDate = document.getElementById('notifyDueDate').checked;
-            const notifyOverdue = document.getElementById('notifyOverdue').checked;
-            
-            const notifications = [];
-            
-            checks.forEach(check => {
-                if (check.status !== 'pending' || !check.dueDate) return;
-                
-                const dueDate = new Date(check.dueDate);
-                const daysDifference = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-                
-                // إشعار قبل يومين
-                if (daysDifference === 2 && notifyTwoDays) {
-                    notifications.push({
-                        type: 'two_days_before',
-                        check: check,
-                        message: `شيك ${check.number} مستحق بعد يومين (${formatDate(check.dueDate)})`
-                    });
-                }
-                
-                // إشعار في اليوم الأخير
-                if (daysDifference === 0 && notifyDueDate) {
-                    notifications.push({
-                        type: 'due_today',
-                        check: check,
-                        message: `شيك ${check.number} مستحق اليوم!`
-                    });
-                }
-                
-                // إشعار إذا تأخر
-                if (daysDifference < 0 && notifyOverdue) {
-                    notifications.push({
-                        type: 'overdue',
-                        check: check,
-                        message: `شيك ${check.number} تأخر ${Math.abs(daysDifference)} يوم`
-                    });
-                }
-            });
-            
-            // عرض الإشعارات
-            notifications.forEach(notification => {
-                // إشعارات النظام
-                if (Notification.permission === 'granted') {
-                    new Notification('تذكير بالشيكات', {
-                        body: notification.message,
-                        icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-                        tag: 'check_reminder'
-                    });
-                }
-                
-                // عرض في الواجهة أيضاً
-                showInAppNotification(notification.message);
-            });
-        }
-
-        function showInAppNotification(message) {
-            // إزالة الإشعارات القديمة
-            const oldNotifications = document.querySelectorAll('.in-app-notification');
-            oldNotifications.forEach(notification => notification.remove());
-            
-            const notification = document.createElement('div');
-            notification.className = 'in-app-notification';
-            notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-bell"></i>
-                    <span>${message}</span>
-                </div>
-                <button onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // إزالة تلقائية بعد 10 ثواني
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.style.animation = 'slideIn 0.3s ease reverse';
-                    setTimeout(() => {
-                        if (notification.parentElement) {
-                            document.body.removeChild(notification);
-                        }
-                    }, 300);
-                }
-            }, 10000);
         }
 
         // دوال العرض الرئيسية
@@ -4386,7 +3680,6 @@
             const isEdit = !!checkId;
             const checkNumber = document.getElementById('checkNumber').value;
             
-            // التحقق من تكرار رقم الشيك
             if (isCheckDuplicate(checkNumber, checkId)) {
                 document.getElementById('duplicateAlert').style.display = 'flex';
                 document.getElementById('duplicateAlert').innerHTML = `
@@ -4423,14 +3716,11 @@
                 checks.unshift(checkData);
             }
             
-            // حفظ محلياً
             saveChecksLocally();
             
-            // محاولة الحفظ في قاعدة البيانات
             if (isOnline && database) {
                 const success = await saveCheckToDatabase(checkData);
                 if (!success) {
-                    // إضافة إلى قائمة الانتظار للمزامنة لاحقاً
                     pendingSync.push({ type: 'save', data: checkData });
                     showSyncStatus('تم الحفظ محلياً، جاري المزامنة لاحقاً', 'syncing');
                 } else {
@@ -4445,7 +3735,6 @@
             updateUI();
             showNotification(isEdit ? 'تم تحديث الشيك' : 'تم إضافة الشيك');
             
-            // التحقق من الإشعارات بعد إضافة شيك جديد
             setTimeout(checkDueDateNotifications, 1000);
         }
 
@@ -4455,7 +3744,6 @@
             checks = checks.filter(c => c.id !== checkId);
             saveChecksLocally();
             
-            // محاولة الحذف من قاعدة البيانات
             if (isOnline && database) {
                 const success = await deleteCheckFromDatabase(checkId);
                 if (!success) {
@@ -4471,22 +3759,6 @@
             showNotification('تم حذف الشيك');
         }
 
-        function toggleImportant(checkId) {
-            const index = checks.findIndex(c => c.id === checkId);
-            if (index !== -1) {
-                checks[index].important = !checks[index].important;
-                saveChecksLocally();
-                updateUI();
-                
-                // مزامنة التغيير
-                if (isOnline && database) {
-                    saveCheckToDatabase(checks[index]);
-                } else {
-                    pendingSync.push({ type: 'save', data: checks[index] });
-                }
-            }
-        }
-
         // تحديثات الواجهة
         function updateUI() {
             updateStats();
@@ -4494,17 +3766,14 @@
             updateAllChecks();
             updateBadges();
             
-            // تحديث الإحصائيات إذا كانت الصفحة مفتوحة
             if (currentView === 'analytics') {
                 updateAnalytics();
             }
             
-            // تحديث المستلمين إذا كانت الصفحة مفتوحة
             if (currentView === 'recipients') {
                 updateRecipientsList();
             }
             
-            // تحديث المعطيين إذا كانت الصفحة مفتوحة
             if (currentView === 'issuers') {
                 updateIssuersList();
             }
@@ -4586,7 +3855,6 @@
                        check.status.toLowerCase().includes(searchTerm);
             });
             
-            // تطبيق الفلاتر النشطة
             if (Object.keys(activeFilters).length > 0) {
                 filteredChecks = filteredChecks.filter(check => {
                     let pass = true;
@@ -4623,7 +3891,6 @@
                 });
             }
             
-            // التحقق من الشيكات المكررة
             const duplicateCounts = {};
             checks.forEach(check => {
                 duplicateCounts[check.number] = (duplicateCounts[check.number] || 0) + 1;
@@ -4777,14 +4044,12 @@
                 modal.classList.remove('active');
             });
             
-            // إزالة النوافذ الديناميكية
             document.querySelectorAll('.modal-overlay:not([id])').forEach(modal => {
                 modal.remove();
             });
         }
 
         function openFilterModal() {
-            // ملء قائمة البنوك
             const banks = [...new Set(checks.map(check => check.bank).filter(b => b))];
             const bankSelect = document.getElementById('filterBank');
             bankSelect.innerHTML = '<option value="all">جميع البنوك</option>';
@@ -4830,8 +4095,898 @@
             alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n© 2024 جميع الحقوق محفوظة');
         }
 
-        // تصدير البيانات
-        function exportData() {
+        // دوال التصدير
+        function openExportModal() {
+            openModal('exportModal');
+        }
+
+        function openPDFExportModal() {
+            closeModal();
+            setTimeout(() => openModal('pdfExportModal'), 300);
+        }
+
+        function selectRangeOption(element, option) {
+            document.querySelectorAll('.range-option').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            selectedRangeOption = option;
+            
+            const customInputs = document.getElementById('customRangeInputs');
+            customInputs.style.display = option === 'custom' ? 'grid' : 'none';
+        }
+
+        function getFilteredChecksForExport() {
+            let filteredChecks = [...checks];
+            
+            switch(selectedRangeOption) {
+                case 'month':
+                    const monthStart = new Date();
+                    monthStart.setDate(1);
+                    monthStart.setHours(0, 0, 0, 0);
+                    
+                    const monthEnd = new Date();
+                    monthEnd.setMonth(monthEnd.getMonth() + 1);
+                    monthEnd.setDate(0);
+                    monthEnd.setHours(23, 59, 59, 999);
+                    
+                    filteredChecks = filteredChecks.filter(check => {
+                        const checkDate = new Date(check.issueDate || check.createdAt);
+                        return checkDate >= monthStart && checkDate <= monthEnd;
+                    });
+                    break;
+                    
+                case 'quarter':
+                    const now = new Date();
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    const quarterStart = new Date(now.getFullYear(), quarter * 3, 1);
+                    const quarterEnd = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+                    quarterEnd.setHours(23, 59, 59, 999);
+                    
+                    filteredChecks = filteredChecks.filter(check => {
+                        const checkDate = new Date(check.issueDate || check.createdAt);
+                        return checkDate >= quarterStart && checkDate <= quarterEnd;
+                    });
+                    break;
+                    
+                case 'year':
+                    const yearStart = new Date(new Date().getFullYear(), 0, 1);
+                    const yearEnd = new Date(new Date().getFullYear(), 11, 31);
+                    yearEnd.setHours(23, 59, 59, 999);
+                    
+                    filteredChecks = filteredChecks.filter(check => {
+                        const checkDate = new Date(check.issueDate || check.createdAt);
+                        return checkDate >= yearStart && checkDate <= yearEnd;
+                    });
+                    break;
+                    
+                case 'custom':
+                    const fromDate = document.getElementById('exportFromDate').value;
+                    const toDate = document.getElementById('exportToDate').value;
+                    
+                    if (fromDate && toDate) {
+                        const customStart = new Date(fromDate);
+                        customStart.setHours(0, 0, 0, 0);
+                        
+                        const customEnd = new Date(toDate);
+                        customEnd.setHours(23, 59, 59, 999);
+                        
+                        filteredChecks = filteredChecks.filter(check => {
+                            const checkDate = new Date(check.issueDate || check.createdAt);
+                            return checkDate >= customStart && checkDate <= customEnd;
+                        });
+                    }
+                    break;
+            }
+            
+            return filteredChecks;
+        }
+
+        async function generatePDFReport() {
+            try {
+                const includeSummary = document.getElementById('includeSummary').checked;
+                const includeChecksTable = document.getElementById('includeChecksTable').checked;
+                const includeCharts = document.getElementById('includeCharts').checked;
+                const includeRecipientsTable = document.getElementById('includeRecipientsTable').checked;
+                const includeIssuersTable = document.getElementById('includeIssuersTable').checked;
+                const includeOverdueChecks = document.getElementById('includeOverdueChecks').checked;
+                const includeDuplicates = document.getElementById('includeDuplicates').checked;
+                const exportLanguage = document.getElementById('exportLanguage').value;
+                const reportType = document.getElementById('reportType').value;
+                
+                const filteredChecks = getFilteredChecksForExport();
+                
+                if (filteredChecks.length === 0) {
+                    alert('لا توجد بيانات للتصدير في الفترة المحددة');
+                    return;
+                }
+                
+                showNotification('جاري إنشاء التقرير PDF...');
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                const translations = getTranslations(exportLanguage);
+                
+                const pdfReportData = {
+                    doc: doc,
+                    language: exportLanguage,
+                    translations: translations,
+                    checks: filteredChecks,
+                    reportType: reportType,
+                    options: {
+                        includeSummary,
+                        includeChecksTable,
+                        includeCharts,
+                        includeRecipientsTable,
+                        includeIssuersTable,
+                        includeOverdueChecks,
+                        includeDuplicates
+                    },
+                    currentPage: 1,
+                    yPosition: 20
+                };
+                
+                // إنشاء الصفحة الرئيسية
+                createCoverPage(pdfReportData);
+                
+                // إنشاء فهرس المحتويات
+                createTableOfContents(pdfReportData);
+                
+                // إضافة ملخص الإحصائيات
+                if (includeSummary) {
+                    createSummarySection(pdfReportData);
+                }
+                
+                // إضافة جدول الشيكات
+                if (includeChecksTable) {
+                    createChecksTableSection(pdfReportData);
+                }
+                
+                // إضافة الرسوم البيانية
+                if (includeCharts) {
+                    createChartsSection(pdfReportData);
+                }
+                
+                // إضافة جدول المستلمين
+                if (includeRecipientsTable) {
+                    createRecipientsTableSection(pdfReportData);
+                }
+                
+                // إضافة جدول المعطيين
+                if (includeIssuersTable) {
+                    createIssuersTableSection(pdfReportData);
+                }
+                
+                // إضافة الشيكات المتأخرة
+                if (includeOverdueChecks) {
+                    createOverdueChecksSection(pdfReportData);
+                }
+                
+                // إضافة تقرير التكرارات
+                if (includeDuplicates) {
+                    createDuplicatesSection(pdfReportData);
+                }
+                
+                // إنشاء صفحة الخاتمة
+                createConclusionPage(pdfReportData);
+                
+                // حفظ وتحميل الملف
+                const fileName = `Rapport_Chèques_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+                
+                closeModal();
+                showNotification('تم إنشاء التقرير PDF بنجاح');
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('حدث خطأ أثناء إنشاء التقرير');
+            }
+        }
+
+        function getTranslations(language) {
+            if (language === 'fr') {
+                return {
+                    reportTitle: 'Rapport de Gestion des Chèques',
+                    company: 'Société XYZ',
+                    period: 'Période',
+                    generatedOn: 'Généré le',
+                    page: 'Page',
+                    summary: 'Résumé Exécutif',
+                    totalChecks: 'Total des Chèques',
+                    totalAmount: 'Montant Total',
+                    pendingChecks: 'Chèques en Attente',
+                    clearedChecks: 'Chèques Compensés',
+                    bouncedChecks: 'Chèques Retournés',
+                    averageAmount: 'Montant Moyen',
+                    overdueChecks: 'Chèques Échus',
+                    checksTable: 'Liste des Chèques',
+                    recipientsTable: 'Liste des Bénéficiaires',
+                    issuersTable: 'Liste des Émetteurs',
+                    overdueTable: 'Chèques En Retard',
+                    duplicatesTable: 'Rapport des Doublons',
+                    byStatus: 'Par Statut',
+                    byBank: 'Par Banque',
+                    monthlyFlow: 'Flux Mensuel',
+                    topBanks: 'Top 10 des Banques',
+                    checkNumber: 'N° Chèque',
+                    checkName: 'Nom du Chèque',
+                    amount: 'Montant',
+                    bank: 'Banque',
+                    recipient: 'Bénéficiaire',
+                    issuer: 'Émetteur',
+                    status: 'Statut',
+                    issueDate: 'Date d\'Émission',
+                    dueDate: 'Date d\'Échéance',
+                    daysOverdue: 'Jours de Retard',
+                    notes: 'Remarques',
+                    statusPending: 'En Attente',
+                    statusCleared: 'Compensé',
+                    statusBounced: 'Retourné',
+                    conclusion: 'Conclusion et Recommandations',
+                    recommendations: 'Recommandations',
+                    preparedBy: 'Préparé par',
+                    total: 'Total',
+                    average: 'Moyenne',
+                    count: 'Nombre'
+                };
+            } else if (language === 'en') {
+                return {
+                    reportTitle: 'Checks Management Report',
+                    company: 'XYZ Company',
+                    period: 'Period',
+                    generatedOn: 'Generated on',
+                    page: 'Page',
+                    summary: 'Executive Summary',
+                    totalChecks: 'Total Checks',
+                    totalAmount: 'Total Amount',
+                    pendingChecks: 'Pending Checks',
+                    clearedChecks: 'Cleared Checks',
+                    bouncedChecks: 'Bounced Checks',
+                    averageAmount: 'Average Amount',
+                    overdueChecks: 'Overdue Checks',
+                    checksTable: 'Checks List',
+                    recipientsTable: 'Recipients List',
+                    issuersTable: 'Issuers List',
+                    overdueTable: 'Overdue Checks',
+                    duplicatesTable: 'Duplicates Report',
+                    byStatus: 'By Status',
+                    byBank: 'By Bank',
+                    monthlyFlow: 'Monthly Flow',
+                    topBanks: 'Top 10 Banks',
+                    checkNumber: 'Check Number',
+                    checkName: 'Check Name',
+                    amount: 'Amount',
+                    bank: 'Bank',
+                    recipient: 'Recipient',
+                    issuer: 'Issuer',
+                    status: 'Status',
+                    issueDate: 'Issue Date',
+                    dueDate: 'Due Date',
+                    daysOverdue: 'Days Overdue',
+                    notes: 'Notes',
+                    statusPending: 'Pending',
+                    statusCleared: 'Cleared',
+                    statusBounced: 'Bounced',
+                    conclusion: 'Conclusion and Recommendations',
+                    recommendations: 'Recommendations',
+                    preparedBy: 'Prepared by',
+                    total: 'Total',
+                    average: 'Average',
+                    count: 'Count'
+                };
+            } else {
+                return {
+                    reportTitle: 'تقرير إدارة الشيكات',
+                    company: 'شركة XYZ',
+                    period: 'الفترة',
+                    generatedOn: 'تم الإنشاء في',
+                    page: 'صفحة',
+                    summary: 'ملخص تنفيذي',
+                    totalChecks: 'إجمالي الشيكات',
+                    totalAmount: 'إجمالي المبلغ',
+                    pendingChecks: 'شيكات معلقة',
+                    clearedChecks: 'شيكات منفذة',
+                    bouncedChecks: 'شيكات مرتجعة',
+                    averageAmount: 'المتوسط',
+                    overdueChecks: 'شيكات متأخرة',
+                    checksTable: 'قائمة الشيكات',
+                    recipientsTable: 'قائمة المستلمين',
+                    issuersTable: 'قائمة المعطيين',
+                    overdueTable: 'الشيكات المتأخرة',
+                    duplicatesTable: 'تقرير التكرارات',
+                    byStatus: 'حسب الحالة',
+                    byBank: 'حسب البنك',
+                    monthlyFlow: 'التدفق الشهري',
+                    topBanks: 'أهم 10 بنوك',
+                    checkNumber: 'رقم الشيك',
+                    checkName: 'اسم الشيك',
+                    amount: 'المبلغ',
+                    bank: 'البنك',
+                    recipient: 'المستلم',
+                    issuer: 'المعطي',
+                    status: 'الحالة',
+                    issueDate: 'تاريخ الإصدار',
+                    dueDate: 'تاريخ الاستحقاق',
+                    daysOverdue: 'أيام التأخير',
+                    notes: 'ملاحظات',
+                    statusPending: 'قيد الانتظار',
+                    statusCleared: 'تم الصرف',
+                    statusBounced: 'مرتجع',
+                    conclusion: 'الخاتمة والتوصيات',
+                    recommendations: 'التوصيات',
+                    preparedBy: 'أعد بواسطة',
+                    total: 'الإجمالي',
+                    average: 'المتوسط',
+                    count: 'العدد'
+                };
+            }
+        }
+
+        function createCoverPage(data) {
+            const { doc, translations, language } = data;
+            
+            doc.setFillColor(51, 126, 169);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            doc.setFillColor(255, 255, 255);
+            doc.rect(20, 50, 170, 180, 'F');
+            
+            doc.setFontSize(48);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CF', 105, 90, { align: 'center' });
+            
+            doc.setFontSize(24);
+            doc.setTextColor(30, 30, 30);
+            doc.text(translations.reportTitle, 105, 120, { align: 'center' });
+            
+            doc.setFontSize(18);
+            doc.setTextColor(100, 100, 100);
+            doc.text(translations.company, 105, 140, { align: 'center' });
+            
+            doc.setFontSize(14);
+            const periodText = `${translations.period}: ${getPeriodText(data)}`;
+            doc.text(periodText, 105, 160, { align: 'center' });
+            
+            const dateText = `${translations.generatedOn}: ${new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : language === 'en' ? 'en-US' : 'ar-MA')}`;
+            doc.text(dateText, 105, 175, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(`${translations.preparedBy}: ${currentUserId || 'Utilisateur'}`, 105, 190, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`${translations.page} 1`, 105, 280, { align: 'center' });
+            
+            data.currentPage = 2;
+        }
+
+        function getPeriodText(data) {
+            const language = data.language;
+            
+            switch(selectedRangeOption) {
+                case 'all':
+                    return language === 'fr' ? 'Toutes périodes' : 'كل الفترات';
+                case 'month':
+                    const monthNames = {
+                        fr: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                        ar: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+                        en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                    };
+                    const month = new Date().getMonth();
+                    const year = new Date().getFullYear();
+                    return `${monthNames[language][month]} ${year}`;
+                case 'quarter':
+                    const quarter = Math.floor(new Date().getMonth() / 3) + 1;
+                    return language === 'fr' ? `Trimestre ${quarter} ${new Date().getFullYear()}` : `الربع ${quarter} ${new Date().getFullYear()}`;
+                case 'year':
+                    return `${new Date().getFullYear()}`;
+                case 'custom':
+                    const fromDate = document.getElementById('exportFromDate').value;
+                    const toDate = document.getElementById('exportToDate').value;
+                    if (fromDate && toDate) {
+                        return `${formatDateForExport(fromDate, language)} - ${formatDateForExport(toDate, language)}`;
+                    }
+                    return language === 'fr' ? 'Période personnalisée' : 'فترة مخصصة';
+                default:
+                    return '';
+            }
+        }
+
+        function formatDateForExport(dateString, language) {
+            const date = new Date(dateString);
+            if (language === 'fr') {
+                return date.toLocaleDateString('fr-FR');
+            } else if (language === 'en') {
+                return date.toLocaleDateString('en-US');
+            } else {
+                return date.toLocaleDateString('ar-MA');
+            }
+        }
+
+        function createTableOfContents(data) {
+            const { doc, translations, options } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(20);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Table des Matières', 105, 20, { align: 'center' });
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(50, 25, 160, 25);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(30, 30, 30);
+            doc.setFont('helvetica', 'normal');
+            
+            let y = 40;
+            let pageNum = 3;
+            
+            doc.text('1. Résumé Exécutif', 20, y);
+            doc.text(pageNum.toString(), 190, y, { align: 'right' });
+            y += 10;
+            pageNum++;
+            
+            if (options.includeChecksTable) {
+                doc.text('2. Liste des Chèques', 20, y);
+                doc.text(pageNum.toString(), 190, y, { align: 'right' });
+                y += 10;
+                pageNum++;
+            }
+            
+            if (options.includeCharts) {
+                doc.text('3. Analyses Graphiques', 20, y);
+                doc.text(pageNum.toString(), 190, y, { align: 'right' });
+                y += 10;
+                pageNum++;
+            }
+            
+            if (options.includeRecipientsTable) {
+                doc.text('4. Liste des Bénéficiaires', 20, y);
+                doc.text(pageNum.toString(), 190, y, { align: 'right' });
+                y += 10;
+                pageNum++;
+            }
+            
+            if (options.includeIssuersTable) {
+                doc.text('5. Liste des Émetteurs', 20, y);
+                doc.text(pageNum.toString(), 190, y, { align: 'right' });
+                y += 10;
+                pageNum++;
+            }
+            
+            if (options.includeOverdueChecks) {
+                doc.text('6. Chèques en Retard', 20, y);
+                doc.text(pageNum.toString(), 190, y, { align: 'right' });
+                y += 10;
+                pageNum++;
+            }
+            
+            if (options.includeDuplicates) {
+                doc.text('7. Rapport des Doublons', 20, y);
+                doc.text(pageNum.toString(), 190, y, { align: 'right' });
+                y += 10;
+                pageNum++;
+            }
+            
+            doc.text('8. Conclusion', 20, y);
+            doc.text(pageNum.toString(), 190, y, { align: 'right' });
+            
+            data.currentPage = 3;
+        }
+
+        function createSummarySection(data) {
+            const { doc, translations, checks } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text(translations.summary, 20, 20);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            const totalChecks = checks.length;
+            const totalAmount = checks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const pendingChecks = checks.filter(c => c.status === 'pending').length;
+            const clearedChecks = checks.filter(c => c.status === 'cleared').length;
+            const bouncedChecks = checks.filter(c => c.status === 'bounced').length;
+            const averageAmount = totalChecks > 0 ? totalAmount / totalChecks : 0;
+            
+            const today = new Date();
+            const overdueChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                return new Date(check.dueDate) < today;
+            }).length;
+            
+            const statsData = [
+                [
+                    { content: translations.totalChecks, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } },
+                    { content: totalChecks.toString(), styles: { halign: 'center', fillColor: [255, 255, 255] } }
+                ],
+                [
+                    { content: translations.totalAmount, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } },
+                    { content: formatCurrencyForExport(totalAmount, data.language), styles: { halign: 'center', fillColor: [255, 255, 255] } }
+                ],
+                [
+                    { content: translations.pendingChecks, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } },
+                    { content: pendingChecks.toString(), styles: { halign: 'center', fillColor: [255, 255, 255] } }
+                ],
+                [
+                    { content: translations.clearedChecks, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } },
+                    { content: clearedChecks.toString(), styles: { halign: 'center', fillColor: [255, 255, 255] } }
+                ],
+                [
+                    { content: translations.bouncedChecks, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } },
+                    { content: bouncedChecks.toString(), styles: { halign: 'center', fillColor: [255, 255, 255] } }
+                ],
+                [
+                    { content: translations.averageAmount, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } },
+                    { content: formatCurrencyForExport(averageAmount, data.language), styles: { halign: 'center', fillColor: [255, 255, 255] } }
+                ],
+                [
+                    { content: translations.overdueChecks, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } },
+                    { content: overdueChecks.toString(), styles: { halign: 'center', fillColor: overdueChecks > 0 ? [255, 230, 230] : [230, 255, 230] } }
+                ]
+            ];
+            
+            doc.autoTable({
+                startY: 30,
+                head: [[
+                    { content: 'Indicateur', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } },
+                    { content: 'Valeur', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } }
+                ]],
+                body: statsData,
+                theme: 'grid',
+                styles: { fontSize: 10, cellPadding: 3 },
+                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255] },
+                alternateRowStyles: { fillColor: [248, 248, 248] },
+                margin: { left: 20, right: 20 }
+            });
+            
+            data.currentPage++;
+        }
+
+        function createChecksTableSection(data) {
+            const { doc, translations, checks, language } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text(translations.checksTable, 20, 20);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            const tableData = checks.map(check => {
+                const statusText = getStatusText(check.status, language);
+                
+                return [
+                    check.number || '',
+                    check.name || '',
+                    formatCurrencyForExport(check.amount || 0, language),
+                    check.bank || '',
+                    check.recipient || '',
+                    check.issuer || '',
+                    statusText,
+                    formatDateForExport(check.issueDate || check.createdAt, language),
+                    check.dueDate ? formatDateForExport(check.dueDate, language) : ''
+                ];
+            });
+            
+            doc.autoTable({
+                startY: 30,
+                head: [[
+                    translations.checkNumber,
+                    translations.checkName,
+                    translations.amount,
+                    translations.bank,
+                    translations.recipient,
+                    translations.issuer,
+                    translations.status,
+                    translations.issueDate,
+                    translations.dueDate
+                ]],
+                body: tableData,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 2 },
+                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 25 },
+                    1: { cellWidth: 30 },
+                    2: { cellWidth: 25, halign: 'right' },
+                    3: { cellWidth: 30 },
+                    4: { cellWidth: 25 },
+                    5: { cellWidth: 25 },
+                    6: { cellWidth: 20, halign: 'center' },
+                    7: { cellWidth: 25, halign: 'center' },
+                    8: { cellWidth: 25, halign: 'center' }
+                },
+                didParseCell: function(data) {
+                    if (data.column.index === 6) {
+                        const status = data.cell.raw;
+                        if (status.includes('En Attente') || status.includes('قيد الانتظار') || status.includes('Pending')) {
+                            data.cell.styles.fillColor = [255, 255, 200];
+                        } else if (status.includes('Compensé') || status.includes('تم الصرف') || status.includes('Cleared')) {
+                            data.cell.styles.fillColor = [200, 255, 200];
+                        } else if (status.includes('Retourné') || status.includes('مرتجع') || status.includes('Bounced')) {
+                            data.cell.styles.fillColor = [255, 200, 200];
+                        }
+                    }
+                },
+                margin: { left: 10, right: 10 }
+            });
+            
+            const finalY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.setFont('helvetica', 'italic');
+            doc.text(`Total: ${checks.length} chèque(s)`, 20, finalY);
+            
+            data.currentPage++;
+        }
+
+        function getStatusText(status, language) {
+            const statusMap = {
+                fr: {
+                    pending: 'En Attente',
+                    cleared: 'Compensé',
+                    bounced: 'Retourné'
+                },
+                en: {
+                    pending: 'Pending',
+                    cleared: 'Cleared',
+                    bounced: 'Bounced'
+                },
+                ar: {
+                    pending: 'قيد الانتظار',
+                    cleared: 'تم الصرف',
+                    bounced: 'مرتجع'
+                }
+            };
+            
+            return statusMap[language][status] || status;
+        }
+
+        function formatCurrencyForExport(amount, language) {
+            const formatters = {
+                fr: new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'MAD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }),
+                en: new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }),
+                ar: new Intl.NumberFormat('ar-MA', {
+                    style: 'currency',
+                    currency: 'MAD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })
+            };
+            
+            return formatters[language || 'fr'].format(amount || 0);
+        }
+
+        // دوال PDF إضافية (مختصرة للطول)
+        function createChartsSection(data) {
+            const { doc, translations } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Analyses Graphiques', 20, 20);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.setFont('helvetica', 'italic');
+            doc.text('Les graphiques sont disponibles dans la version interactive du rapport.', 20, 35);
+            
+            data.currentPage++;
+        }
+
+        function createRecipientsTableSection(data) {
+            const { doc, translations, checks, language } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text(translations.recipientsTable, 20, 20);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            const recipientsData = {};
+            checks.forEach(check => {
+                const recipient = check.recipient || 'Non spécifié';
+                if (!recipientsData[recipient]) {
+                    recipientsData[recipient] = {
+                        count: 0,
+                        totalAmount: 0,
+                        pending: 0,
+                        cleared: 0,
+                        bounced: 0
+                    };
+                }
+                
+                recipientsData[recipient].count++;
+                recipientsData[recipient].totalAmount += check.amount || 0;
+                
+                if (check.status === 'pending') recipientsData[recipient].pending++;
+                if (check.status === 'cleared') recipientsData[recipient].cleared++;
+                if (check.status === 'bounced') recipientsData[recipient].bounced++;
+            });
+            
+            const recipientsArray = Object.entries(recipientsData)
+                .map(([name, stats]) => ({
+                    name,
+                    ...stats
+                }))
+                .sort((a, b) => b.totalAmount - a.totalAmount);
+            
+            const tableData = recipientsArray.map(recipient => [
+                recipient.name,
+                recipient.count,
+                formatCurrencyForExport(recipient.totalAmount, language),
+                recipient.pending,
+                recipient.cleared,
+                recipient.bounced,
+                formatCurrencyForExport(recipient.totalAmount / recipient.count, language)
+            ]);
+            
+            doc.autoTable({
+                startY: 30,
+                head: [['Bénéficiaire', 'Nombre', 'Montant Total', 'En Attente', 'Compensés', 'Retournés', 'Moyenne']],
+                body: tableData,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 2 },
+                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold' },
+                columnStyles: {
+                    0: { cellWidth: 50 },
+                    1: { cellWidth: 20, halign: 'center' },
+                    2: { cellWidth: 30, halign: 'right' },
+                    3: { cellWidth: 20, halign: 'center' },
+                    4: { cellWidth: 20, halign: 'center' },
+                    5: { cellWidth: 20, halign: 'center' },
+                    6: { cellWidth: 25, halign: 'right' }
+                },
+                margin: { left: 15, right: 15 }
+            });
+            
+            data.currentPage++;
+        }
+
+        function createIssuersTableSection(data) {
+            const { doc, translations, checks, language } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text(translations.issuersTable, 20, 20);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            data.currentPage++;
+        }
+
+        function createOverdueChecksSection(data) {
+            const { doc, translations, checks, language } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text(translations.overdueTable, 20, 20);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            const today = new Date();
+            const overdueChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                return new Date(check.dueDate) < today;
+            }).sort((a, b) => {
+                const daysA = Math.floor((today - new Date(a.dueDate)) / (1000 * 60 * 60 * 24));
+                const daysB = Math.floor((today - new Date(b.dueDate)) / (1000 * 60 * 60 * 24));
+                return daysB - daysA;
+            });
+            
+            if (overdueChecks.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.setFont('helvetica', 'italic');
+                doc.text('Aucun chèque en retard.', 20, 40);
+                data.currentPage++;
+                return;
+            }
+            
+            data.currentPage++;
+        }
+
+        function createDuplicatesSection(data) {
+            const { doc, translations, checks } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text(translations.duplicatesTable, 20, 20);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            data.currentPage++;
+        }
+
+        function createConclusionPage(data) {
+            const { doc, translations, checks } = data;
+            
+            doc.addPage();
+            
+            doc.setFontSize(20);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text(translations.conclusion, 105, 30, { align: 'center' });
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(50, 35, 160, 35);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(30, 30, 30);
+            doc.setFont('helvetica', 'normal');
+            
+            let y = 50;
+            
+            doc.text('Ce rapport présente une analyse complète de la gestion des chèques pour la période spécifiée.', 20, y);
+            y += 15;
+            
+            const totalChecks = checks.length;
+            doc.text(`Au total, ${totalChecks} chèque(s) ont été traités durant cette période.`, 20, y);
+            y += 15;
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Rapport généré le: ${new Date().toLocaleDateString('fr-FR')}`, 20, 270);
+            doc.text(`Nombre total de pages: ${data.currentPage}`, 20, 275);
+            
+            doc.text(`Page ${data.currentPage}`, 105, 280, { align: 'center' });
+        }
+
+        // دوال التصدير الأخرى
+        function exportToJSON() {
             const data = {
                 version: '2.0',
                 exportDate: new Date().toISOString(),
@@ -4844,39 +4999,733 @@
             const dataStr = JSON.stringify(data, null, 2);
             const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
             
-            const exportFileDefaultName = `نسخة-احتياطية-${new Date().toISOString().split('T')[0]}.json`;
+            const exportFileDefaultName = `checkflow_export_${new Date().toISOString().split('T')[0]}.json`;
             
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
             linkElement.setAttribute('download', exportFileDefaultName);
             linkElement.click();
             
-            showNotification('تم تصدير البيانات');
+            showNotification('تم التصدير إلى JSON');
+            closeModal();
         }
 
+        function exportToExcel() {
+            const wsData = [
+                ['رقم الشيك', 'اسم الشيك', 'المبلغ', 'البنك', 'المستلم', 'المعطي', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق', 'ملاحظات'],
+                ...checks.map(check => [
+                    check.number,
+                    check.name,
+                    check.amount,
+                    check.bank,
+                    check.recipient,
+                    check.issuer,
+                    check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
+                    check.issueDate,
+                    check.dueDate,
+                    check.notes
+                ])
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'الشيكات');
+            
+            XLSX.writeFile(wb, `checkflow_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+            
+            showNotification('تم التصدير إلى Excel');
+            closeModal();
+        }
+
+        function exportToCSV() {
+            const csvContent = [
+                ['رقم الشيك', 'اسم الشيك', 'المبلغ', 'البنك', 'المستلم', 'المعطي', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق', 'ملاحظات'].join(','),
+                ...checks.map(check => [
+                    `"${check.number || ''}"`,
+                    `"${check.name || ''}"`,
+                    check.amount || 0,
+                    `"${check.bank || ''}"`,
+                    `"${check.recipient || ''}"`,
+                    `"${check.issuer || ''}"`,
+                    `"${check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع'}"`,
+                    check.issueDate || '',
+                    check.dueDate || '',
+                    `"${(check.notes || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `checkflow_export_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('تم التصدير إلى CSV');
+            closeModal();
+        }
+
+        // دوال إضافية
         function exportDuplicateReport() {
-            if (!duplicateReport || duplicateReport.length === 0) {
-                checkForDuplicates();
-                return;
-            }
+            checkForDuplicates();
+            setTimeout(() => {
+                if (duplicateReport && duplicateReport.length > 0) {
+                    const report = {
+                        exportDate: new Date().toISOString(),
+                        totalDuplicates: duplicateReport.length,
+                        duplicates: duplicateReport
+                    };
+                    
+                    const dataStr = JSON.stringify(report, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                    
+                    const exportFileDefaultName = `تقرير-التكرار-${new Date().toISOString().split('T')[0]}.json`;
+                    
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportFileDefaultName);
+                    linkElement.click();
+                    
+                    showNotification('تم تصدير تقرير التكرار');
+                }
+            }, 500);
+        }
+
+        function exportAllRecipientsReport() {
+            const recipientsData = {};
+            
+            checks.forEach(check => {
+                const recipient = check.recipient || 'غير محدد';
+                if (!recipientsData[recipient]) {
+                    recipientsData[recipient] = {
+                        checks: [],
+                        totalAmount: 0,
+                        pendingCount: 0,
+                        clearedCount: 0
+                    };
+                }
+                
+                recipientsData[recipient].checks.push(check);
+                recipientsData[recipient].totalAmount += check.amount || 0;
+                
+                if (check.status === 'pending') {
+                    recipientsData[recipient].pendingCount++;
+                } else if (check.status === 'cleared') {
+                    recipientsData[recipient].clearedCount++;
+                }
+            });
             
             const report = {
                 exportDate: new Date().toISOString(),
-                totalDuplicates: duplicateReport.length,
-                duplicates: duplicateReport
+                totalRecipients: Object.keys(recipientsData).length,
+                recipients: Object.entries(recipientsData).map(([name, data]) => ({
+                    name,
+                    totalChecks: data.checks.length,
+                    totalAmount: data.totalAmount,
+                    pendingCount: data.pendingCount,
+                    clearedCount: data.clearedCount,
+                    checks: data.checks.map(c => ({
+                        number: c.number,
+                        name: c.name,
+                        amount: c.amount,
+                        status: c.status,
+                        dueDate: c.dueDate
+                    }))
+                }))
             };
             
             const dataStr = JSON.stringify(report, null, 2);
             const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
             
-            const exportFileDefaultName = `تقرير-التكرار-${new Date().toISOString().split('T')[0]}.json`;
+            const exportFileDefaultName = `جميع-المستلمين-${new Date().toISOString().split('T')[0]}.json`;
             
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
             linkElement.setAttribute('download', exportFileDefaultName);
             linkElement.click();
             
-            showNotification('تم تصدير تقرير التكرار');
+            showNotification('تم تصدير تقرير جميع المستلمين');
+        }
+
+        function exportAllIssuersReport() {
+            const issuersData = {};
+            
+            checks.forEach(check => {
+                const issuer = check.issuer || 'غير محدد';
+                if (!issuersData[issuer]) {
+                    issuersData[issuer] = {
+                        checks: [],
+                        totalAmount: 0,
+                        pendingCount: 0,
+                        clearedCount: 0,
+                        bouncedCount: 0,
+                        uniqueRecipients: new Set()
+                    };
+                }
+                
+                issuersData[issuer].checks.push(check);
+                issuersData[issuer].totalAmount += check.amount || 0;
+                issuersData[issuer].uniqueRecipients.add(check.recipient);
+                
+                if (check.status === 'pending') {
+                    issuersData[issuer].pendingCount++;
+                } else if (check.status === 'cleared') {
+                    issuersData[issuer].clearedCount++;
+                } else if (check.status === 'bounced') {
+                    issuersData[issuer].bouncedCount++;
+                }
+            });
+            
+            const report = {
+                exportDate: new Date().toISOString(),
+                totalIssuers: Object.keys(issuersData).length,
+                issuers: Object.entries(issuersData).map(([name, data]) => ({
+                    name,
+                    totalChecks: data.checks.length,
+                    totalAmount: data.totalAmount,
+                    pendingCount: data.pendingCount,
+                    clearedCount: data.clearedCount,
+                    bouncedCount: data.bouncedCount,
+                    uniqueRecipientsCount: data.uniqueRecipients.size,
+                    averageAmountPerCheck: data.checks.length > 0 ? (data.totalAmount / data.checks.length) : 0,
+                    checks: data.checks.map(c => ({
+                        number: c.number,
+                        name: c.name,
+                        amount: c.amount,
+                        status: c.status,
+                        recipient: c.recipient
+                    }))
+                }))
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `جميع-المعطيين-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('تم تصدير تقرير جميع المعطيين');
+        }
+
+        // دوال استيراد Excel
+        function openImportExcelModal() {
+            document.getElementById('excelFile').value = '';
+            document.getElementById('importPreview').style.display = 'none';
+            document.getElementById('skipFirstRow').checked = true;
+            document.getElementById('overwriteData').checked = false;
+            document.getElementById('skipDuplicates').checked = true;
+            openModal('importExcelModal');
+        }
+
+        function previewExcel() {
+            const fileInput = document.getElementById('excelFile');
+            const skipFirstRow = document.getElementById('skipFirstRow').checked;
+            const previewDiv = document.getElementById('importPreview');
+            const previewContent = document.getElementById('previewContent');
+
+            if (!fileInput.files.length) {
+                alert('الرجاء اختيار ملف Excel أولاً');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    excelData = parseExcelData(jsonData, skipFirstRow);
+                    
+                    previewContent.innerHTML = `
+                        <div style="margin-bottom: 8px; color: var(--primary-color);">
+                            <i class="fas fa-check-circle"></i>
+                            تم تحليل الملف بنجاح
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            <strong>عدد الصفوف:</strong> ${excelData.length}
+                        </div>
+                    `;
+                    
+                    const sampleRows = excelData.slice(0, 3);
+                    sampleRows.forEach((row, index) => {
+                        previewContent.innerHTML += `
+                            <div style="padding: 8px; margin-top: 4px; background: var(--card-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-sm);">
+                                <div><strong>الصف ${index + 1}:</strong></div>
+                                <div><strong>اسم الشيك:</strong> ${row.client || 'غير محدد'}</div>
+                                <div><strong>المبلغ:</strong> ${row.amount || 'غير محدد'}</div>
+                                <div><strong>رقم الشيك:</strong> ${row.checkNumber || 'غير محدد'}</div>
+                                <div><strong>المستلم:</strong> ${row.recipient || 'غير محدد'}</div>
+                                <div><strong>المعطي:</strong> ${row.issuer || 'غير محدد'}</div>
+                                <div><strong>تاريخ الاستحقاق:</strong> ${row.dueDate || 'غير محدد'}</div>
+                                <div><strong>البنك:</strong> ${row.bank || 'غير محدد'}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    previewDiv.style.display = 'block';
+                    
+                } catch (error) {
+                    console.error('Error reading Excel file:', error);
+                    alert('حدث خطأ في قراءة الملف. تأكد من أن الملف صحيح.');
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function parseExcelData(jsonData, skipFirstRow) {
+            const parsedData = [];
+            const startRow = skipFirstRow ? 1 : 0;
+            
+            const headers = jsonData[0] || [];
+            const columnMapping = {};
+            
+            headers.forEach((header, index) => {
+                if (!header) return;
+                
+                const headerLower = header.toString().toLowerCase();
+                
+                if (headerLower.includes('client') || headerLower.includes('nom')) {
+                    columnMapping.client = index;
+                } else if (headerLower.includes('montant') || headerLower.includes('amount')) {
+                    columnMapping.amount = index;
+                } else if (headerLower.includes('num') || headerLower.includes('number')) {
+                    columnMapping.checkNumber = index;
+                } else if (headerLower.includes('échéance') || headerLower.includes('due')) {
+                    columnMapping.dueDate = index;
+                } else if (headerLower.includes('banque') || headerLower.includes('bank')) {
+                    columnMapping.bank = index;
+                } else if (headerLower.includes('fournisseur') || headerLower.includes('recipient')) {
+                    columnMapping.recipient = index;
+                } else if (headerLower.includes('remarque') || headerLower.includes('note') || headerLower.includes('issuer')) {
+                    columnMapping.issuer = index;
+                } else if (headerLower.includes('image') || headerLower.includes('notes')) {
+                    columnMapping.image = index;
+                }
+            });
+            
+            if (Object.keys(columnMapping).length === 0) {
+                columnMapping.client = 0;
+                columnMapping.amount = 1;
+                columnMapping.checkNumber = 2;
+                columnMapping.dueDate = 3;
+                columnMapping.bank = 4;
+                columnMapping.recipient = 5;
+                columnMapping.issuer = 6;
+                columnMapping.image = 7;
+            }
+            
+            for (let i = startRow; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (!row || row.length === 0) continue;
+                
+                const checkData = {
+                    client: columnMapping.client !== undefined ? (row[columnMapping.client] || '') : '',
+                    amount: columnMapping.amount !== undefined ? (parseFloat(row[columnMapping.amount]) || 0) : 0,
+                    checkNumber: columnMapping.checkNumber !== undefined ? (row[columnMapping.checkNumber] || '') : '',
+                    dueDate: columnMapping.dueDate !== undefined ? formatExcelDate(row[columnMapping.dueDate]) : '',
+                    bank: columnMapping.bank !== undefined ? (row[columnMapping.bank] || '') : '',
+                    recipient: columnMapping.recipient !== undefined ? (row[columnMapping.recipient] || '') : '',
+                    issuer: columnMapping.issuer !== undefined ? (row[columnMapping.issuer] || '') : '',
+                    image: columnMapping.image !== undefined ? (row[columnMapping.image] || '') : ''
+                };
+                
+                if (checkData.client || checkData.amount > 0 || checkData.checkNumber) {
+                    parsedData.push(checkData);
+                }
+            }
+            
+            return parsedData;
+        }
+
+        function formatExcelDate(excelDate) {
+            if (!excelDate) return '';
+            
+            if (typeof excelDate === 'number') {
+                if (excelDate < 60) {
+                    excelDate += 1;
+                }
+                const date = new Date((excelDate - 25569) * 86400 * 1000);
+                return date.toISOString().split('T')[0];
+            }
+            
+            if (typeof excelDate === 'string') {
+                const trimmed = excelDate.trim();
+                
+                const ymdMatch = trimmed.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+                if (ymdMatch) {
+                    const year = ymdMatch[1];
+                    const month = ymdMatch[2].padStart(2, '0');
+                    const day = ymdMatch[3].padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+                
+                const dmyMatch = trimmed.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+                if (dmyMatch) {
+                    const day = dmyMatch[1].padStart(2, '0');
+                    const month = dmyMatch[2].padStart(2, '0');
+                    const year = dmyMatch[3];
+                    return `${year}-${month}-${day}`;
+                }
+                
+                const date = new Date(trimmed);
+                if (!isNaN(date.getTime())) {
+                    return date.toISOString().split('T')[0];
+                }
+            }
+            
+            return '';
+        }
+
+        async function importExcelData() {
+            if (excelData.length === 0) {
+                alert('الرجاء معاينة البيانات أولاً');
+                return;
+            }
+
+            const overwriteData = document.getElementById('overwriteData').checked;
+            const skipDuplicates = document.getElementById('skipDuplicates').checked;
+            
+            if (overwriteData && !confirm('سيتم استبدال جميع البيانات الحالية. هل تريد المتابعة؟')) {
+                return;
+            }
+
+            const newChecks = [];
+            const duplicateNumbers = [];
+            const skippedChecks = [];
+            
+            excelData.forEach((item, index) => {
+                const checkNumber = item.checkNumber || `CHK-IMPORT-${index + 1}`;
+                
+                if (skipDuplicates && !overwriteData && isCheckDuplicate(checkNumber)) {
+                    duplicateNumbers.push(checkNumber);
+                    skippedChecks.push({
+                        number: checkNumber,
+                        name: item.client || `شيك ${index + 1}`,
+                        amount: item.amount
+                    });
+                    return;
+                }
+                
+                let status = 'pending';
+                let issueDate = new Date().toISOString().split('T')[0];
+                let dueDate = item.dueDate || '';
+                
+                if (item.dueDate) {
+                    const dueDateObj = new Date(item.dueDate);
+                    const today = new Date();
+                    if (dueDateObj < today) {
+                        item.image = (item.image || '') + ' (تاريخ الاستحقاق تجاوز)';
+                    }
+                }
+
+                const newCheck = {
+                    id: 'excel_import_' + Date.now() + '_' + index,
+                    name: item.client || `شيك ${checkNumber}`,
+                    amount: item.amount || 0,
+                    number: checkNumber,
+                    bank: item.bank || 'غير محدد',
+                    recipient: item.recipient || item.client || 'غير محدد',
+                    issuer: item.issuer || 'استيراد من Excel',
+                    status: status,
+                    issueDate: issueDate,
+                    dueDate: dueDate,
+                    notes: `تم الاستيراد من Excel - ${item.image || ''}`,
+                    createdAt: new Date().toISOString(),
+                    important: false,
+                    userId: currentUserId,
+                    source: 'excel_import',
+                    originalData: {
+                        client: item.client,
+                        fournisseur: item.recipient,
+                        remarque: item.issuer,
+                        banque: item.bank
+                    }
+                };
+                
+                newChecks.push(newCheck);
+            });
+            
+            if (skippedChecks.length > 0) {
+                let skippedMessage = `تم تخطي ${skippedChecks.length} شيك مكرر:\n\n`;
+                skippedChecks.slice(0, 10).forEach((check, i) => {
+                    skippedMessage += `${i + 1}. ${check.number} - ${check.name} (${formatCurrency(check.amount)})\n`;
+                });
+                if (skippedChecks.length > 10) {
+                    skippedMessage += `... و ${skippedChecks.length - 10} شيك آخر\n`;
+                }
+                alert(skippedMessage);
+            }
+            
+            if (overwriteData) {
+                checks = newChecks;
+            } else {
+                checks = [...newChecks, ...checks];
+            }
+
+            saveChecksLocally();
+            
+            if (isOnline && database) {
+                showSyncStatus('جاري حفظ البيانات المستوردة...', 'syncing');
+                
+                const batchUpdates = {};
+                checks.forEach(check => {
+                    batchUpdates[check.id] = check;
+                });
+                
+                try {
+                    await database.ref('users/' + currentUserId + '/checks').update(batchUpdates);
+                    showSyncStatus(`تم استيراد ${newChecks.length} شيك بنجاح`, 'success');
+                } catch (error) {
+                    console.error('Error saving imported data:', error);
+                    pendingSync.push({ type: 'batch_save', data: newChecks });
+                    showSyncStatus('تم الاستيراد محلياً، جاري المزامنة لاحقاً', 'syncing');
+                }
+            } else {
+                pendingSync.push({ type: 'batch_save', data: newChecks });
+                showSyncStatus('تم الاستيراد محلياً، جاري المزامنة عند الاتصال', 'syncing');
+            }
+
+            closeModal();
+            updateUI();
+            showNotification(`تم استيراد ${newChecks.length} شيك بنجاح (تخطي ${skippedChecks.length} مكرر)`);
+        }
+
+        // دوال إضافية
+        function openDuplicateResolutionModal() {
+            if (!duplicateReport || duplicateReport.length === 0) return;
+            
+            let modalContent = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-title">معالجة الشيكات المكررة</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>تم العثور على ${duplicateReport.length} شيك مكرر</span>
+                        </div>
+            `;
+            
+            duplicateReport.forEach((report, index) => {
+                modalContent += `
+                    <div style="margin-bottom: var(--spacing-md); padding: var(--spacing-sm); background: var(--surface-color); border-radius: var(--radius-md);">
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-sm); font-size: var(--font-size-sm);">
+                            ${index + 1}. رقم الشيك: ${report.number} (${report.count} نسخة)
+                        </div>
+                `;
+                
+                report.checks.forEach((check, i) => {
+                    modalContent += `
+                        <div style="padding: 8px; margin-bottom: 4px; background: var(--card-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm);">
+                            <div><strong>${i + 1}. ${check.name}</strong></div>
+                            <div style="font-size: var(--font-size-xs); color: var(--text-secondary);">
+                                ${formatCurrency(check.amount)} | ${check.bank} | ${formatDate(check.date)}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                modalContent += `
+                        <div style="margin-top: var(--spacing-sm);">
+                            <button class="btn btn-secondary" onclick="mergeDuplicate('${report.number}')" style="font-size: var(--font-size-xs); padding: 6px 10px;">
+                                <i class="fas fa-compress-alt"></i>
+                                دمج هذه النسخ
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteDuplicates('${report.number}')" style="font-size: var(--font-size-xs); padding: 6px 10px; margin-top: 4px;">
+                                <i class="fas fa-trash"></i>
+                                حذف جميع النسخ
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modalContent += `
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = modalContent;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
+        function mergeDuplicate(checkNumber) {
+            const duplicateChecks = checks.filter(c => c.number === checkNumber);
+            
+            if (duplicateChecks.length < 2) return;
+            
+            const mergedCheck = { ...duplicateChecks[0] };
+            
+            const allNotes = duplicateChecks.map(c => c.notes || '').filter(n => n).join('\n');
+            mergedCheck.notes = `مدمج من ${duplicateChecks.length} شيك مكرر:\n\n${allNotes}`;
+            
+            const maxAmount = Math.max(...duplicateChecks.map(c => c.amount));
+            mergedCheck.amount = maxAmount;
+            
+            mergedCheck.important = true;
+            
+            checks = checks.filter(c => c.number !== checkNumber);
+            
+            checks.push(mergedCheck);
+            
+            saveChecksLocally();
+            updateUI();
+            closeModal();
+            showNotification(`تم دمج ${duplicateChecks.length} شيك مكرر`);
+        }
+
+        function deleteDuplicates(checkNumber) {
+            if (!confirm(`هل تريد حذف جميع الشيكات برقم ${checkNumber}؟`)) return;
+            
+            const duplicateChecks = checks.filter(c => c.number === checkNumber);
+            checks = checks.filter(c => c.number !== checkNumber);
+            
+            saveChecksLocally();
+            updateUI();
+            closeModal();
+            showNotification(`تم حذف ${duplicateChecks.length} شيك مكرر`);
+        }
+
+        function checkDueDateNotifications() {
+            if (!notificationsEnabled) return;
+            
+            const today = new Date();
+            const notifyTwoDays = document.getElementById('notifyTwoDays').checked;
+            const notifyDueDate = document.getElementById('notifyDueDate').checked;
+            const notifyOverdue = document.getElementById('notifyOverdue').checked;
+            
+            const notifications = [];
+            
+            checks.forEach(check => {
+                if (check.status !== 'pending' || !check.dueDate) return;
+                
+                const dueDate = new Date(check.dueDate);
+                const daysDifference = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysDifference === 2 && notifyTwoDays) {
+                    notifications.push({
+                        type: 'two_days_before',
+                        check: check,
+                        message: `شيك ${check.number} مستحق بعد يومين (${formatDate(check.dueDate)})`
+                    });
+                }
+                
+                if (daysDifference === 0 && notifyDueDate) {
+                    notifications.push({
+                        type: 'due_today',
+                        check: check,
+                        message: `شيك ${check.number} مستحق اليوم!`
+                    });
+                }
+                
+                if (daysDifference < 0 && notifyOverdue) {
+                    notifications.push({
+                        type: 'overdue',
+                        check: check,
+                        message: `شيك ${check.number} تأخر ${Math.abs(daysDifference)} يوم`
+                    });
+                }
+            });
+        }
+
+        function openDeleteAllModal() {
+            if (checks.length === 0) {
+                alert('لا توجد شيكات لحذفها');
+                return;
+            }
+            
+            let modalContent = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-title">حذف جميع الشيكات</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span><strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه</span>
+                        </div>
+                        
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div class="stat-card" style="background: var(--surface-color);">
+                                <div class="stat-value">${checks.length}</div>
+                                <div class="stat-label">عدد الشيكات</div>
+                            </div>
+                        </div>
+                        
+                        <button id="deleteAllBtn" class="btn btn-danger" onclick="deleteAllChecks()">
+                            <i class="fas fa-trash"></i>
+                            حذف جميع الشيكات
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="closeModal()" style="margin-top: var(--spacing-sm);">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = modalContent;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
+        function deleteAllChecks() {
+            if (confirm('هل أنت متأكد من حذف جميع الشيكات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                checks = [];
+                saveChecksLocally();
+                
+                if (isOnline && database && currentUserId) {
+                    database.ref('users/' + currentUserId + '/checks').remove()
+                        .then(() => {
+                            showSyncStatus('تم حذف جميع الشيكات من السحابة', 'success');
+                        })
+                        .catch(error => {
+                            console.error('Error deleting from Firebase:', error);
+                            pendingSync.push({ type: 'delete_all' });
+                        });
+                } else {
+                    pendingSync.push({ type: 'delete_all' });
+                }
+                
+                closeModal();
+                updateUI();
+                showNotification('تم حذف جميع الشيكات');
+            }
         }
 
         // الإشعارات
@@ -4946,335 +5795,6 @@
             }
         }
 
-        // دوال استيراد Excel
-        function openImportExcelModal() {
-            document.getElementById('excelFile').value = '';
-            document.getElementById('importPreview').style.display = 'none';
-            document.getElementById('skipFirstRow').checked = true;
-            document.getElementById('overwriteData').checked = false;
-            document.getElementById('skipDuplicates').checked = true;
-            openModal('importExcelModal');
-        }
-
-        function parseExcelData(jsonData, skipFirstRow) {
-            const parsedData = [];
-            const startRow = skipFirstRow ? 1 : 0;
-            
-            // التعرف التلقائي على أسماء الأعمدة
-            const headers = jsonData[0] || [];
-            const columnMapping = {};
-            
-            // تعيين تلقائي للأعمدة بناءً على أسماء العناوين
-            headers.forEach((header, index) => {
-                if (!header) return;
-                
-                const headerLower = header.toString().toLowerCase();
-                
-                if (headerLower.includes('client') || headerLower.includes('nom')) {
-                    columnMapping.client = index;
-                } else if (headerLower.includes('montant') || headerLower.includes('amount')) {
-                    columnMapping.amount = index;
-                } else if (headerLower.includes('num') || headerLower.includes('number')) {
-                    columnMapping.checkNumber = index;
-                } else if (headerLower.includes('échéance') || headerLower.includes('due')) {
-                    columnMapping.dueDate = index;
-                } else if (headerLower.includes('banque') || headerLower.includes('bank')) {
-                    columnMapping.bank = index;
-                } else if (headerLower.includes('fournisseur') || headerLower.includes('recipient')) {
-                    columnMapping.recipient = index;
-                } else if (headerLower.includes('remarque') || headerLower.includes('note') || headerLower.includes('issuer')) {
-                    columnMapping.issuer = index;
-                } else if (headerLower.includes('image') || headerLower.includes('notes')) {
-                    columnMapping.image = index;
-                }
-            });
-            
-            // إذا لم يتم التعرف على العناوين، استخدام المواضع الافتراضية
-            if (Object.keys(columnMapping).length === 0) {
-                columnMapping.client = 0;
-                columnMapping.amount = 1;
-                columnMapping.checkNumber = 2;
-                columnMapping.dueDate = 3;
-                columnMapping.bank = 4;
-                columnMapping.recipient = 5;
-                columnMapping.issuer = 6;
-                columnMapping.image = 7;
-            }
-            
-            // تحليل البيانات بناءً على التعيين
-            for (let i = startRow; i < jsonData.length; i++) {
-                const row = jsonData[i];
-                if (!row || row.length === 0) continue;
-                
-                const checkData = {
-                    client: columnMapping.client !== undefined ? (row[columnMapping.client] || '') : '',
-                    amount: columnMapping.amount !== undefined ? (parseFloat(row[columnMapping.amount]) || 0) : 0,
-                    checkNumber: columnMapping.checkNumber !== undefined ? (row[columnMapping.checkNumber] || '') : '',
-                    dueDate: columnMapping.dueDate !== undefined ? formatExcelDate(row[columnMapping.dueDate]) : '',
-                    bank: columnMapping.bank !== undefined ? (row[columnMapping.bank] || '') : '',
-                    recipient: columnMapping.recipient !== undefined ? (row[columnMapping.recipient] || '') : '',
-                    issuer: columnMapping.issuer !== undefined ? (row[columnMapping.issuer] || '') : '',
-                    image: columnMapping.image !== undefined ? (row[columnMapping.image] || '') : ''
-                };
-                
-                // تخطي الصفوف الفارغة تماماً
-                if (checkData.client || checkData.amount > 0 || checkData.checkNumber) {
-                    parsedData.push(checkData);
-                }
-            }
-            
-            return parsedData;
-        }
-
-        function formatExcelDate(excelDate) {
-            if (!excelDate) return '';
-            
-            // إذا كان رقم إكسيل
-            if (typeof excelDate === 'number') {
-                // تحويل من تاريخ إكسيل (1 يناير 1900 = 1)
-                if (excelDate < 60) {
-                    excelDate += 1; // تصحيح الخطأ في إكسيل
-                }
-                const date = new Date((excelDate - 25569) * 86400 * 1000);
-                return date.toISOString().split('T')[0];
-            }
-            
-            // إذا كان نصاً
-            if (typeof excelDate === 'string') {
-                const trimmed = excelDate.trim();
-                
-                // تحويل من تنسيق "2025-12-24"
-                const ymdMatch = trimmed.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
-                if (ymdMatch) {
-                    const year = ymdMatch[1];
-                    const month = ymdMatch[2].padStart(2, '0');
-                    const day = ymdMatch[3].padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                }
-                
-                // تحويل من تنسيق "24/12/2025"
-                const dmyMatch = trimmed.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
-                if (dmyMatch) {
-                    const day = dmyMatch[1].padStart(2, '0');
-                    const month = dmyMatch[2].padStart(2, '0');
-                    const year = dmyMatch[3];
-                    return `${year}-${month}-${day}`;
-                }
-                
-                // محاولة تحويل باستخدام كائن Date
-                const date = new Date(trimmed);
-                if (!isNaN(date.getTime())) {
-                    return date.toISOString().split('T')[0];
-                }
-            }
-            
-            return '';
-        }
-
-        function previewExcel() {
-            const fileInput = document.getElementById('excelFile');
-            const skipFirstRow = document.getElementById('skipFirstRow').checked;
-            const previewDiv = document.getElementById('importPreview');
-            const previewContent = document.getElementById('previewContent');
-
-            if (!fileInput.files.length) {
-                alert('الرجاء اختيار ملف Excel أولاً');
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    
-                    // الحصول على الورقة الأولى
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    
-                    // تحويل إلى JSON
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    
-                    // تحليل البيانات
-                    excelData = parseExcelData(jsonData, skipFirstRow);
-                    
-                    // عرض المعاينة مع التعيينات
-                    previewContent.innerHTML = `
-                        <div style="margin-bottom: 8px; color: var(--primary-color);">
-                            <i class="fas fa-check-circle"></i>
-                            تم تحليل الملف بنجاح
-                        </div>
-                        <div style="margin-bottom: 4px;">
-                            <strong>عدد الصفوف:</strong> ${excelData.length}
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <strong>التعيين التلقائي:</strong>
-                        </div>
-                        <div style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: 12px;">
-                            <div>Nom du client ← اسم الشيك</div>
-                            <div>Fournisseur ← المستلم</div>
-                            <div>REMARQUE ← المعطي</div>
-                            <div>Date d'échéance ← تاريخ الاستحقاق</div>
-                            <div>BANQUE ← البنك</div>
-                        </div>
-                        <div style="margin-top: 12px;">
-                            <strong>عينة من البيانات:</strong>
-                        </div>
-                    `;
-                    
-                    // عرض أول 3 صفوف كمثال مع التعيينات الصحيحة
-                    const sampleRows = excelData.slice(0, 3);
-                    sampleRows.forEach((row, index) => {
-                        previewContent.innerHTML += `
-                            <div style="padding: 8px; margin-top: 4px; background: var(--card-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-sm);">
-                                <div><strong>الصف ${index + 1}:</strong></div>
-                                <div><strong>اسم الشيك:</strong> ${row.client || 'غير محدد'}</div>
-                                <div><strong>المبلغ:</strong> ${row.amount || 'غير محدد'}</div>
-                                <div><strong>رقم الشيك:</strong> ${row.checkNumber || 'غير محدد'}</div>
-                                <div><strong>المستلم:</strong> ${row.recipient || 'غير محدد'}</div>
-                                <div><strong>المعطي:</strong> ${row.issuer || 'غير محدد'}</div>
-                                <div><strong>تاريخ الاستحقاق:</strong> ${row.dueDate || 'غير محدد'}</div>
-                                <div><strong>البنك:</strong> ${row.bank || 'غير محدد'}</div>
-                            </div>
-                        `;
-                    });
-                    
-                    previewDiv.style.display = 'block';
-                    
-                } catch (error) {
-                    console.error('Error reading Excel file:', error);
-                    alert('حدث خطأ في قراءة الملف. تأكد من أن الملف صحيح.');
-                }
-            };
-
-            reader.readAsArrayBuffer(file);
-        }
-
-        async function importExcelData() {
-            if (excelData.length === 0) {
-                alert('الرجاء معاينة البيانات أولاً');
-                return;
-            }
-
-            const overwriteData = document.getElementById('overwriteData').checked;
-            const skipDuplicates = document.getElementById('skipDuplicates').checked;
-            
-            if (overwriteData && !confirm('سيتم استبدال جميع البيانات الحالية. هل تريد المتابعة؟')) {
-                return;
-            }
-
-            // إعداد الشيكات الجديدة مع التحقق من التكرار
-            const newChecks = [];
-            const duplicateNumbers = [];
-            const skippedChecks = [];
-            
-            excelData.forEach((item, index) => {
-                const checkNumber = item.checkNumber || `CHK-IMPORT-${index + 1}`;
-                
-                // التحقق من التكرار إذا كان الخيار مفعلاً
-                if (skipDuplicates && !overwriteData && isCheckDuplicate(checkNumber)) {
-                    duplicateNumbers.push(checkNumber);
-                    skippedChecks.push({
-                        number: checkNumber,
-                        name: item.client || `شيك ${index + 1}`,
-                        amount: item.amount
-                    });
-                    return; // تخطي هذا الشيك
-                }
-                
-                // تحديد حالة الشيك
-                let status = 'pending';
-                
-                // تحليل التاريخ إن وجد
-                let issueDate = new Date().toISOString().split('T')[0];
-                let dueDate = item.dueDate || '';
-                
-                if (item.dueDate) {
-                    const dueDateObj = new Date(item.dueDate);
-                    const today = new Date();
-                    // إذا كان تاريخ الاستحقاق قد مر، نضيف ملاحظة
-                    if (dueDateObj < today) {
-                        item.image = (item.image || '') + ' (تاريخ الاستحقاق تجاوز)';
-                    }
-                }
-
-                const newCheck = {
-                    id: 'excel_import_' + Date.now() + '_' + index,
-                    name: item.client || `شيك ${checkNumber}`,
-                    amount: item.amount || 0,
-                    number: checkNumber,
-                    bank: item.bank || 'غير محدد',
-                    recipient: item.recipient || item.client || 'غير محدد',
-                    issuer: item.issuer || 'استيراد من Excel',
-                    status: status,
-                    issueDate: issueDate,
-                    dueDate: dueDate,
-                    notes: `تم الاستيراد من Excel - ${item.image || ''}`,
-                    createdAt: new Date().toISOString(),
-                    important: false,
-                    userId: currentUserId,
-                    source: 'excel_import',
-                    originalData: {
-                        client: item.client,
-                        fournisseur: item.recipient,
-                        remarque: item.issuer,
-                        banque: item.bank
-                    }
-                };
-                
-                newChecks.push(newCheck);
-            });
-            
-            // إشعار المستخدم بالأرقام المكررة التي تم تخطيها
-            if (skippedChecks.length > 0) {
-                let skippedMessage = `تم تخطي ${skippedChecks.length} شيك مكرر:\n\n`;
-                skippedChecks.slice(0, 10).forEach((check, i) => {
-                    skippedMessage += `${i + 1}. ${check.number} - ${check.name} (${formatCurrency(check.amount)})\n`;
-                });
-                if (skippedChecks.length > 10) {
-                    skippedMessage += `... و ${skippedChecks.length - 10} شيك آخر\n`;
-                }
-                alert(skippedMessage);
-            }
-            
-            if (overwriteData) {
-                checks = newChecks;
-            } else {
-                checks = [...newChecks, ...checks];
-            }
-
-            // حفظ البيانات
-            saveChecksLocally();
-            
-            // محاولة الحفظ في السحابة
-            if (isOnline && database) {
-                showSyncStatus('جاري حفظ البيانات المستوردة...', 'syncing');
-                
-                const batchUpdates = {};
-                checks.forEach(check => {
-                    batchUpdates[check.id] = check;
-                });
-                
-                try {
-                    await database.ref('users/' + currentUserId + '/checks').update(batchUpdates);
-                    showSyncStatus(`تم استيراد ${newChecks.length} شيك بنجاح`, 'success');
-                } catch (error) {
-                    console.error('Error saving imported data:', error);
-                    pendingSync.push({ type: 'batch_save', data: newChecks });
-                    showSyncStatus('تم الاستيراد محلياً، جاري المزامنة لاحقاً', 'syncing');
-                }
-            } else {
-                pendingSync.push({ type: 'batch_save', data: newChecks });
-                showSyncStatus('تم الاستيراد محلياً، جاري المزامنة عند الاتصال', 'syncing');
-            }
-
-            closeModal();
-            updateUI();
-            showNotification(`تم استيراد ${newChecks.length} شيك بنجاح (تخطي ${skippedChecks.length} مكرر)`);
-        }
-
         // مستمعي الأحداث
         function setupEventListeners() {
             document.getElementById('addButton').addEventListener('click', openNewCheckModal);
@@ -5319,16 +5839,6 @@
                 location.reload();
             });
             
-            // حفظ إعدادات الإشعارات
-            document.getElementById('notifyTwoDays').addEventListener('change', saveNotificationSettings);
-            document.getElementById('notifyDueDate').addEventListener('change', saveNotificationSettings);
-            document.getElementById('notifyOverdue').addEventListener('change', saveNotificationSettings);
-            
-            document.getElementById('excelFile').addEventListener('change', function() {
-                document.getElementById('importPreview').style.display = 'none';
-            });
-            
-            // التحقق من التكرار عند إدخال رقم الشيك
             document.getElementById('checkNumber').addEventListener('blur', function() {
                 const checkId = document.getElementById('checkId').value;
                 const checkNumber = this.value;
@@ -5340,7 +5850,6 @@
                 }
             });
             
-            // مستمعات الإحصائيات
             document.getElementById('analyticsPeriod').addEventListener('change', function() {
                 updateMonthlyChart();
             });
