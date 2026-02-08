@@ -2018,46 +2018,21 @@
                 <i class="fas fa-money-check-alt"></i>
                 <span id="pageTitle">لوحة التحكم</span>
             </div>
-            <div class="lang-selector">
-                <button class="lang-btn" id="langBtn">
-                    <span id="currentLang">العربية</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown" id="langDropdown">
-                    <div class="dropdown-item" onclick="changeLanguage('ar')">العربية</div>
-                    <div class="dropdown-item" onclick="changeLanguage('fr')">Français</div>
-                    <div class="dropdown-item" onclick="changeLanguage('en')">English</div>
-                </div>
-            </div>
         </div>
         <div class="header-left">
             <div class="user-menu">
                 <div class="user-avatar" id="userAvatar">
                     <i class="fas fa-user"></i>
                 </div>
-                <button class="icon-button" id="syncButton" style="background: rgba(255,255,255,0.2); color: white;">
+                <button class="icon-button" id="syncButton" style="background: rgba(255,255,255,0.2); color: white;" onclick="syncData()">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
-            <div class="currency-selector">
-                <button class="currency-btn" id="currencyBtn">
-                    <span id="currencySymbol">د.م</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown" id="currencyDropdown">
-                    <div class="dropdown-item active" data-currency="MAD">
-                        <span>درهم مغربي (د.م)</span>
-                    </div>
-                    <div class="dropdown-item" data-currency="EUR">
-                        <span>يورو (€)</span>
-                    </div>
-                    <div class="dropdown-item" data-currency="USD">
-                        <span>دولار ($)</span>
-                    </div>
-                </div>
-            </div>
-            <button class="icon-button" id="addButton" style="background: rgba(255,255,255,0.2); color: white;">
+            <button class="icon-button" id="addButton" style="background: rgba(255,255,255,0.2); color: white;" onclick="openNewCheckModal()">
                 <i class="fas fa-plus"></i>
+            </button>
+            <button class="icon-button" id="logoutButton" style="background: rgba(255,255,255,0.2); color: white;" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
     </header>
@@ -2144,10 +2119,6 @@
                     <button class="filter-btn" onclick="checkForDuplicates()">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>فحص التكرار</span>
-                    </button>
-                    <button class="filter-btn" onclick="openDeleteAllModal()">
-                        <i class="fas fa-trash"></i>
-                        <span>حذف الكل</span>
                     </button>
                 </div>
             </div>
@@ -2362,23 +2333,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- صفحة تفاصيل المسلم -->
-        <div class="muslims-details-view" id="muslimsDetailsView" style="display: none;">
-            <div class="view-header">
-                <div class="view-title">تفاصيل المسلم</div>
-                <div class="view-controls">
-                    <button class="btn btn-secondary" onclick="goBackToList()">
-                        <i class="fas fa-arrow-right"></i>
-                        رجوع
-                    </button>
-                </div>
-            </div>
-
-            <div id="muslimDetailsContent">
-                <!-- سيتم ملؤها تلقائياً -->
-            </div>
-        </div>
     </main>
 
     <!-- التنقل السفلي -->
@@ -2415,30 +2369,23 @@
     <div class="modal-overlay" id="loginModal" style="display: flex;">
         <div class="login-modal">
             <div class="login-title">CheckFlow Pro</div>
-            <div class="login-subtitle">تسجيل الدخول لإدارة الشيكات</div>
+            <div class="login-subtitle">تسجيل الدخول بحساب Firebase</div>
             
             <div class="form-group">
-                <input type="text" class="form-input" id="userId" placeholder="أدخل اسم المستخدم" value="user1">
+                <input type="email" class="form-input" id="loginEmail" placeholder="البريد الإلكتروني" value="">
             </div>
             
             <div class="form-group">
-                <input type="password" class="form-input" id="userPassword" placeholder="كلمة المرور (اختياري)" value="password123">
+                <input type="password" class="form-input" id="loginPassword" placeholder="كلمة المرور">
             </div>
             
-            <div class="form-group" style="text-align: left; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--spacing-md);">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" id="rememberMe" checked>
-                    <span>تذكرني</span>
-                </label>
-            </div>
-            
-            <button class="btn btn-primary" onclick="login()">
+            <button class="btn btn-primary" onclick="loginWithEmail()">
                 <i class="fas fa-sign-in-alt"></i>
                 تسجيل الدخول
             </button>
             
             <div style="margin-top: var(--spacing-md); font-size: var(--font-size-xs); color: var(--text-tertiary);">
-                سيتم إنشاء حساب تلقائياً إذا كان أول استخدام
+                يجب أن يكون لديك حساب مسجل مسبقاً في Firebase
             </div>
         </div>
     </div>
@@ -2619,42 +2566,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">العملة</label>
-                    <select class="form-input form-select" id="currencySelect">
-                        <option value="MAD">درهم مغربي (د.م)</option>
-                        <option value="EUR">يورو (€)</option>
-                        <option value="USD">دولار أمريكي ($)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">اللغة</label>
-                    <select class="form-input form-select" id="languageSelect">
-                        <option value="ar">العربية</option>
-                        <option value="fr">Français</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">إشعارات الاستحقاق</label>
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="notifyTwoDays" checked>
-                            <span>إشعار قبل يومين</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="notifyDueDate" checked>
-                            <span>إشعار في يوم الاستحقاق</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="notifyOverdue" checked>
-                            <span>إشعارات التأخير</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <button class="btn btn-secondary" onclick="checkForDuplicates()">
                         <i class="fas fa-exclamation-triangle"></i>
                         فحص الشيكات المكررة
@@ -2790,16 +2701,16 @@
                         <div class="export-option-desc">للاستخدام في برامج أخرى</div>
                     </div>
                     
-                    <div class="export-option-btn" onclick="exportToExcel()">
+                    <div class="export-option-btn" onclick="exportToExcelFrench()">
                         <i class="fas fa-file-excel"></i>
                         <div class="export-option-label">تصدير إلى Excel</div>
-                        <div class="export-option-desc">للتحرير والتحليل</div>
+                        <div class="export-option-desc">ملف باللغة الفرنسية</div>
                     </div>
                     
-                    <div class="export-option-btn" onclick="exportToCSV()">
+                    <div class="export-option-btn" onclick="exportToCSVFrench()">
                         <i class="fas fa-file-csv"></i>
                         <div class="export-option-label">تصدير إلى CSV</div>
-                        <div class="export-option-desc">للاستيراد في أي برنامج</div>
+                        <div class="export-option-desc">ملف باللغة الفرنسية</div>
                     </div>
                 </div>
             </div>
@@ -2823,7 +2734,6 @@
                         <option value="summary">ملخص عام</option>
                         <option value="detailed">تقرير مفصل</option>
                         <option value="financial">تقرير مالي</option>
-                        <option value="custom">تقرير مخصص</option>
                     </select>
                 </div>
                 
@@ -2838,7 +2748,7 @@
                     </div>
                 </div>
                 
-                <button class="btn btn-primary" onclick="generatePDFReport()">
+                <button class="btn btn-primary" onclick="generatePDFReportFrench()">
                     <i class="fas fa-file-pdf"></i>
                     إنشاء وتحميل PDF
                 </button>
@@ -2867,18 +2777,16 @@
     let currentMuslimDetails = null;
     let deferredPrompt = null;
     let isInstalled = false;
-    let currentLanguage = 'ar';
-    let currentCurrency = 'MAD';
     let currentUserId = null;
     let isOnline = navigator.onLine;
     let pendingSync = [];
     let firebaseApp = null;
     let database = null;
+    let auth = null;
     let excelData = [];
     let activeFilters = {};
     let duplicateReport = null;
     let notificationsEnabled = true;
-    let selectedRangeOption = 'all';
     
     // متغيرات المخططات
     let statusChart = null;
@@ -2893,29 +2801,37 @@
             setTimeout(() => {
                 document.getElementById('splashScreen').style.display = 'none';
                 
-                // التحقق من تسجيل الدخول السابق
-                const savedUserId = localStorage.getItem('checkflow_userId');
-                const rememberMe = localStorage.getItem('checkflow_rememberMe') === 'true';
-                
-                if (savedUserId && rememberMe) {
-                    document.getElementById('userId').value = savedUserId;
-                    document.getElementById('rememberMe').checked = true;
-                    loginWithSavedUser(savedUserId);
-                } else {
+                // تهيئة Firebase
+                try {
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                    database = firebase.database();
+                    auth = firebase.auth();
+                    console.log('Firebase initialized successfully');
+                    
+                    // التحقق من تسجيل الدخول السابق
+                    auth.onAuthStateChanged((user) => {
+                        if (user) {
+                            // المستخدم مسجل الدخول
+                            currentUserId = user.uid;
+                            initApp();
+                            loadData();
+                            updateUI();
+                            setupEventListeners();
+                            setupNotifications();
+                            checkPWAInstallation();
+                        } else {
+                            // لا يوجد مستخدم مسجل الدخول
+                            document.getElementById('loginModal').style.display = 'flex';
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error('Error initializing Firebase:', error);
+                    showSyncStatus('خطأ في الاتصال بالسحابة', 'error');
                     document.getElementById('loginModal').style.display = 'flex';
                 }
             }, 300);
         }, 1500);
-
-        // تهيئة Firebase
-        try {
-            firebaseApp = firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            console.log('Firebase initialized successfully');
-        } catch (error) {
-            console.error('Error initializing Firebase:', error);
-            showSyncStatus('خطأ في الاتصال بالسحابة، يتم العمل محلياً', 'error');
-        }
 
         // طلب إذن الإشعارات
         if ('Notification' in window && Notification.permission === 'default') {
@@ -2941,84 +2857,91 @@
         
         document.getElementById('pdfFromDate').value = lastMonth.toISOString().split('T')[0];
         document.getElementById('pdfToDate').value = today.toISOString().split('T')[0];
-        document.getElementById('exportFromDate').value = lastMonth.toISOString().split('T')[0];
-        document.getElementById('exportToDate').value = today.toISOString().split('T')[0];
     });
 
     // دوال تسجيل الدخول
-    function login() {
-        const userId = document.getElementById('userId').value.trim();
-        const password = document.getElementById('userPassword').value.trim();
-        const rememberMe = document.getElementById('rememberMe').checked;
+    function loginWithEmail() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
         
-        if (!userId) {
-            alert('الرجاء إدخال اسم المستخدم');
+        if (!email || !password) {
+            alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور');
             return;
         }
         
-        loginWithSavedUser(userId, password, rememberMe);
-    }
-
-    function loginWithSavedUser(userId, password = '', rememberMe = true) {
-        currentUserId = userId;
-        
-        if (rememberMe) {
-            localStorage.setItem('checkflow_userId', userId);
-            localStorage.setItem('checkflow_rememberMe', 'true');
-        } else {
-            localStorage.removeItem('checkflow_userId');
-            localStorage.removeItem('checkflow_rememberMe');
-        }
-        
-        // تحديث صورة المستخدم
-        updateUserAvatar();
-        
-        // إخفاء شاشة تسجيل الدخول
-        document.getElementById('loginModal').style.display = 'none';
-        
-        // إظهار التطبيق
-        document.getElementById('appHeader').style.display = 'flex';
-        document.getElementById('mainContent').style.display = 'block';
-        document.getElementById('bottomNav').style.display = 'flex';
-        
-        // تهيئة التطبيق
-        initApp();
-        loadData();
-        updateUI();
-        setupEventListeners();
-        setupNotifications();
-        checkPWAInstallation();
-        
-        showNotification('تم تسجيل الدخول بنجاح');
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                currentUserId = userCredential.user.uid;
+                updateUserAvatar();
+                
+                // إخفاء شاشة تسجيل الدخول
+                document.getElementById('loginModal').style.display = 'none';
+                
+                // إظهار التطبيق
+                document.getElementById('appHeader').style.display = 'flex';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('bottomNav').style.display = 'flex';
+                
+                // تهيئة التطبيق
+                initApp();
+                loadData();
+                updateUI();
+                setupEventListeners();
+                setupNotifications();
+                checkPWAInstallation();
+                
+                showNotification('تم تسجيل الدخول بنجاح');
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                
+                if (errorCode === 'auth/user-not-found') {
+                    alert('الحساب غير موجود. يجب أن يكون لديك حساب مسجل مسبقاً.');
+                } else if (errorCode === 'auth/wrong-password') {
+                    alert('كلمة المرور غير صحيحة.');
+                } else if (errorCode === 'auth/invalid-email') {
+                    alert('البريد الإلكتروني غير صالح.');
+                } else {
+                    alert('خطأ في تسجيل الدخول: ' + errorMessage);
+                }
+            });
     }
 
     function logout() {
         if (confirm('هل تريد تسجيل الخروج؟')) {
-            currentUserId = null;
-            checks = [];
-            pendingSync = [];
-            
-            localStorage.removeItem('checkflow_userId');
-            localStorage.removeItem('checkflow_rememberMe');
-            
-            // إخفاء التطبيق
-            document.getElementById('appHeader').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('bottomNav').style.display = 'none';
-            
-            // إظهار شاشة تسجيل الدخول
-            document.getElementById('loginModal').style.display = 'flex';
-            
-            showNotification('تم تسجيل الخروج');
+            auth.signOut().then(() => {
+                currentUserId = null;
+                checks = [];
+                pendingSync = [];
+                
+                // إخفاء التطبيق
+                document.getElementById('appHeader').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+                
+                // إظهار شاشة تسجيل الدخول
+                document.getElementById('loginModal').style.display = 'flex';
+                
+                showNotification('تم تسجيل الخروج');
+            }).catch((error) => {
+                alert('خطأ في تسجيل الخروج: ' + error.message);
+            });
         }
     }
 
     function updateUserAvatar() {
-        if (!currentUserId) return;
+        if (!currentUserId || !auth.currentUser) return;
         
         const avatar = document.getElementById('userAvatar');
-        const firstLetter = currentUserId.charAt(0).toUpperCase();
-        avatar.innerHTML = `<span>${firstLetter}</span>`;
+        const user = auth.currentUser;
+        
+        if (user.email) {
+            const firstLetter = user.email.charAt(0).toUpperCase();
+            avatar.innerHTML = `<span>${firstLetter}</span>`;
+        } else {
+            avatar.innerHTML = `<i class="fas fa-user"></i>`;
+        }
     }
 
     function initApp() {
@@ -3100,8 +3023,6 @@
         const savedChecks = localStorage.getItem('checkflow_checks_' + currentUserId);
         if (savedChecks) {
             checks = JSON.parse(savedChecks);
-        } else {
-            loadSampleData();
         }
     }
 
@@ -3210,61 +3131,6 @@
         setTimeout(() => {
             syncStatus.style.display = 'none';
         }, 3000);
-    }
-
-    function loadSampleData() {
-        if (checks.length === 0) {
-            const sampleChecks = [
-                {
-                    id: 'check_' + Date.now() + '_1',
-                    name: 'رواتب الموظفين - يناير',
-                    amount: 85000,
-                    number: 'CHK-2024-001',
-                    bank: 'البنك المغربي للتجارة الخارجية',
-                    recipient: 'شركة التقنية المحدودة',
-                    issuer: 'إدارة الموارد البشرية',
-                    status: 'cleared',
-                    issueDate: '2024-01-05',
-                    dueDate: '2024-01-20',
-                    notes: 'دفعة رواتب شهر يناير',
-                    createdAt: new Date().toISOString(),
-                    important: true
-                },
-                {
-                    id: 'check_' + Date.now() + '_2',
-                    name: 'فاتورة مقاول البناء',
-                    amount: 125000,
-                    number: 'CHK-2024-002',
-                    bank: 'البنك الشعبي المركزي',
-                    recipient: 'مقاولات البناء المتحدة',
-                    issuer: 'قسم المشتريات',
-                    status: 'pending',
-                    issueDate: '2024-01-10',
-                    dueDate: '2024-02-10',
-                    notes: 'الدفعة الثانية لمشروع المباني الجديدة',
-                    createdAt: new Date().toISOString(),
-                    important: true
-                },
-                {
-                    id: 'check_' + Date.now() + '_3',
-                    name: 'تبرع لجمعية خيرية',
-                    amount: 5000,
-                    number: 'CHK-2024-003',
-                    bank: 'البنك الشعبي المركزي',
-                    recipient: 'جمعية البر الخيرية',
-                    issuer: 'محمد أحمد',
-                    status: 'cleared',
-                    issueDate: '2024-01-15',
-                    dueDate: '2024-01-30',
-                    notes: 'تبرع شهري للجمعية',
-                    createdAt: new Date().toISOString(),
-                    important: false
-                }
-            ];
-            
-            checks = sampleChecks;
-            saveChecksLocally();
-        }
     }
 
     // دوال التحقق من التكرار
@@ -3908,556 +3774,6 @@
         `).join('');
     }
 
-    // عرض تفاصيل المسلم
-    function showMuslimDetails(muslimName) {
-        currentView = 'muslimDetails';
-        currentMuslimDetails = muslimName;
-        
-        hideAllViews();
-        document.getElementById('muslimsDetailsView').style.display = 'block';
-        document.getElementById('pageTitle').textContent = `تفاصيل: ${muslimName}`;
-        
-        loadMuslimDetails(muslimName);
-    }
-
-    // تحميل تفاصيل المسلم
-    function loadMuslimDetails(muslimName) {
-        const container = document.getElementById('muslimDetailsContent');
-        
-        // تجميع شيكات المسلم
-        const muslimChecks = checks.filter(check => check.recipient === muslimName);
-        
-        if (muslimChecks.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="empty-title">لا توجد بيانات للمسلم</div>
-                    <div class="empty-description">لم يتم العثور على شيكات لهذا المسلم</div>
-                </div>
-            `;
-            return;
-        }
-        
-        // إحصائيات المسلم
-        const totalAmount = muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-        const pendingChecks = muslimChecks.filter(c => c.status === 'pending').length;
-        const clearedChecks = muslimChecks.filter(c => c.status === 'cleared').length;
-        const bouncedChecks = muslimChecks.filter(c => c.status === 'bounced').length;
-        const averageAmount = totalAmount / muslimChecks.length;
-        
-        // تجميع البيانات حسب البنك
-        const bankData = {};
-        muslimChecks.forEach(check => {
-            const bank = check.bank || 'غير محدد';
-            if (!bankData[bank]) {
-                bankData[bank] = { count: 0, amount: 0 };
-            }
-            bankData[bank].count++;
-            bankData[bank].amount += check.amount || 0;
-        });
-        
-        // تجميع البيانات حسب المعطي
-        const issuerData = {};
-        muslimChecks.forEach(check => {
-            const issuer = check.issuer || 'غير محدد';
-            if (!issuerData[issuer]) {
-                issuerData[issuer] = { count: 0, amount: 0 };
-            }
-            issuerData[issuer].count++;
-            issuerData[issuer].amount += check.amount || 0;
-        });
-        
-        // إنشاء محتوى الصفحة
-        let content = `
-            <div class="muslims-details-container">
-                <div class="detail-header">
-                    <div class="detail-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div>
-                        <h1 class="detail-title">${muslimName}</h1>
-                        <p class="detail-subtitle">${muslimChecks.length} شيك | ${formatCurrency(totalAmount)}</p>
-                    </div>
-                </div>
-                
-                <div class="muslims-stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">${muslimChecks.length}</div>
-                        <div class="stat-label">إجمالي الشيكات</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${formatCurrency(totalAmount)}</div>
-                        <div class="stat-label">إجمالي المبلغ</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${pendingChecks}</div>
-                        <div class="stat-label">قيد الانتظار</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${clearedChecks}</div>
-                        <div class="stat-label">تم الصرف</div>
-                    </div>
-                </div>
-                
-                <div class="detail-actions">
-                    <button class="btn btn-primary" onclick="downloadMuslimPDF('${muslimName.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-download"></i>
-                        تحميل تقرير PDF
-                    </button>
-                    <button class="btn btn-secondary" onclick="exportMuslimChecksExcel('${muslimName.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-file-excel"></i>
-                        تصدير Excel
-                    </button>
-                </div>
-            </div>
-            
-            <div class="muslim-details-section">
-                <h3 style="margin-bottom: var(--spacing-md);">الإحصائيات التفصيلية</h3>
-                
-                <div class="muslim-info-grid">
-                    <div class="muslim-info-item">
-                        <div class="muslim-info-label">متوسط المبلغ لكل شيك</div>
-                        <div class="muslim-info-value">${formatCurrency(averageAmount)}</div>
-                    </div>
-                    <div class="muslim-info-item">
-                        <div class="muslim-info-label">أعلى مبلغ</div>
-                        <div class="muslim-info-value">${formatCurrency(Math.max(...muslimChecks.map(c => c.amount)))}</div>
-                    </div>
-                    <div class="muslim-info-item">
-                        <div class="muslim-info-label">أقل مبلغ</div>
-                        <div class="muslim-info-value">${formatCurrency(Math.min(...muslimChecks.map(c => c.amount)))}</div>
-                    </div>
-                    <div class="muslim-info-item">
-                        <div class="muslim-info-label">الشيكات المرتجعة</div>
-                        <div class="muslim-info-value">${bouncedChecks}</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // إضافة قسم البنوك
-        if (Object.keys(bankData).length > 0) {
-            content += `
-                <div class="muslim-details-section">
-                    <h3 style="margin-bottom: var(--spacing-md);">توزيع الشيكات حسب البنك</h3>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>البنك</th>
-                                    <th>عدد الشيكات</th>
-                                    <th>إجمالي المبلغ</th>
-                                    <th>النسبة</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-            `;
-            
-            Object.entries(bankData)
-                .sort((a, b) => b[1].amount - a[1].amount)
-                .forEach(([bank, data]) => {
-                    const percentage = (data.amount / totalAmount * 100).toFixed(1);
-                    content += `
-                        <tr>
-                            <td>${bank}</td>
-                            <td>${data.count}</td>
-                            <td>${formatCurrency(data.amount)}</td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span>${percentage}%</span>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: ${percentage}%"></div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-            
-            content += `
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // إضافة قسم المعطيين
-        if (Object.keys(issuerData).length > 0) {
-            content += `
-                <div class="muslim-details-section">
-                    <h3 style="margin-bottom: var(--spacing-md);">المعطيون الرئيسيون</h3>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>المعطي</th>
-                                    <th>عدد الشيكات</th>
-                                    <th>إجمالي المبلغ</th>
-                                    <th>آخر شيك</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-            `;
-            
-            Object.entries(issuerData)
-                .sort((a, b) => b[1].amount - a[1].amount)
-                .slice(0, 5)
-                .forEach(([issuer, data]) => {
-                    const lastCheck = muslimChecks
-                        .filter(c => c.issuer === issuer)
-                        .sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate))[0];
-                    
-                    content += `
-                        <tr>
-                            <td>${issuer}</td>
-                            <td>${data.count}</td>
-                            <td>${formatCurrency(data.amount)}</td>
-                            <td>${lastCheck ? formatDate(lastCheck.issueDate) : '-'}</td>
-                        </tr>
-                    `;
-                });
-            
-            content += `
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // إضافة قائمة الشيكات
-        content += `
-            <div class="muslim-details-section">
-                <h3 style="margin-bottom: var(--spacing-md);">جميع الشيكات</h3>
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>رقم الشيك</th>
-                                <th>اسم الشيك</th>
-                                <th>المبلغ</th>
-                                <th>البنك</th>
-                                <th>المعطي</th>
-                                <th>الحالة</th>
-                                <th>تاريخ الإصدار</th>
-                                <th>تاريخ الاستحقاق</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
-        
-        muslimChecks
-            .sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate))
-            .forEach(check => {
-                const statusBadge = check.status === 'pending' ? 
-                    '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
-                    check.status === 'cleared' ?
-                    '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
-                    '<span class="status-badge status-bounced-badge">مرتجع</span>';
-                
-                content += `
-                    <tr>
-                        <td>${check.number}</td>
-                        <td>${check.name}</td>
-                        <td>${formatCurrency(check.amount)}</td>
-                        <td>${check.bank}</td>
-                        <td>${check.issuer}</td>
-                        <td>${statusBadge}</td>
-                        <td>${formatDate(check.issueDate)}</td>
-                        <td>${check.dueDate ? formatDate(check.dueDate) : '-'}</td>
-                        <td>
-                            <button class="btn-icon" onclick="editCheck('${check.id}')" style="background: var(--primary-color);">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        
-        content += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-        
-        container.innerHTML = content;
-    }
-
-    // تحميل PDF لشيكات المسلم
-    async function downloadMuslimPDF(muslimName) {
-        try {
-            const muslimChecks = checks.filter(check => check.recipient === muslimName);
-            
-            if (muslimChecks.length === 0) {
-                alert('لا توجد شيكات لتحميلها');
-                return;
-            }
-            
-            showNotification('جاري إنشاء تقرير PDF...');
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            // بيانات التقرير
-            const totalAmount = muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            const pendingChecks = muslimChecks.filter(c => c.status === 'pending').length;
-            const clearedChecks = muslimChecks.filter(c => c.status === 'cleared').length;
-            const bouncedChecks = muslimChecks.filter(c => c.status === 'bounced').length;
-            
-            // الصفحة الأولى: غلاف
-            doc.setFillColor(51, 126, 169);
-            doc.rect(0, 0, 210, 297, 'F');
-            
-            doc.setFillColor(255, 255, 255);
-            doc.rect(20, 50, 170, 180, 'F');
-            
-            doc.setFontSize(32);
-            doc.setTextColor(51, 126, 169);
-            doc.setFont('helvetica', 'bold');
-            doc.text('تقرير الشيكات', 105, 90, { align: 'center' });
-            
-            doc.setFontSize(24);
-            doc.setTextColor(30, 30, 30);
-            doc.text('للمسلم', 105, 110, { align: 'center' });
-            
-            doc.setFontSize(20);
-            doc.text(muslimName, 105, 130, { align: 'center' });
-            
-            doc.setFontSize(14);
-            doc.setTextColor(100, 100, 100);
-            const dateText = `تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}`;
-            doc.text(dateText, 105, 160, { align: 'center' });
-            
-            doc.setFontSize(12);
-            doc.text(`${muslimChecks.length} شيك | ${formatCurrency(totalAmount)}`, 105, 175, { align: 'center' });
-            
-            doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text('CheckFlow Pro', 105, 280, { align: 'center' });
-            
-            // الصفحة الثانية: ملخص
-            doc.addPage();
-            
-            doc.setFontSize(18);
-            doc.setTextColor(51, 126, 169);
-            doc.text('ملخص الإحصائيات', 20, 20);
-            
-            doc.setDrawColor(51, 126, 169);
-            doc.setLineWidth(0.5);
-            doc.line(20, 25, 190, 25);
-            
-            // جدول الإحصائيات
-            const summaryData = [
-                ['إجمالي الشيكات', muslimChecks.length.toString()],
-                ['إجمالي المبلغ', formatCurrency(totalAmount)],
-                ['الشيكات المعلقة', pendingChecks.toString()],
-                ['الشيكات المنفذة', clearedChecks.toString()],
-                ['الشيكات المرتجعة', bouncedChecks.toString()],
-                ['متوسط المبلغ', formatCurrency(totalAmount / muslimChecks.length)],
-                ['أعلى مبلغ', formatCurrency(Math.max(...muslimChecks.map(c => c.amount)))],
-                ['أقل مبلغ', formatCurrency(Math.min(...muslimChecks.map(c => c.amount)))]
-            ];
-            
-            doc.autoTable({
-                startY: 30,
-                head: [[
-                    { content: 'المؤشر', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } },
-                    { content: 'القيمة', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } }
-                ]],
-                body: summaryData,
-                theme: 'grid',
-                styles: { fontSize: 10, cellPadding: 3, halign: 'center' },
-                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255] },
-                alternateRowStyles: { fillColor: [248, 248, 248] },
-                margin: { left: 20, right: 20 }
-            });
-            
-            // الصفحة الثالثة: جدول الشيكات
-            doc.addPage();
-            
-            doc.setFontSize(18);
-            doc.setTextColor(51, 126, 169);
-            doc.text('قائمة الشيكات', 20, 20);
-            
-            doc.setDrawColor(51, 126, 169);
-            doc.setLineWidth(0.5);
-            doc.line(20, 25, 190, 25);
-            
-            // تحضير بيانات الجدول
-            const tableData = muslimChecks.map(check => [
-                check.number,
-                check.name,
-                formatCurrency(check.amount),
-                check.bank,
-                check.issuer,
-                check.status === 'pending' ? 'قيد الانتظار' : 
-                check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
-                formatDate(check.issueDate),
-                check.dueDate ? formatDate(check.dueDate) : '-'
-            ]);
-            
-            doc.autoTable({
-                startY: 30,
-                head: [['رقم الشيك', 'اسم الشيك', 'المبلغ', 'البنك', 'المعطي', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق']],
-                body: tableData,
-                theme: 'grid',
-                styles: { fontSize: 8, cellPadding: 2 },
-                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
-                columnStyles: {
-                    0: { cellWidth: 25, halign: 'center' },
-                    1: { cellWidth: 30 },
-                    2: { cellWidth: 25, halign: 'right' },
-                    3: { cellWidth: 30 },
-                    4: { cellWidth: 25 },
-                    5: { cellWidth: 20, halign: 'center' },
-                    6: { cellWidth: 25, halign: 'center' },
-                    7: { cellWidth: 25, halign: 'center' }
-                },
-                didParseCell: function(data) {
-                    if (data.column.index === 5) { // عمود الحالة
-                        const status = data.cell.raw;
-                        if (status === 'قيد الانتظار') {
-                            data.cell.styles.fillColor = [255, 255, 200];
-                        } else if (status === 'تم الصرف') {
-                            data.cell.styles.fillColor = [200, 255, 200];
-                        } else if (status === 'مرتجع') {
-                            data.cell.styles.fillColor = [255, 200, 200];
-                        }
-                    }
-                    
-                    if (data.column.index === 2) { // عمود المبلغ
-                        data.cell.styles.fontStyle = 'bold';
-                    }
-                },
-                margin: { left: 10, right: 10 }
-            });
-            
-            // صفحة إضافية للرسوم البيانية إذا كانت هناك بيانات كافية
-            if (muslimChecks.length > 3) {
-                doc.addPage();
-                
-                doc.setFontSize(18);
-                doc.setTextColor(51, 126, 169);
-                doc.text('تحليل البيانات', 20, 20);
-                
-                doc.setDrawColor(51, 126, 169);
-                doc.setLineWidth(0.5);
-                doc.line(20, 25, 190, 25);
-                
-                // تحليل حسب البنك
-                const bankAnalysis = {};
-                muslimChecks.forEach(check => {
-                    const bank = check.bank || 'غير محدد';
-                    if (!bankAnalysis[bank]) {
-                        bankAnalysis[bank] = { count: 0, amount: 0 };
-                    }
-                    bankAnalysis[bank].count++;
-                    bankAnalysis[bank].amount += check.amount || 0;
-                });
-                
-                doc.setFontSize(12);
-                doc.setTextColor(30, 30, 30);
-                doc.text('توزيع الشيكات حسب البنك:', 20, 40);
-                
-                let yPos = 50;
-                Object.entries(bankAnalysis)
-                    .sort((a, b) => b[1].amount - a[1].amount)
-                    .forEach(([bank, data], index) => {
-                        const percentage = (data.amount / totalAmount * 100).toFixed(1);
-                        doc.text(`${index + 1}. ${bank}: ${data.count} شيك (${formatCurrency(data.amount)}) - ${percentage}%`, 25, yPos);
-                        yPos += 8;
-                    });
-                
-                // تحليل حسب الشهور
-                doc.text('التوزيع الشهري:', 20, yPos + 10);
-                yPos += 20;
-                
-                const monthlyAnalysis = {};
-                muslimChecks.forEach(check => {
-                    const date = new Date(check.issueDate);
-                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                    const monthName = date.toLocaleDateString('ar-MA', { month: 'long', year: 'numeric' });
-                    
-                    if (!monthlyAnalysis[monthKey]) {
-                        monthlyAnalysis[monthKey] = { name: monthName, count: 0, amount: 0 };
-                    }
-                    monthlyAnalysis[monthKey].count++;
-                    monthlyAnalysis[monthKey].amount += check.amount || 0;
-                });
-                
-                Object.entries(monthlyAnalysis)
-                    .sort()
-                    .forEach(([key, data], index) => {
-                        doc.text(`${data.name}: ${data.count} شيك (${formatCurrency(data.amount)})`, 25, yPos);
-                        yPos += 8;
-                    });
-            }
-            
-            // الخاتمة
-            const finalPage = doc.internal.pages.length;
-            doc.setPage(finalPage);
-            
-            const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 260;
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.setFont('helvetica', 'italic');
-            doc.text(`تم إنشاء هذا التقرير تلقائياً بواسطة CheckFlow Pro`, 105, finalY, { align: 'center' });
-            
-            doc.text(`عدد الصفحات: ${doc.internal.pages.length}`, 105, finalY + 10, { align: 'center' });
-            
-            // حفظ الملف
-            const fileName = `شيكات_${muslimName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-            doc.save(fileName);
-            
-            showNotification('تم إنشاء وتحميل تقرير PDF بنجاح');
-            
-        } catch (error) {
-            console.error('Error generating muslim PDF:', error);
-            alert('حدث خطأ أثناء إنشاء التقرير');
-        }
-    }
-
-    // تصدير شيكات المسلم إلى Excel
-    function exportMuslimChecksExcel(muslimName) {
-        const muslimChecks = checks.filter(check => check.recipient === muslimName);
-        
-        if (muslimChecks.length === 0) {
-            alert('لا توجد شيكات للتصدير');
-            return;
-        }
-        
-        const wsData = [
-            ['تقرير شيكات المسلم:', muslimName],
-            ['تاريخ التقرير:', new Date().toLocaleDateString('ar-MA')],
-            [],
-            ['رقم الشيك', 'اسم الشيك', 'المبلغ', 'البنك', 'المعطي', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق', 'ملاحظات'],
-            ...muslimChecks.map(check => [
-                check.number,
-                check.name,
-                check.amount,
-                check.bank,
-                check.issuer,
-                check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
-                check.issueDate,
-                check.dueDate || '',
-                check.notes || ''
-            ])
-        ];
-        
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'شيكات المسلم');
-        
-        XLSX.writeFile(wb, `شيكات_${muslimName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
-        
-        showNotification('تم التصدير إلى Excel بنجاح');
-    }
-
     function showIssuers() {
         currentView = 'issuers';
         hideAllViews();
@@ -4562,13 +3878,7 @@
     }
 
     function loadNotificationSettings() {
-        const notifyTwoDays = localStorage.getItem('notifyTwoDays') !== 'false';
-        const notifyDueDate = localStorage.getItem('notifyDueDate') !== 'false';
-        const notifyOverdue = localStorage.getItem('notifyOverdue') !== 'false';
-        
-        document.getElementById('notifyTwoDays').checked = notifyTwoDays;
-        document.getElementById('notifyDueDate').checked = notifyDueDate;
-        document.getElementById('notifyOverdue').checked = notifyOverdue;
+        // يمكن إضافة إعدادات الإشعارات هنا
     }
 
     // دوال العرض الرئيسية
@@ -4588,17 +3898,6 @@
         document.getElementById('recipientsView').style.display = 'none';
         document.getElementById('issuersView').style.display = 'none';
         document.getElementById('analyticsView').style.display = 'none';
-        document.getElementById('muslimsDetailsView').style.display = 'none';
-    }
-
-    function goBackToList() {
-        if (currentView === 'muslimDetails') {
-            showRecipients();
-        } else if (currentView === 'issuerDetails') {
-            showIssuers();
-        } else {
-            showDashboard();
-        }
     }
 
     function showAllChecks() {
@@ -4770,10 +4069,6 @@
         
         if (currentView === 'issuers') {
             updateIssuersList();
-        }
-        
-        if (currentView === 'muslimDetails' && currentMuslimDetails) {
-            loadMuslimDetails(currentMuslimDetails);
         }
     }
 
@@ -4960,28 +4255,12 @@
 
     // دوال مساعدة
     function formatCurrency(amount) {
-        const formatters = {
-            'MAD': new Intl.NumberFormat('ar-MA', {
-                style: 'currency',
-                currency: 'MAD',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }),
-            'EUR': new Intl.NumberFormat('ar-MA', {
-                style: 'currency',
-                currency: 'EUR',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }),
-            'USD': new Intl.NumberFormat('ar-MA', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })
-        };
-        
-        return formatters[currentCurrency].format(amount || 0);
+        return new Intl.NumberFormat('ar-MA', {
+            style: 'currency',
+            currency: 'MAD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount || 0);
     }
 
     function formatDate(dateString) {
@@ -5001,19 +4280,8 @@
 
     function loadSettings() {
         const theme = localStorage.getItem('theme') || 'auto';
-        const currency = localStorage.getItem('currency') || 'MAD';
-        const language = localStorage.getItem('language') || 'ar';
-        
         document.getElementById('themeSelect').value = theme;
-        document.getElementById('currencySelect').value = currency;
-        document.getElementById('languageSelect').value = language;
-        
-        currentCurrency = currency;
-        currentLanguage = language;
-        
         applyTheme(theme);
-        updateCurrencySymbol();
-        updateLanguage();
     }
 
     function applyTheme(theme) {
@@ -5022,31 +4290,6 @@
         } else {
             document.body.classList.remove('dark-mode');
         }
-    }
-
-    function updateCurrencySymbol() {
-        const symbols = {
-            'MAD': 'د.م',
-            'EUR': '€',
-            'USD': '$'
-        };
-        document.getElementById('currencySymbol').textContent = symbols[currentCurrency];
-    }
-
-    function updateLanguage() {
-        const languages = {
-            'ar': 'العربية',
-            'fr': 'Français',
-            'en': 'English'
-        };
-        document.getElementById('currentLang').textContent = languages[currentLanguage];
-    }
-
-    function changeLanguage(lang) {
-        currentLanguage = lang;
-        localStorage.setItem('language', lang);
-        updateLanguage();
-        showNotification('تم تغيير اللغة');
     }
 
     // دوال النوافذ المنبثقة
@@ -5120,7 +4363,8 @@
         setTimeout(() => openModal('pdfExportModal'), 300);
     }
 
-    function generatePDFReport() {
+    // تصدير إلى PDF بالفرنسية
+    function generatePDFReportFrench() {
         try {
             const reportType = document.getElementById('pdfReportType').value;
             const fromDate = document.getElementById('pdfFromDate').value;
@@ -5157,27 +4401,27 @@
             doc.setFontSize(32);
             doc.setTextColor(51, 126, 169);
             doc.setFont('helvetica', 'bold');
-            doc.text('تقرير الشيكات', 105, 90, { align: 'center' });
+            doc.text('Rapport des Chèques', 105, 90, { align: 'center' });
             
             doc.setFontSize(24);
             doc.setTextColor(30, 30, 30);
             doc.text('CheckFlow Pro', 105, 110, { align: 'center' });
             
             const periodText = fromDate && toDate ? 
-                `من ${formatDate(fromDate)} إلى ${formatDate(toDate)}` : 
-                'كل الفترات';
+                `Du ${formatDateFrench(fromDate)} au ${formatDateFrench(toDate)}` : 
+                'Toutes les périodes';
             
             doc.setFontSize(14);
             doc.setTextColor(100, 100, 100);
             doc.text(periodText, 105, 130, { align: 'center' });
             
             doc.setFontSize(12);
-            doc.text(`عدد الشيكات: ${filteredChecks.length}`, 105, 150, { align: 'center' });
-            doc.text(`إجمالي المبلغ: ${formatCurrency(filteredChecks.reduce((sum, c) => sum + c.amount, 0))}`, 105, 160, { align: 'center' });
+            doc.text(`Nombre de chèques: ${filteredChecks.length}`, 105, 150, { align: 'center' });
+            doc.text(`Montant total: ${formatCurrencyFrench(filteredChecks.reduce((sum, c) => sum + c.amount, 0))}`, 105, 160, { align: 'center' });
             
             doc.setFontSize(10);
             doc.setTextColor(150, 150, 150);
-            doc.text(`تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}`, 105, 180, { align: 'center' });
+            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
             doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
             
             // الصفحة الثانية: جدول الشيكات
@@ -5185,7 +4429,7 @@
             
             doc.setFontSize(18);
             doc.setTextColor(51, 126, 169);
-            doc.text('قائمة الشيكات', 20, 20);
+            doc.text('Liste des Chèques', 20, 20);
             
             doc.setDrawColor(51, 126, 169);
             doc.setLineWidth(0.5);
@@ -5194,19 +4438,18 @@
             const tableData = filteredChecks.map(check => [
                 check.number,
                 check.name,
-                formatCurrency(check.amount),
+                formatCurrencyFrench(check.amount),
                 check.bank,
                 check.recipient,
                 check.issuer,
-                check.status === 'pending' ? 'قيد الانتظار' : 
-                check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
-                formatDate(check.issueDate),
-                check.dueDate ? formatDate(check.dueDate) : '-'
+                getStatusFrench(check.status),
+                formatDateFrench(check.issueDate),
+                check.dueDate ? formatDateFrench(check.dueDate) : '-'
             ]);
             
             doc.autoTable({
                 startY: 30,
-                head: [['رقم الشيك', 'اسم الشيك', 'المبلغ', 'البنك', 'المستلم', 'المعطي', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق']],
+                head: [['N° Chèque', 'Nom', 'Montant', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance']],
                 body: tableData,
                 theme: 'grid',
                 styles: { fontSize: 8, cellPadding: 2 },
@@ -5226,11 +4469,11 @@
             });
             
             // حفظ الملف
-            const fileName = `تقرير_الشيكات_${new Date().toISOString().split('T')[0]}.pdf`;
+            const fileName = `Rapport_Cheques_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
             closeModal();
-            showNotification('تم إنشاء وتحميل PDF بنجاح');
+            showNotification('تم إنشاء وتحميل PDF بالفرنسية بنجاح');
             
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -5238,13 +4481,96 @@
         }
     }
 
+    function formatDateFrench(dateString) {
+        if (!dateString) return '';
+        return new Date(dateString).toLocaleDateString('fr-FR');
+    }
+
+    function formatCurrencyFrench(amount) {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'MAD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount || 0);
+    }
+
+    function getStatusFrench(status) {
+        switch(status) {
+            case 'pending': return 'En attente';
+            case 'cleared': return 'Compensé';
+            case 'bounced': return 'Retourné';
+            default: return status;
+        }
+    }
+
+    // تصدير إلى Excel بالفرنسية
+    function exportToExcelFrench() {
+        const wsData = [
+            ['N° Chèque', 'Nom', 'Montant (MAD)', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'],
+            ...checks.map(check => [
+                check.number,
+                check.name,
+                check.amount,
+                check.bank,
+                check.recipient,
+                check.issuer,
+                getStatusFrench(check.status),
+                check.issueDate,
+                check.dueDate || '',
+                check.notes || ''
+            ])
+        ];
+        
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Chèques');
+        
+        XLSX.writeFile(wb, `Cheques_${new Date().toISOString().split('T')[0]}.xlsx`);
+        
+        showNotification('تم التصدير إلى Excel بالفرنسية');
+        closeModal();
+    }
+
+    // تصدير إلى CSV بالفرنسية
+    function exportToCSVFrench() {
+        const csvContent = [
+            ['N° Chèque', 'Nom', 'Montant (MAD)', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'].join(','),
+            ...checks.map(check => [
+                `"${check.number || ''}"`,
+                `"${check.name || ''}"`,
+                check.amount || 0,
+                `"${check.bank || ''}"`,
+                `"${check.recipient || ''}"`,
+                `"${check.issuer || ''}"`,
+                `"${getStatusFrench(check.status)}"`,
+                check.issueDate || '',
+                check.dueDate || '',
+                `"${(check.notes || '').replace(/"/g, '""')}"`
+            ].join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `Cheques_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification('تم التصدير إلى CSV بالفرنسية');
+        closeModal();
+    }
+
     function exportToJSON() {
         const data = {
             version: '2.0',
             exportDate: new Date().toISOString(),
             userId: currentUserId,
-            currency: currentCurrency,
-            language: currentLanguage,
             checks: checks
         };
         
@@ -5259,66 +4585,6 @@
         linkElement.click();
         
         showNotification('تم التصدير إلى JSON');
-        closeModal();
-    }
-
-    function exportToExcel() {
-        const wsData = [
-            ['رقم الشيك', 'اسم الشيك', 'المبلغ', 'البنك', 'المستلم', 'المعطي', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق', 'ملاحظات'],
-            ...checks.map(check => [
-                check.number,
-                check.name,
-                check.amount,
-                check.bank,
-                check.recipient,
-                check.issuer,
-                check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
-                check.issueDate,
-                check.dueDate,
-                check.notes
-            ])
-        ];
-        
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'الشيكات');
-        
-        XLSX.writeFile(wb, `checkflow_export_${new Date().toISOString().split('T')[0]}.xlsx`);
-        
-        showNotification('تم التصدير إلى Excel');
-        closeModal();
-    }
-
-    function exportToCSV() {
-        const csvContent = [
-            ['رقم الشيك', 'اسم الشيك', 'المبلغ', 'البنك', 'المستلم', 'المعطي', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق', 'ملاحظات'].join(','),
-            ...checks.map(check => [
-                `"${check.number || ''}"`,
-                `"${check.name || ''}"`,
-                check.amount || 0,
-                `"${check.bank || ''}"`,
-                `"${check.recipient || ''}"`,
-                `"${check.issuer || ''}"`,
-                `"${check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع'}"`,
-                check.issueDate || '',
-                check.dueDate || '',
-                `"${(check.notes || '').replace(/"/g, '""')}"`
-            ].join(','))
-        ].join('\n');
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
-        link.setAttribute('download', `checkflow_export_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showNotification('تم التصدير إلى CSV');
         closeModal();
     }
 
@@ -5868,9 +5134,9 @@
         if (!notificationsEnabled) return;
         
         const today = new Date();
-        const notifyTwoDays = document.getElementById('notifyTwoDays').checked;
-        const notifyDueDate = document.getElementById('notifyDueDate').checked;
-        const notifyOverdue = document.getElementById('notifyOverdue').checked;
+        const notifyTwoDays = document.getElementById('notifyTwoDays') ? document.getElementById('notifyTwoDays').checked : false;
+        const notifyDueDate = document.getElementById('notifyDueDate') ? document.getElementById('notifyDueDate').checked : false;
+        const notifyOverdue = document.getElementById('notifyOverdue') ? document.getElementById('notifyOverdue').checked : false;
         
         const notifications = [];
         
@@ -6047,118 +5313,6 @@
         }
     }
 
-    // مستمعي الأحداث
-    function setupEventListeners() {
-        document.getElementById('addButton').addEventListener('click', openNewCheckModal);
-        
-        document.getElementById('syncButton').addEventListener('click', syncData);
-        
-        document.getElementById('currencyBtn').addEventListener('click', function() {
-            document.getElementById('currencyDropdown').classList.toggle('show');
-        });
-        
-        document.querySelectorAll('#currencyDropdown .dropdown-item').forEach(item => {
-            item.addEventListener('click', function() {
-                currentCurrency = this.dataset.currency;
-                localStorage.setItem('currency', currentCurrency);
-                updateCurrencySymbol();
-                document.getElementById('currencyDropdown').classList.remove('show');
-                updateUI();
-                showNotification('تم تغيير العملة');
-            });
-        });
-        
-        document.getElementById('langBtn').addEventListener('click', function() {
-            document.getElementById('langDropdown').classList.toggle('show');
-        });
-        
-        document.getElementById('searchInput').addEventListener('input', updateAllChecks);
-        
-        document.getElementById('recipientSearch').addEventListener('input', updateRecipientsList);
-        
-        document.getElementById('issuerSearch').addEventListener('input', updateIssuersList);
-        
-        document.getElementById('themeSelect').addEventListener('change', function() {
-            localStorage.setItem('theme', this.value);
-            applyTheme(this.value);
-        });
-        
-        document.getElementById('currencySelect').addEventListener('change', function() {
-            localStorage.setItem('currency', this.value);
-            currentCurrency = this.value;
-            updateCurrencySymbol();
-            updateUI();
-        });
-        
-        document.getElementById('languageSelect').addEventListener('change', function() {
-            localStorage.setItem('language', this.value);
-            location.reload();
-        });
-        
-        document.getElementById('checkNumber').addEventListener('blur', function() {
-            const checkId = document.getElementById('checkId').value;
-            const checkNumber = this.value;
-            
-            if (checkNumber && isCheckDuplicate(checkNumber, checkId)) {
-                document.getElementById('duplicateAlert').style.display = 'flex';
-            } else {
-                document.getElementById('duplicateAlert').style.display = 'none';
-            }
-        });
-        
-        document.getElementById('analyticsPeriod').addEventListener('change', function() {
-            updateMonthlyChart();
-        });
-        
-        document.getElementById('bankChartType').addEventListener('change', function() {
-            updateBankChart();
-        });
-        
-        document.getElementById('monthlyChartType').addEventListener('change', function() {
-            updateMonthlyChart();
-        });
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            setTimeout(() => {
-                if (!isInstalled && !localStorage.getItem('installPromptDismissed')) {
-                    document.getElementById('installPrompt').classList.add('show');
-                }
-            }, 5000);
-        });
-        
-        window.addEventListener('appinstalled', () => {
-            isInstalled = true;
-            console.log('تم تثبيت التطبيق');
-            document.getElementById('installPrompt').classList.remove('show');
-        });
-        
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeModal();
-                }
-            });
-        });
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.currency-selector')) {
-                document.getElementById('currencyDropdown').classList.remove('show');
-            }
-            if (!e.target.closest('.lang-selector')) {
-                document.getElementById('langDropdown').classList.remove('show');
-            }
-        });
-    }
-
     // دوال عرض تفاصيل المعطي
     function showIssuerDetails(issuerName) {
         currentView = 'issuerDetails';
@@ -6306,311 +5460,219 @@
         document.body.appendChild(modalContainer);
     }
 
-    async function downloadIssuerPDF(issuerName) {
-        try {
-            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+    // دوال عرض تفاصيل المسلم
+    function showMuslimDetails(muslimName) {
+        currentView = 'muslimDetails';
+        
+        // إنشاء نافذة منبثقة لعرض شيكات المسلم
+        const muslimChecks = checks.filter(check => check.recipient === muslimName);
+        
+        let modalContent = `
+            <div class="modal" style="max-width: 800px;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-user-tie"></i>
+                        جميع الشيكات المستلمة من: ${muslimName}
+                    </div>
+                    <button class="modal-close" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                        <div>
+                            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                إجمالي الشيكات: <strong>${muslimChecks.length}</strong>
+                            </div>
+                            <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                إجمالي المبلغ: <strong>${formatCurrency(muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0))}</strong>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="downloadMuslimPDF('${muslimName.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-download"></i>
+                            تحميل PDF
+                        </button>
+                    </div>
+        `;
+        
+        if (muslimChecks.length === 0) {
+            modalContent += `
+                <div class="empty-state" style="padding: 40px 0;">
+                    <div class="empty-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="empty-title">لا توجد شيكات</div>
+                    <div class="empty-description">لم يستلم هذا المسلم أي شيكات بعد</div>
+                </div>
+            `;
+        } else {
+            // إحصائيات سريعة
+            const stats = {
+                pending: muslimChecks.filter(c => c.status === 'pending').length,
+                cleared: muslimChecks.filter(c => c.status === 'cleared').length,
+                bounced: muslimChecks.filter(c => c.status === 'bounced').length,
+                totalAmount: muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+                avgAmount: muslimChecks.length > 0 ? 
+                    muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0) / muslimChecks.length : 0
+            };
             
-            if (issuerChecks.length === 0) {
-                alert('لا توجد شيكات لتحميلها');
-                return;
-            }
+            modalContent += `
+                <div class="stats-grid" style="margin-bottom: var(--spacing-md);">
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--warning-color);">${stats.pending}</div>
+                        <div class="stat-label">قيد الانتظار</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--success-color);">${stats.cleared}</div>
+                        <div class="stat-label">تم الصرف</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--danger-color);">${stats.bounced}</div>
+                        <div class="stat-label">مرتجعة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${formatCurrency(stats.avgAmount)}</div>
+                        <div class="stat-label">متوسط المبلغ</div>
+                    </div>
+                </div>
+                
+                <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                    <table class="analytics-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الشيك</th>
+                                <th>اسم الشيك</th>
+                                <th>المبلغ</th>
+                                <th>المعطي</th>
+                                <th>البنك</th>
+                                <th>الحالة</th>
+                                <th>تاريخ الإصدار</th>
+                                <th>تاريخ الاستحقاق</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
             
-            showNotification('جاري إنشاء تقرير PDF...');
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            // بيانات التقرير
-            const totalAmount = issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            const pendingCount = issuerChecks.filter(c => c.status === 'pending').length;
-            const clearedCount = issuerChecks.filter(c => c.status === 'cleared').length;
-            const bouncedCount = issuerChecks.filter(c => c.status === 'bounced').length;
-            
-            // الصفحة الأولى: غلاف
-            doc.setFillColor(51, 126, 169);
-            doc.rect(0, 0, 210, 297, 'F');
-            
-            doc.setFillColor(255, 255, 255);
-            doc.rect(20, 50, 170, 180, 'F');
-            
-            doc.setFontSize(32);
-            doc.setTextColor(51, 126, 169);
-            doc.setFont('helvetica', 'bold');
-            doc.text('تقرير الشيكات', 105, 90, { align: 'center' });
-            
-            doc.setFontSize(24);
-            doc.setTextColor(30, 30, 30);
-            doc.text('الصادرة من', 105, 110, { align: 'center' });
-            
-            doc.setFontSize(20);
-            doc.text(issuerName, 105, 130, { align: 'center' });
-            
-            doc.setFontSize(14);
-            doc.setTextColor(100, 100, 100);
-            const dateText = `تاريخ التقرير: ${new Date().toLocaleDateString('ar-MA')}`;
-            doc.text(dateText, 105, 160, { align: 'center' });
-            
-            doc.setFontSize(12);
-            doc.text(`${issuerChecks.length} شيك | ${formatCurrency(totalAmount)}`, 105, 175, { align: 'center' });
-            
-            doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text('CheckFlow Pro', 105, 280, { align: 'center' });
-            
-            // الصفحة الثانية: ملخص
-            doc.addPage();
-            
-            doc.setFontSize(18);
-            doc.setTextColor(51, 126, 169);
-            doc.text('ملخص الإحصائيات', 20, 20);
-            
-            doc.setDrawColor(51, 126, 169);
-            doc.setLineWidth(0.5);
-            doc.line(20, 25, 190, 25);
-            
-            // جدول الإحصائيات
-            const summaryData = [
-                ['إجمالي الشيكات', issuerChecks.length.toString()],
-                ['إجمالي المبلغ', formatCurrency(totalAmount)],
-                ['الشيكات المعلقة', pendingCount.toString()],
-                ['الشيكات المنفذة', clearedCount.toString()],
-                ['الشيكات المرتجعة', bouncedCount.toString()],
-                ['متوسط المبلغ', formatCurrency(totalAmount / issuerChecks.length)],
-                ['أعلى مبلغ', formatCurrency(Math.max(...issuerChecks.map(c => c.amount)))],
-                ['أقل مبلغ', formatCurrency(Math.min(...issuerChecks.map(c => c.amount)))]
-            ];
-            
-            doc.autoTable({
-                startY: 30,
-                head: [[
-                    { content: 'المؤشر', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } },
-                    { content: 'القيمة', styles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' } }
-                ]],
-                body: summaryData,
-                theme: 'grid',
-                styles: { fontSize: 10, cellPadding: 3, halign: 'center' },
-                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255] },
-                alternateRowStyles: { fillColor: [248, 248, 248] },
-                margin: { left: 20, right: 20 }
-            });
-            
-            // الصفحة الثالثة: جدول الشيكات
-            doc.addPage();
-            
-            doc.setFontSize(18);
-            doc.setTextColor(51, 126, 169);
-            doc.text('قائمة الشيكات', 20, 20);
-            
-            doc.setDrawColor(51, 126, 169);
-            doc.setLineWidth(0.5);
-            doc.line(20, 25, 190, 25);
-            
-            // تحضير بيانات الجدول
-            const tableData = issuerChecks.map(check => [
-                check.number,
-                check.name,
-                formatCurrency(check.amount),
-                check.recipient,
-                check.bank,
-                check.status === 'pending' ? 'قيد الانتظار' : 
-                check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
-                formatDate(check.issueDate),
-                check.dueDate ? formatDate(check.dueDate) : '-'
-            ]);
-            
-            doc.autoTable({
-                startY: 30,
-                head: [['رقم الشيك', 'اسم الشيك', 'المبلغ', 'المستلم', 'البنك', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق']],
-                body: tableData,
-                theme: 'grid',
-                styles: { fontSize: 8, cellPadding: 2 },
-                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
-                columnStyles: {
-                    0: { cellWidth: 25, halign: 'center' },
-                    1: { cellWidth: 30 },
-                    2: { cellWidth: 25, halign: 'right' },
-                    3: { cellWidth: 30 },
-                    4: { cellWidth: 25 },
-                    5: { cellWidth: 20, halign: 'center' },
-                    6: { cellWidth: 25, halign: 'center' },
-                    7: { cellWidth: 25, halign: 'center' }
-                },
-                didParseCell: function(data) {
-                    if (data.column.index === 5) { // عمود الحالة
-                        const status = data.cell.raw;
-                        if (status === 'قيد الانتظار') {
-                            data.cell.styles.fillColor = [255, 255, 200];
-                        } else if (status === 'تم الصرف') {
-                            data.cell.styles.fillColor = [200, 255, 200];
-                        } else if (status === 'مرتجع') {
-                            data.cell.styles.fillColor = [255, 200, 200];
-                        }
-                    }
+            muslimChecks.sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate))
+                .forEach(check => {
+                    const statusBadge = check.status === 'pending' ? 
+                        '<span class="status-badge status-pending-badge">قيد الانتظار</span>' :
+                        check.status === 'cleared' ?
+                        '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
+                        '<span class="status-badge status-bounced-badge">مرتجع</span>';
                     
-                    if (data.column.index === 2) { // عمود المبلغ
-                        data.cell.styles.fontStyle = 'bold';
-                    }
-                },
-                margin: { left: 10, right: 10 }
-            });
-            
-            // صفحة إضافية للرسوم البيانية إذا كانت هناك بيانات كافية
-            if (issuerChecks.length > 3) {
-                doc.addPage();
-                
-                doc.setFontSize(18);
-                doc.setTextColor(51, 126, 169);
-                doc.text('تحليل البيانات', 20, 20);
-                
-                doc.setDrawColor(51, 126, 169);
-                doc.setLineWidth(0.5);
-                doc.line(20, 25, 190, 25);
-                
-                // تحليل حسب البنك
-                const bankAnalysis = {};
-                issuerChecks.forEach(check => {
-                    const bank = check.bank || 'غير محدد';
-                    if (!bankAnalysis[bank]) {
-                        bankAnalysis[bank] = { count: 0, amount: 0 };
-                    }
-                    bankAnalysis[bank].count++;
-                    bankAnalysis[bank].amount += check.amount || 0;
+                    modalContent += `
+                        <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
+                            <td>${check.number}</td>
+                            <td>${check.name}</td>
+                            <td>${formatCurrency(check.amount)}</td>
+                            <td>${check.issuer}</td>
+                            <td>${check.bank}</td>
+                            <td>${statusBadge}</td>
+                            <td>${formatDate(check.issueDate)}</td>
+                            <td>${check.dueDate ? formatDate(check.dueDate) : '-'}</td>
+                        </tr>
+                    `;
                 });
-                
-                doc.setFontSize(12);
-                doc.setTextColor(30, 30, 30);
-                doc.text('توزيع الشيكات حسب البنك:', 20, 40);
-                
-                let yPos = 50;
-                Object.entries(bankAnalysis)
-                    .sort((a, b) => b[1].amount - a[1].amount)
-                    .forEach(([bank, data], index) => {
-                        const percentage = (data.amount / totalAmount * 100).toFixed(1);
-                        doc.text(`${index + 1}. ${bank}: ${data.count} شيك (${formatCurrency(data.amount)}) - ${percentage}%`, 25, yPos);
-                        yPos += 8;
-                    });
-                
-                // تحليل حسب الشهور
-                doc.text('التوزيع الشهري:', 20, yPos + 10);
-                yPos += 20;
-                
-                const monthlyAnalysis = {};
-                issuerChecks.forEach(check => {
-                    const date = new Date(check.issueDate);
-                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                    const monthName = date.toLocaleDateString('ar-MA', { month: 'long', year: 'numeric' });
-                    
-                    if (!monthlyAnalysis[monthKey]) {
-                        monthlyAnalysis[monthKey] = { name: monthName, count: 0, amount: 0 };
-                    }
-                    monthlyAnalysis[monthKey].count++;
-                    monthlyAnalysis[monthKey].amount += check.amount || 0;
-                });
-                
-                Object.entries(monthlyAnalysis)
-                    .sort()
-                    .forEach(([key, data], index) => {
-                        doc.text(`${data.name}: ${data.count} شيك (${formatCurrency(data.amount)})`, 25, yPos);
-                        yPos += 8;
-                    });
-            }
             
-            // الخاتمة
-            const finalPage = doc.internal.pages.length;
-            doc.setPage(finalPage);
-            
-            const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 260;
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.setFont('helvetica', 'italic');
-            doc.text(`تم إنشاء هذا التقرير تلقائياً بواسطة CheckFlow Pro`, 105, finalY, { align: 'center' });
-            
-            doc.text(`عدد الصفحات: ${doc.internal.pages.length}`, 105, finalY + 10, { align: 'center' });
-            
-            // حفظ الملف
-            const fileName = `شيكات_${issuerName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-            doc.save(fileName);
-            
-            showNotification('تم إنشاء وتحميل تقرير PDF بنجاح');
-            
-        } catch (error) {
-            console.error('Error generating issuer PDF:', error);
-            alert('حدث خطأ أثناء إنشاء التقرير');
-        }
-    }
-
-    function exportIssuerChecksExcel(issuerName) {
-        const issuerChecks = checks.filter(check => check.issuer === issuerName);
-        
-        if (issuerChecks.length === 0) {
-            alert('لا توجد شيكات للتصدير');
-            return;
+            modalContent += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
         }
         
-        const wsData = [
-            ['تقرير الشيكات الصادرة من:', issuerName],
-            ['تاريخ التقرير:', new Date().toLocaleDateString('ar-MA')],
-            [],
-            ['رقم الشيك', 'اسم الشيك', 'المبلغ', 'المستلم', 'البنك', 'الحالة', 'تاريخ الإصدار', 'تاريخ الاستحقاق', 'ملاحظات'],
-            ...issuerChecks.map(check => [
-                check.number,
-                check.name,
-                check.amount,
-                check.recipient,
-                check.bank,
-                check.status === 'pending' ? 'قيد الانتظار' : check.status === 'cleared' ? 'تم الصرف' : 'مرتجع',
-                check.issueDate,
-                check.dueDate || '',
-                check.notes || ''
-            ])
-        ];
+        modalContent += `
+                    <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color);">
+                        <button class="btn btn-secondary" onclick="exportMuslimChecksExcel('${muslimName.replace(/'/g, "\\'")}')" style="margin-right: var(--spacing-sm);">
+                            <i class="fas fa-file-excel"></i>
+                            تصدير Excel
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportMuslimChecksJSON('${muslimName.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-file-code"></i>
+                            تصدير JSON
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
         
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'شيكات المعطي');
-        
-        XLSX.writeFile(wb, `شيكات_${issuerName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
-        
-        showNotification('تم التصدير إلى Excel بنجاح');
-    }
-
-    function exportIssuerChecksJSON(issuerName) {
-        const issuerChecks = checks.filter(check => check.issuer === issuerName);
-        
-        if (issuerChecks.length === 0) {
-            alert('لا توجد شيكات للتصدير');
-            return;
-        }
-        
-        const report = {
-            issuer: issuerName,
-            exportDate: new Date().toISOString(),
-            totalChecks: issuerChecks.length,
-            totalAmount: issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
-            checks: issuerChecks.map(check => ({
-                number: check.number,
-                name: check.name,
-                amount: check.amount,
-                recipient: check.recipient,
-                bank: check.bank,
-                status: check.status,
-                issueDate: check.issueDate,
-                dueDate: check.dueDate,
-                notes: check.notes
-            }))
+        const modalContainer = document.createElement('div');
+        modalContainer.className = 'modal-overlay active';
+        modalContainer.innerHTML = modalContent;
+        modalContainer.onclick = function(e) {
+            if (e.target === this) closeModal();
         };
         
-        const dataStr = JSON.stringify(report, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        document.body.appendChild(modalContainer);
+    }
+
+    // مستمعي الأحداث
+    function setupEventListeners() {
+        document.getElementById('searchInput').addEventListener('input', updateAllChecks);
         
-        const exportFileDefaultName = `شيكات_${issuerName.replace(/[/\\?%*:|"<>]/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+        document.getElementById('recipientSearch').addEventListener('input', updateRecipientsList);
         
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
+        document.getElementById('issuerSearch').addEventListener('input', updateIssuersList);
         
-        showNotification('تم التصدير إلى JSON بنجاح');
+        document.getElementById('themeSelect').addEventListener('change', function() {
+            localStorage.setItem('theme', this.value);
+            applyTheme(this.value);
+        });
+        
+        document.getElementById('checkNumber').addEventListener('blur', function() {
+            const checkId = document.getElementById('checkId').value;
+            const checkNumber = this.value;
+            
+            if (checkNumber && isCheckDuplicate(checkNumber, checkId)) {
+                document.getElementById('duplicateAlert').style.display = 'flex';
+            } else {
+                document.getElementById('duplicateAlert').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('analyticsPeriod').addEventListener('change', function() {
+            updateMonthlyChart();
+        });
+        
+        document.getElementById('bankChartType').addEventListener('change', function() {
+            updateBankChart();
+        });
+        
+        document.getElementById('monthlyChartType').addEventListener('change', function() {
+            updateMonthlyChart();
+        });
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            setTimeout(() => {
+                if (!isInstalled && !localStorage.getItem('installPromptDismissed')) {
+                    document.getElementById('installPrompt').classList.add('show');
+                }
+            }, 5000);
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            isInstalled = true;
+            console.log('تم تثبيت التطبيق');
+            document.getElementById('installPrompt').classList.remove('show');
+        });
+        
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
     }
 
     // تسجيل Service Worker
