@@ -1308,7 +1308,7 @@
             border-radius: var(--radius-md);
             padding: var(--spacing-md);
             display: flex;
-            flex-direction: column;
+                flex-direction: column;
             align-items: center;
             gap: 8px;
             cursor: pointer;
@@ -2024,9 +2024,9 @@
                         <i class="fas fa-file-excel"></i>
                         Excel (Français)
                     </button>
-                    <button class="btn btn-primary" onclick="generatePDFReport()" style="flex: 1; min-width: 150px;">
+                    <button class="btn btn-primary" onclick="generateSimplePDF()" style="flex: 1; min-width: 150px;">
                         <i class="fas fa-file-pdf"></i>
-                        PDF (Français)
+                        PDF سريع (Français)
                     </button>
                     <button class="btn btn-primary" onclick="exportToCSV()" style="flex: 1; min-width: 150px;">
                         <i class="fas fa-file-csv"></i>
@@ -2688,7 +2688,7 @@
                     </div>
                 </div>
                 
-                <button class="btn btn-primary" onclick="generatePDFReport()">
+                <button class="btn btn-primary" onclick="generateSimplePDF()">
                     <i class="fas fa-file-pdf"></i>
                     إنشاء وتحميل PDF
                 </button>
@@ -2733,7 +2733,7 @@
     let bankChart = null;
     let monthlyChart = null;
 
-    // دوال التنسيق والتحويل للفرنسية
+    // دوال التنسيق والتحويل للفرنسية - محسنة لـ PDF
     const FRENCH_STATUS_MAP = {
         'pending': 'En attente',
         'cleared': 'Compensé',
@@ -2754,6 +2754,22 @@
         'createdAt': 'Date de création'
     };
 
+    // دالة محسنة لتنسيق الأرقام للـ PDF
+    function formatNumberForPDF(num) {
+        if (!num && num !== 0) return '0.00';
+        const number = parseFloat(num);
+        return new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(number);
+    }
+
+    // دالة تنسيق المبالغ بالفرنسية - محسنة لـ PDF
+    function formatCurrencyFrench(amount) {
+        const numAmount = parseFloat(amount) || 0;
+        return formatNumberForPDF(numAmount) + ' MAD';
+    }
+
     // دالة تحويل التاريخ إلى الفرنسية
     function formatDateFrench(dateString) {
         if (!dateString) return '';
@@ -2767,15 +2783,6 @@
         } catch (e) {
             return dateString;
         }
-    }
-
-    // دالة تنسيق المبالغ بالفرنسية
-    function formatCurrencyFrench(amount) {
-        const numAmount = parseFloat(amount) || 0;
-        return new Intl.NumberFormat('fr-FR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(numAmount) + ' MAD';
     }
 
     // دالة تحويل الحالة إلى الفرنسية
@@ -2798,6 +2805,38 @@
     function truncateText(text, maxLength) {
         if (!text) return '';
         return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+    }
+
+    // دالة تحويل النصوص العربية إلى فرنسية للتصدير
+    function convertToFrenchForExport(text) {
+        if (!text) return '';
+        
+        // قائمة بالكلمات العربية الشائعة وتحويلها للفرنسية
+        const translations = {
+            'قيد الانتظار': 'En attente',
+            'تم الصرف': 'Compensé',
+            'مرتجع': 'Retourné',
+            'شيك': 'Chèque',
+            'بنك': 'Banque',
+            'مستلم': 'Bénéficiaire',
+            'معطي': 'Émetteur',
+            'تاريخ': 'Date',
+            'مبلغ': 'Montant',
+            'ملاحظات': 'Remarques',
+            'قيد': 'En cours',
+            'صرف': 'Compensé',
+            'مرتجعة': 'Retournée'
+        };
+        
+        let result = text.toString();
+        
+        // استبدال الكلمات العربية بترجمتها الفرنسية
+        Object.keys(translations).forEach(arabic => {
+            const french = translations[arabic];
+            result = result.replace(new RegExp(arabic, 'g'), french);
+        });
+        
+        return result;
     }
 
     // دالة التنسيق الأساسية (للعرض في التطبيق)
@@ -4375,160 +4414,145 @@
         setTimeout(() => openModal('pdfExportModal'), 300);
     }
 
-    // تصدير إلى PDF بالفرنسية
-    function generatePDFReport() {
+    // ============================================
+    // دالة PDF الجديدة - محسنة للأرقام واللغة الفرنسية
+    // ============================================
+    function generateSimplePDF() {
         try {
-            const reportType = document.getElementById('pdfReportType').value;
-            const fromDate = document.getElementById('pdfFromDate').value;
-            const toDate = document.getElementById('pdfToDate').value;
-            
-            let filteredChecks = [...checks];
-            
-            if (fromDate && toDate) {
-                const from = new Date(fromDate);
-                const to = new Date(toDate);
-                to.setHours(23, 59, 59, 999);
-                
-                filteredChecks = filteredChecks.filter(check => {
-                    try {
-                        const checkDate = new Date(check.issueDate);
-                        return checkDate >= from && checkDate <= to;
-                    } catch (e) {
-                        return false;
-                    }
-                });
-            }
-            
-            if (filteredChecks.length === 0) {
-                alert('لا توجد بيانات للتصدير في الفترة المحددة');
-                return;
-            }
-            
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            // الصفحة الأولى: غلاف
-            doc.setFillColor(51, 126, 169);
-            doc.rect(0, 0, 210, 297, 'F');
+            // استخدام خط لاتيني بسيط
+            doc.setFont('helvetica');
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
             
-            doc.setFillColor(255, 255, 255);
-            doc.rect(20, 50, 170, 180, 'F');
+            // عنوان التقرير
+            doc.text('Rapport des Cheques - CheckFlow Pro', 20, 20);
+            doc.setFontSize(10);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
             
-            doc.setFontSize(32);
-            doc.setTextColor(51, 126, 169);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Rapport des Chèques', 105, 90, { align: 'center' });
+            let yPosition = 40;
             
-            doc.setFontSize(24);
-            doc.setTextColor(30, 30, 30);
-            doc.text('CheckFlow Pro', 105, 110, { align: 'center' });
-            
-            const periodText = fromDate && toDate ? 
-                `Du ${formatDateFrench(fromDate)} au ${formatDateFrench(toDate)}` : 
-                'Toutes les périodes';
-            
-            doc.setFontSize(14);
-            doc.setTextColor(100, 100, 100);
-            doc.text(periodText, 105, 130, { align: 'center' });
+            // إحصائيات سريعة
+            const totalChecks = checks.length;
+            const totalAmount = checks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+            const pendingChecks = checks.filter(c => c.status === 'pending').length;
+            const clearedChecks = checks.filter(c => c.status === 'cleared').length;
             
             doc.setFontSize(12);
-            doc.text(`Nombre de chèques: ${filteredChecks.length}`, 105, 150, { align: 'center' });
-            doc.text(`Montant total: ${formatCurrencyFrench(filteredChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0))}`, 105, 160, { align: 'center' });
+            doc.text(`Total des cheques: ${totalChecks}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Montant total: ${formatNumberForPDF(totalAmount)} MAD`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`En attente: ${pendingChecks}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Compensés: ${clearedChecks}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Retournés: ${checks.filter(c => c.status === 'bounced').length}`, 20, yPosition);
+            yPosition += 15;
             
-            doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
-            doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
-            
-            // الصفحة الثانية: جدول الشيكات
-            doc.addPage();
-            
-            doc.setFontSize(18);
-            doc.setTextColor(51, 126, 169);
-            doc.text('Liste des Chèques', 20, 20);
-            
-            doc.setDrawColor(51, 126, 169);
+            // خط فاصل
+            doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.5);
-            doc.line(20, 25, 190, 25);
+            doc.line(20, yPosition, 190, yPosition);
+            yPosition += 10;
             
-            // تحضير بيانات الجدول بالفرنسية
-            const tableData = filteredChecks.map(check => [
-                check.number || '-',
-                truncateText(check.name || '-', 20),
-                formatCurrencyFrench(parseFloat(check.amount) || 0),
-                truncateText(check.bank || '-', 15),
-                truncateText(check.recipient || '-', 15),
-                truncateText(check.issuer || '-', 15),
-                getStatusFrench(check.status),
-                formatDateFrench(check.issueDate),
-                check.dueDate ? formatDateFrench(check.dueDate) : '-'
-            ]);
-            
-            // استخدام autoTable لإنشاء جدول منظم
-            doc.autoTable({
-                startY: 30,
-                head: [[
-                    FRENCH_COLUMNS.number,
-                    FRENCH_COLUMNS.name,
-                    FRENCH_COLUMNS.amount,
-                    FRENCH_COLUMNS.bank,
-                    FRENCH_COLUMNS.recipient,
-                    FRENCH_COLUMNS.issuer,
-                    FRENCH_COLUMNS.status,
-                    FRENCH_COLUMNS.issueDate,
-                    FRENCH_COLUMNS.dueDate
-                ]],
-                body: tableData,
-                theme: 'grid',
-                styles: { 
-                    fontSize: 8, 
-                    cellPadding: 2,
-                    textColor: [0, 0, 0]
-                },
-                headStyles: { 
-                    fillColor: [51, 126, 169], 
-                    textColor: [255, 255, 255], 
-                    fontStyle: 'bold', 
-                    halign: 'center',
-                    fontSize: 9
-                },
-                bodyStyles: {
-                    halign: 'right'
-                },
-                alternateRowStyles: {
-                    fillColor: [245, 245, 245]
-                },
-                columnStyles: {
-                    0: { cellWidth: 25 },
-                    1: { cellWidth: 30 },
-                    2: { cellWidth: 25, halign: 'right' },
-                    3: { cellWidth: 25 },
-                    4: { cellWidth: 25 },
-                    5: { cellWidth: 25 },
-                    6: { cellWidth: 20, halign: 'center' },
-                    7: { cellWidth: 25, halign: 'center' },
-                    8: { cellWidth: 25, halign: 'center' }
-                },
-                margin: { left: 10, right: 10 }
-            });
-            
-            // إحصائيات إضافية
-            const finalY = doc.lastAutoTable.finalY + 10;
-            
-            const stats = {
-                pending: filteredChecks.filter(c => c.status === 'pending').length,
-                cleared: filteredChecks.filter(c => c.status === 'cleared').length,
-                bounced: filteredChecks.filter(c => c.status === 'bounced').length
-            };
-            
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text('Résumé des statistiques:', 20, finalY);
+            // عنوان القائمة
+            doc.setFontSize(14);
+            doc.setTextColor(51, 126, 169);
+            doc.text('Liste des Cheques:', 20, yPosition);
+            yPosition += 10;
             
             doc.setFontSize(9);
-            doc.text(`En attente: ${stats.pending}`, 30, finalY + 8);
-            doc.text(`Compensés: ${stats.cleared}`, 30, finalY + 16);
-            doc.text(`Retournés: ${stats.bounced}`, 30, finalY + 24);
+            doc.setTextColor(100, 100, 100);
+            
+            // رؤوس الجدول
+            doc.setFillColor(245, 245, 245);
+            doc.rect(20, yPosition, 170, 8, 'F');
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text('No', 25, yPosition + 6);
+            doc.text('Nom', 40, yPosition + 6);
+            doc.text('Montant (MAD)', 110, yPosition + 6);
+            doc.text('Statut', 150, yPosition + 6);
+            doc.text('Date', 170, yPosition + 6);
+            
+            yPosition += 12;
+            doc.setFontSize(9);
+            
+            // عرض البيانات في صفوف
+            checks.slice(0, 30).forEach((check, index) => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setTextColor(0, 0, 0);
+                doc.text(`${index + 1}.`, 25, yPosition);
+                
+                doc.setTextColor(60, 60, 60);
+                const checkName = convertToFrenchForExport(truncateText(check.name, 25));
+                doc.text(checkName, 40, yPosition);
+                
+                doc.setTextColor(30, 30, 30);
+                const formattedAmount = formatNumberForPDF(check.amount);
+                doc.text(formattedAmount, 110, yPosition);
+                
+                // تلوين الحالة
+                if (check.status === 'pending') {
+                    doc.setTextColor(255, 184, 0); // برتقالي
+                } else if (check.status === 'cleared') {
+                    doc.setTextColor(15, 123, 108); // أخضر
+                } else {
+                    doc.setTextColor(209, 69, 59); // أحمر
+                }
+                doc.text(getStatusFrench(check.status), 150, yPosition);
+                
+                doc.setTextColor(100, 100, 100);
+                doc.text(formatDateFrench(check.issueDate), 170, yPosition);
+                
+                yPosition += 7;
+                
+                // تفاصيل إضافية في سطر جديد
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${check.recipient || 'Non spécifié'}`;
+                const truncatedDetails = truncateText(details, 50);
+                doc.text(truncatedDetails, 40, yPosition);
+                
+                yPosition += 5;
+                
+                // خط فاصل خفيف
+                if (index < checks.length - 1 && index < 29) {
+                    doc.setDrawColor(230, 230, 230);
+                    doc.setLineWidth(0.2);
+                    doc.line(40, yPosition, 190, yPosition);
+                    yPosition += 4;
+                }
+                
+                doc.setFontSize(9);
+            });
+            
+            // ملاحظات ختامية
+            yPosition += 10;
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('* Ce document a été généré automatiquement par CheckFlow Pro', 20, yPosition);
+            yPosition += 5;
+            doc.text(`* Total de ${checks.length} chèques enregistrés`, 20, yPosition);
+            yPosition += 5;
+            doc.text('* Pour toute question, contactez l\'administrateur', 20, yPosition);
+            
+            // تذييل الصفحة
+            doc.setFontSize(7);
+            doc.setTextColor(180, 180, 180);
+            doc.text('CheckFlow Pro © 2024 - Système de Gestion des Chèques', 105, 290, { align: 'center' });
             
             // حفظ الملف
             const fileName = `Rapport_Cheques_${new Date().toISOString().split('T')[0]}.pdf`;
@@ -4539,7 +4563,7 @@
             
         } catch (error) {
             console.error('Error generating PDF:', error);
-            alert('حدث خطأ أثناء إنشاء التقرير. تأكد من تثبيت مكتبة jsPDF-autoTable.');
+            alert('حدث خطأ أثناء إنشاء ملف PDF. الرجاء المحاولة مرة أخرى.');
         }
     }
 
@@ -5765,7 +5789,7 @@
         document.body.appendChild(modalContainer);
     }
 
-    // دوال تصدير PDF بالفرنسية
+    // دالة PDF محسنة للمعطيين
     function downloadMuslimPDF(muslimName) {
         try {
             const muslimChecks = checks.filter(check => check.recipient === muslimName);
@@ -5777,114 +5801,133 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            // الغلاف
-            doc.setFillColor(51, 126, 169);
-            doc.rect(0, 0, 210, 297, 'F');
+            doc.setFont('helvetica');
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
             
-            doc.setFillColor(255, 255, 255);
-            doc.rect(20, 50, 170, 180, 'F');
-            
-            doc.setFontSize(32);
-            doc.setTextColor(51, 126, 169);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Rapport des Chèques', 105, 90, { align: 'center' });
-            
-            doc.setFontSize(24);
-            doc.setTextColor(30, 30, 30);
-            doc.text(`Bénéficiaire: ${muslimName}`, 105, 110, { align: 'center' });
-            
-            doc.setFontSize(14);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Nombre de chèques: ${muslimChecks.length}`, 105, 130, { align: 'center' });
-            
-            const totalAmount = muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            doc.text(`Montant total: ${formatCurrencyFrench(totalAmount)}`, 105, 145, { align: 'center' });
-            
+            // عنوان التقرير
+            doc.text(`Rapport des Cheques - Bénéficiaire: ${muslimName}`, 20, 20);
             doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
-            doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
             
-            // الصفحة الثانية: الجدول
-            doc.addPage();
+            let yPosition = 40;
             
-            doc.setFontSize(18);
-            doc.setTextColor(51, 126, 169);
-            doc.text(`Chèques pour: ${muslimName}`, 20, 20);
-            
-            // إحصائيات
-            const stats = {
-                pending: muslimChecks.filter(c => c.status === 'pending').length,
-                cleared: muslimChecks.filter(c => c.status === 'cleared').length,
-                bounced: muslimChecks.filter(c => c.status === 'bounced').length
-            };
+            // إحصائيات سريعة
+            const totalAmount = muslimChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+            const pendingChecks = muslimChecks.filter(c => c.status === 'pending').length;
+            const clearedChecks = muslimChecks.filter(c => c.status === 'cleared').length;
             
             doc.setFontSize(12);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`En attente: ${stats.pending} | Compensés: ${stats.cleared} | Retournés: ${stats.bounced}`, 20, 30);
+            doc.text(`Total des cheques: ${muslimChecks.length}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Montant total: ${formatNumberForPDF(totalAmount)} MAD`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`En attente: ${pendingChecks}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Compensés: ${clearedChecks}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Retournés: ${muslimChecks.filter(c => c.status === 'bounced').length}`, 20, yPosition);
+            yPosition += 15;
             
-            doc.setDrawColor(51, 126, 169);
+            // خط فاصل
+            doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.5);
-            doc.line(20, 38, 190, 38);
+            doc.line(20, yPosition, 190, yPosition);
+            yPosition += 10;
             
-            // تحضير بيانات الجدول بالفرنسية
-            const tableData = muslimChecks.map(check => [
-                check.number || '-',
-                truncateText(check.name || '-', 20),
-                formatCurrencyFrench(parseFloat(check.amount) || 0),
-                truncateText(check.issuer || '-', 15),
-                truncateText(check.bank || '-', 15),
-                getStatusFrench(check.status),
-                formatDateFrench(check.issueDate),
-                check.dueDate ? formatDateFrench(check.dueDate) : '-'
-            ]);
+            // عنوان القائمة
+            doc.setFontSize(14);
+            doc.setTextColor(15, 123, 108);
+            doc.text('Liste des Cheques:', 20, yPosition);
+            yPosition += 10;
             
-            // إنشاء الجدول
-            if (typeof doc.autoTable === 'function') {
-                doc.autoTable({
-                    startY: 45,
-                    head: [[
-                        FRENCH_COLUMNS.number,
-                        FRENCH_COLUMNS.name,
-                        FRENCH_COLUMNS.amount,
-                        FRENCH_COLUMNS.issuer,
-                        FRENCH_COLUMNS.bank,
-                        FRENCH_COLUMNS.status,
-                        FRENCH_COLUMNS.issueDate,
-                        FRENCH_COLUMNS.dueDate
-                    ]],
-                    body: tableData,
-                    theme: 'grid',
-                    styles: { 
-                        fontSize: 8, 
-                        cellPadding: 2,
-                        textColor: [0, 0, 0]
-                    },
-                    headStyles: { 
-                        fillColor: [51, 126, 169], 
-                        textColor: [255, 255, 255], 
-                        fontStyle: 'bold',
-                        halign: 'center',
-                        fontSize: 9
-                    },
-                    alternateRowStyles: {
-                        fillColor: [245, 245, 245]
-                    }
-                });
-            }
+            doc.setFontSize(9);
+            doc.setTextColor(100, 100, 100);
+            
+            // رؤوس الجدول
+            doc.setFillColor(245, 245, 245);
+            doc.rect(20, yPosition, 170, 8, 'F');
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text('No', 25, yPosition + 6);
+            doc.text('Nom', 40, yPosition + 6);
+            doc.text('Montant (MAD)', 100, yPosition + 6);
+            doc.text('Émetteur', 130, yPosition + 6);
+            doc.text('Statut', 170, yPosition + 6);
+            
+            yPosition += 12;
+            doc.setFontSize(9);
+            
+            // عرض البيانات
+            muslimChecks.slice(0, 30).forEach((check, index) => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setTextColor(0, 0, 0);
+                doc.text(`${index + 1}.`, 25, yPosition);
+                
+                doc.setTextColor(60, 60, 60);
+                const checkName = convertToFrenchForExport(truncateText(check.name, 20));
+                doc.text(checkName, 40, yPosition);
+                
+                doc.setTextColor(30, 30, 30);
+                const formattedAmount = formatNumberForPDF(check.amount);
+                doc.text(formattedAmount, 100, yPosition);
+                
+                doc.setTextColor(80, 80, 80);
+                doc.text(truncateText(check.issuer || 'Non spécifié', 15), 130, yPosition);
+                
+                // تلوين الحالة
+                if (check.status === 'pending') {
+                    doc.setTextColor(255, 184, 0);
+                } else if (check.status === 'cleared') {
+                    doc.setTextColor(15, 123, 108);
+                } else {
+                    doc.setTextColor(209, 69, 59);
+                }
+                doc.text(getStatusFrench(check.status), 170, yPosition);
+                
+                yPosition += 7;
+                
+                // تفاصيل إضافية
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${formatDateFrench(check.issueDate)}`;
+                doc.text(details, 40, yPosition);
+                
+                yPosition += 5;
+                
+                // خط فاصل
+                if (index < muslimChecks.length - 1 && index < 29) {
+                    doc.setDrawColor(230, 230, 230);
+                    doc.setLineWidth(0.2);
+                    doc.line(40, yPosition, 190, yPosition);
+                    yPosition += 4;
+                }
+                
+                doc.setFontSize(9);
+            });
             
             // حفظ الملف
-            const fileName = `Chèques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            const fileName = `Cheques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
             showNotification(`تم تحميل PDF لـ ${muslimName} بالفرنسية`);
             
         } catch (error) {
             console.error('Error generating PDF:', error);
-            alert('حدث خطأ أثناء إنشاء ملف PDF. تأكد من تثبيت مكتبة jsPDF.');
+            alert('حدث خطأ أثناء إنشاء ملف PDF.');
         }
     }
 
+    // دالة PDF محسنة للمستلمين
     function downloadIssuerPDF(issuerName) {
         try {
             const issuerChecks = checks.filter(check => check.issuer === issuerName);
@@ -5896,103 +5939,133 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            // الغلاف
-            doc.setFillColor(15, 123, 108);
-            doc.rect(0, 0, 210, 297, 'F');
+            doc.setFont('helvetica');
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
             
-            doc.setFillColor(255, 255, 255);
-            doc.rect(20, 50, 170, 180, 'F');
-            
-            doc.setFontSize(32);
-            doc.setTextColor(15, 123, 108);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Rapport des Chèques Émis', 105, 90, { align: 'center' });
-            
-            doc.setFontSize(24);
-            doc.setTextColor(30, 30, 30);
-            doc.text(`Émetteur: ${issuerName}`, 105, 110, { align: 'center' });
-            
-            doc.setFontSize(14);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Nombre de chèques émis: ${issuerChecks.length}`, 105, 130, { align: 'center' });
-            
-            const totalAmount = issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            doc.text(`Montant total émis: ${formatCurrencyFrench(totalAmount)}`, 105, 145, { align: 'center' });
-            
+            // عنوان التقرير
+            doc.text(`Rapport des Cheques Émis - Émetteur: ${issuerName}`, 20, 20);
             doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
-            doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
             
-            // الصفحة الثانية: الجدول
-            doc.addPage();
+            let yPosition = 40;
             
-            doc.setFontSize(18);
-            doc.setTextColor(15, 123, 108);
-            doc.text(`Chèques émis par: ${issuerName}`, 20, 20);
+            // إحصائيات سريعة
+            const totalAmount = issuerChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+            const pendingChecks = issuerChecks.filter(c => c.status === 'pending').length;
+            const clearedChecks = issuerChecks.filter(c => c.status === 'cleared').length;
             
-            doc.setDrawColor(15, 123, 108);
+            doc.setFontSize(12);
+            doc.text(`Total des cheques émis: ${issuerChecks.length}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Montant total émis: ${formatNumberForPDF(totalAmount)} MAD`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`En attente: ${pendingChecks}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Compensés: ${clearedChecks}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Retournés: ${issuerChecks.filter(c => c.status === 'bounced').length}`, 20, yPosition);
+            yPosition += 15;
+            
+            // خط فاصل
+            doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.5);
-            doc.line(20, 28, 190, 28);
+            doc.line(20, yPosition, 190, yPosition);
+            yPosition += 10;
             
-            // تحضير بيانات الجدول بالفرنسية
-            const tableData = issuerChecks.map(check => [
-                check.number || '-',
-                truncateText(check.name || '-', 20),
-                formatCurrencyFrench(parseFloat(check.amount) || 0),
-                truncateText(check.recipient || '-', 15),
-                truncateText(check.bank || '-', 15),
-                getStatusFrench(check.status),
-                formatDateFrench(check.issueDate),
-                check.dueDate ? formatDateFrench(check.dueDate) : '-'
-            ]);
+            // عنوان القائمة
+            doc.setFontSize(14);
+            doc.setTextColor(51, 126, 169);
+            doc.text('Liste des Cheques Émis:', 20, yPosition);
+            yPosition += 10;
             
-            // إنشاء الجدول
-            if (typeof doc.autoTable === 'function') {
-                doc.autoTable({
-                    startY: 35,
-                    head: [[
-                        FRENCH_COLUMNS.number,
-                        FRENCH_COLUMNS.name,
-                        FRENCH_COLUMNS.amount,
-                        FRENCH_COLUMNS.recipient,
-                        FRENCH_COLUMNS.bank,
-                        FRENCH_COLUMNS.status,
-                        FRENCH_COLUMNS.issueDate,
-                        FRENCH_COLUMNS.dueDate
-                    ]],
-                    body: tableData,
-                    theme: 'grid',
-                    styles: { 
-                        fontSize: 8, 
-                        cellPadding: 2,
-                        textColor: [0, 0, 0]
-                    },
-                    headStyles: { 
-                        fillColor: [15, 123, 108], 
-                        textColor: [255, 255, 255], 
-                        fontStyle: 'bold',
-                        halign: 'center',
-                        fontSize: 9
-                    },
-                    alternateRowStyles: {
-                        fillColor: [245, 245, 245]
-                    }
-                });
-            }
+            doc.setFontSize(9);
+            doc.setTextColor(100, 100, 100);
+            
+            // رؤوس الجدول
+            doc.setFillColor(245, 245, 245);
+            doc.rect(20, yPosition, 170, 8, 'F');
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text('No', 25, yPosition + 6);
+            doc.text('Nom', 40, yPosition + 6);
+            doc.text('Montant (MAD)', 100, yPosition + 6);
+            doc.text('Bénéficiaire', 130, yPosition + 6);
+            doc.text('Statut', 170, yPosition + 6);
+            
+            yPosition += 12;
+            doc.setFontSize(9);
+            
+            // عرض البيانات
+            issuerChecks.slice(0, 30).forEach((check, index) => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setTextColor(0, 0, 0);
+                doc.text(`${index + 1}.`, 25, yPosition);
+                
+                doc.setTextColor(60, 60, 60);
+                const checkName = convertToFrenchForExport(truncateText(check.name, 20));
+                doc.text(checkName, 40, yPosition);
+                
+                doc.setTextColor(30, 30, 30);
+                const formattedAmount = formatNumberForPDF(check.amount);
+                doc.text(formattedAmount, 100, yPosition);
+                
+                doc.setTextColor(80, 80, 80);
+                doc.text(truncateText(check.recipient || 'Non spécifié', 15), 130, yPosition);
+                
+                // تلوين الحالة
+                if (check.status === 'pending') {
+                    doc.setTextColor(255, 184, 0);
+                } else if (check.status === 'cleared') {
+                    doc.setTextColor(15, 123, 108);
+                } else {
+                    doc.setTextColor(209, 69, 59);
+                }
+                doc.text(getStatusFrench(check.status), 170, yPosition);
+                
+                yPosition += 7;
+                
+                // تفاصيل إضافية
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${formatDateFrench(check.issueDate)}`;
+                doc.text(details, 40, yPosition);
+                
+                yPosition += 5;
+                
+                // خط فاصل
+                if (index < issuerChecks.length - 1 && index < 29) {
+                    doc.setDrawColor(230, 230, 230);
+                    doc.setLineWidth(0.2);
+                    doc.line(40, yPosition, 190, yPosition);
+                    yPosition += 4;
+                }
+                
+                doc.setFontSize(9);
+            });
             
             // حفظ الملف
-            const fileName = `Chèques_Émis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            const fileName = `Cheques_Emis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
             showNotification(`تم تحميل PDF للمعطي ${issuerName} بالفرنسية`);
             
         } catch (error) {
             console.error('Error generating PDF:', error);
-            alert('حدث خطأ أثناء إنشاء ملف PDF. تأكد من تثبيت مكتبة jsPDF-autoTable.');
+            alert('حدث خطأ أثناء إنشاء ملف PDF.');
         }
     }
 
+    // دالة PDF لتقرير المخاطر (محسنة)
     function generateRiskReportPDF() {
         try {
             const today = new Date();
@@ -6011,98 +6084,179 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            // الغلاف
-            doc.setFillColor(209, 69, 59);
-            doc.rect(0, 0, 210, 297, 'F');
-            
-            doc.setFillColor(255, 255, 255);
-            doc.rect(20, 50, 170, 180, 'F');
-            
-            doc.setFontSize(32);
-            doc.setTextColor(209, 69, 59);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Rapport des Risques', 105, 90, { align: 'center' });
-            
-            doc.setFontSize(24);
-            doc.setTextColor(30, 30, 30);
-            doc.text('Chèques en Retard', 105, 110, { align: 'center' });
-            
-            doc.setFontSize(14);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Nombre de chèques en retard: ${riskChecks.length}`, 105, 130, { align: 'center' });
-            
-            const totalRiskAmount = riskChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
-            doc.text(`Montant total à risque: ${formatCurrencyFrench(totalRiskAmount)}`, 105, 145, { align: 'center' });
-            
-            doc.setFontSize(10);
-            doc.setTextColor(150, 150, 150);
-            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
-            doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
-            
-            // الصفحة الثانية: الجدول
-            doc.addPage();
-            
+            doc.setFont('helvetica');
             doc.setFontSize(18);
             doc.setTextColor(209, 69, 59);
-            doc.text('Rapport des Chèques en Retard', 20, 20);
             
+            // عنوان التقرير
+            doc.text('Rapport des Risques - Cheques en Retard', 20, 20);
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
+            
+            let yPosition = 40;
+            
+            // إحصائيات سريعة
+            const totalRiskAmount = riskChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Nombre de cheques en retard: ${riskChecks.length}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Montant total à risque: ${formatNumberForPDF(totalRiskAmount)} MAD`, 20, yPosition);
+            yPosition += 8;
+            
+            // تحليل مستوى الخطورة
+            const highRisk = riskChecks.filter(c => {
+                const dueDate = new Date(c.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                return daysOverdue > 30;
+            }).length;
+            
+            const mediumRisk = riskChecks.filter(c => {
+                const dueDate = new Date(c.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                return daysOverdue > 15 && daysOverdue <= 30;
+            }).length;
+            
+            const lowRisk = riskChecks.filter(c => {
+                const dueDate = new Date(c.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                return daysOverdue <= 15;
+            }).length;
+            
+            doc.text(`Risque élevé (>30 jours): ${highRisk}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Risque moyen (15-30 jours): ${mediumRisk}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`Risque faible (<15 jours): ${lowRisk}`, 20, yPosition);
+            yPosition += 15;
+            
+            // خط فاصل
             doc.setDrawColor(209, 69, 59);
             doc.setLineWidth(0.5);
-            doc.line(20, 28, 190, 28);
+            doc.line(20, yPosition, 190, yPosition);
+            yPosition += 10;
             
-            // تحضير البيانات بالفرنسية
+            // عنوان القائمة
+            doc.setFontSize(14);
+            doc.setTextColor(209, 69, 59);
+            doc.text('Liste des Cheques en Retard:', 20, yPosition);
+            yPosition += 10;
+            
+            doc.setFontSize(9);
+            doc.setTextColor(100, 100, 100);
+            
+            // رؤوس الجدول
+            doc.setFillColor(255, 245, 245);
+            doc.rect(20, yPosition, 170, 8, 'F');
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text('No', 25, yPosition + 6);
+            doc.text('Nom', 40, yPosition + 6);
+            doc.text('Montant', 90, yPosition + 6);
+            doc.text('Jours Retard', 120, yPosition + 6);
+            doc.text('Date Échéance', 150, yPosition + 6);
+            doc.text('Bénéficiaire', 170, yPosition + 6);
+            
+            yPosition += 12;
+            doc.setFontSize(9);
+            
+            // ترتيب من الأكثر تأخراً
             riskChecks.sort((a, b) => {
                 const daysA = Math.floor((today - new Date(a.dueDate)) / (1000 * 60 * 60 * 24));
                 const daysB = Math.floor((today - new Date(b.dueDate)) / (1000 * 60 * 60 * 24));
-                return daysB - daysA; // الأكثر تأخراً أولاً
+                return daysB - daysA;
             });
             
-            const tableData = riskChecks.map(check => {
+            // عرض البيانات
+            riskChecks.slice(0, 25).forEach((check, index) => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
                 const dueDate = new Date(check.dueDate);
                 const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
                 
-                let riskLevel = 'Faible';
+                doc.setTextColor(0, 0, 0);
+                doc.text(`${index + 1}.`, 25, yPosition);
+                
+                doc.setTextColor(60, 60, 60);
+                const checkName = convertToFrenchForExport(truncateText(check.name, 18));
+                doc.text(checkName, 40, yPosition);
+                
+                doc.setTextColor(30, 30, 30);
+                const formattedAmount = formatNumberForPDF(check.amount);
+                doc.text(formattedAmount, 90, yPosition);
+                
+                // تلوين أيام التأخير
                 if (daysOverdue > 30) {
-                    riskLevel = 'Critique';
+                    doc.setTextColor(209, 69, 59);
                 } else if (daysOverdue > 15) {
-                    riskLevel = 'Élevé';
-                } else if (daysOverdue > 7) {
-                    riskLevel = 'Moyen';
+                    doc.setTextColor(255, 184, 0);
+                } else {
+                    doc.setTextColor(100, 100, 100);
+                }
+                doc.text(`${daysOverdue} jours`, 120, yPosition);
+                
+                doc.setTextColor(80, 80, 80);
+                doc.text(formatDateFrench(check.dueDate), 150, yPosition);
+                
+                doc.setTextColor(60, 60, 60);
+                doc.text(truncateText(check.recipient || 'Non spécifié', 10), 170, yPosition);
+                
+                yPosition += 7;
+                
+                // تفاصيل إضافية
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
                 }
                 
-                return [
-                    check.number || '-',
-                    truncateText(check.name || '-', 20),
-                    formatCurrencyFrench(parseFloat(check.amount) || 0),
-                    truncateText(check.recipient || '-', 15),
-                    truncateText(check.issuer || '-', 15),
-                    formatDateFrench(check.dueDate),
-                    daysOverdue.toString(),
-                    riskLevel
-                ];
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | Émetteur: ${check.issuer}`;
+                doc.text(details, 40, yPosition);
+                
+                yPosition += 5;
+                
+                // خط فاصل
+                if (index < riskChecks.length - 1 && index < 24) {
+                    doc.setDrawColor(230, 230, 230);
+                    doc.setLineWidth(0.2);
+                    doc.line(40, yPosition, 190, yPosition);
+                    yPosition += 4;
+                }
+                
+                doc.setFontSize(9);
             });
             
-            // إنشاء الجدول
-            if (typeof doc.autoTable === 'function') {
-                doc.autoTable({
-                    startY: 35,
-                    head: [['Numéro', 'Nom', 'Montant', 'Bénéficiaire', 'Émetteur', 'Date Échéance', 'Jours Retard', 'Niveau Risque']],
-                    body: tableData,
-                    theme: 'grid',
-                    styles: { 
-                        fontSize: 8, 
-                        cellPadding: 2,
-                        textColor: [0, 0, 0]
-                    },
-                    headStyles: { 
-                        fillColor: [209, 69, 59], 
-                        textColor: [255, 255, 255], 
-                        fontStyle: 'bold',
-                        halign: 'center',
-                        fontSize: 9
-                    }
-                });
-            }
+            // توصيات
+            yPosition += 10;
+            doc.setFontSize(10);
+            doc.setTextColor(209, 69, 59);
+            doc.text('Recommandations:', 20, yPosition);
+            yPosition += 8;
+            
+            doc.setFontSize(9);
+            doc.setTextColor(0, 0, 0);
+            
+            const recommendations = [
+                'Contacter immédiatement les bénéficiaires des chèques en retard de plus de 30 jours',
+                'Mettre à jour les statuts des chèques réglés',
+                'Établir un plan de suivi des chèques en attente',
+                'Considérer l\'annulation des chèques perdus ou non réclamés'
+            ];
+            
+            recommendations.forEach((rec, i) => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                doc.text(`${i + 1}. ${rec}`, 25, yPosition);
+                yPosition += 7;
+            });
             
             // حفظ الملف
             const fileName = `Rapport_Risque_${new Date().toISOString().split('T')[0]}.pdf`;
