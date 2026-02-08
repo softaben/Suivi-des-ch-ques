@@ -85,22 +85,6 @@
             --font-size-xxl: 20px;
         }
 
-        /* الوضع الداكن */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background-color: #121212;
-                --surface-color: #1e1e1e;
-                --card-color: #2d2d2d;
-                
-                --text-primary: #ffffff;
-                --text-secondary: #b0b0b0;
-                --text-tertiary: #808080;
-                
-                --border-color: #404040;
-                --shadow-color: rgba(0, 0, 0, 0.3);
-            }
-        }
-
         .dark-mode {
             --background-color: #121212;
             --surface-color: #1e1e1e;
@@ -979,68 +963,6 @@
             background: var(--surface-color);
         }
 
-        /* اللغة والعملة */
-        .lang-selector, .currency-selector {
-            position: relative;
-        }
-
-        .lang-btn, .currency-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-xs);
-            color: white;
-            cursor: pointer;
-        }
-
-        .dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: var(--card-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-color) 0 4px 12px;
-            min-width: 120px;
-            z-index: 1001;
-            margin-top: 4px;
-        }
-
-        .dropdown.show {
-            display: block;
-            animation: fadeIn var(--transition-fast);
-        }
-
-        .dropdown-item {
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            border-bottom: 1px solid var(--border-color);
-            text-align: right;
-            font-size: var(--font-size-sm);
-        }
-
-        .dropdown-item:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-item:hover {
-            background: var(--surface-color);
-        }
-
-        .dropdown-item.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
         /* شاشة تسجيل الدخول */
         .login-modal {
             background: var(--background-color);
@@ -1370,28 +1292,6 @@
                 align-items: flex-start;
                 gap: 4px;
             }
-        }
-
-        /* إضافة خطوط توجيهية */
-        .hint-text {
-            font-size: var(--font-size-xs);
-            color: var(--text-tertiary);
-            margin-top: 4px;
-        }
-
-        /* زر الحذف السريع */
-        .quick-delete-btn {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: var(--danger-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-            z-index: 2;
         }
 
         /* أنماط التصدير */
@@ -2099,6 +1999,23 @@
                 </div>
                 <div class="check-list" id="recentChecksList">
                     <!-- الشيكات الحديثة سيتم تحميلها هنا -->
+                </div>
+            </div>
+
+            <!-- قسم التصدير السريع -->
+            <div class="recent-section">
+                <div class="section-header">
+                    <div class="section-title">تصدير سريع</div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="exportToExcelFrench()" style="flex: 1; min-width: 150px;">
+                        <i class="fas fa-file-excel"></i>
+                        Excel (فرنسي)
+                    </button>
+                    <button class="btn btn-primary" onclick="generatePDFReportFrench()" style="flex: 1; min-width: 150px;">
+                        <i class="fas fa-file-pdf"></i>
+                        PDF (فرنسي)
+                    </button>
                 </div>
             </div>
         </div>
@@ -4353,7 +4270,7 @@
         alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n© 2024 جميع الحقوق محفوظة');
     }
 
-    // دوال التصدير
+    // دوال التصدير المحسنة
     function openExportModal() {
         openModal('exportModal');
     }
@@ -4363,7 +4280,7 @@
         setTimeout(() => openModal('pdfExportModal'), 300);
     }
 
-    // تصدير إلى PDF بالفرنسية
+    // تصدير إلى PDF بالفرنسية - محسنة
     function generatePDFReportFrench() {
         try {
             const reportType = document.getElementById('pdfReportType').value;
@@ -4378,8 +4295,12 @@
                 to.setHours(23, 59, 59, 999);
                 
                 filteredChecks = filteredChecks.filter(check => {
-                    const checkDate = new Date(check.issueDate);
-                    return checkDate >= from && checkDate <= to;
+                    try {
+                        const checkDate = new Date(check.issueDate);
+                        return checkDate >= from && checkDate <= to;
+                    } catch (e) {
+                        return false;
+                    }
                 });
             }
             
@@ -4417,7 +4338,7 @@
             
             doc.setFontSize(12);
             doc.text(`Nombre de chèques: ${filteredChecks.length}`, 105, 150, { align: 'center' });
-            doc.text(`Montant total: ${formatCurrencyFrench(filteredChecks.reduce((sum, c) => sum + c.amount, 0))}`, 105, 160, { align: 'center' });
+            doc.text(`Montant total: ${formatCurrencyFrench(filteredChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0))}`, 105, 160, { align: 'center' });
             
             doc.setFontSize(10);
             doc.setTextColor(150, 150, 150);
@@ -4435,30 +4356,48 @@
             doc.setLineWidth(0.5);
             doc.line(20, 25, 190, 25);
             
+            // تحضير بيانات الجدول
             const tableData = filteredChecks.map(check => [
-                check.number,
-                check.name,
-                formatCurrencyFrench(check.amount),
-                check.bank,
-                check.recipient,
-                check.issuer,
+                check.number || '-',
+                truncateText(check.name || '-', 20),
+                formatCurrencyFrench(parseFloat(check.amount) || 0),
+                truncateText(check.bank || '-', 15),
+                truncateText(check.recipient || '-', 15),
+                truncateText(check.issuer || '-', 15),
                 getStatusFrench(check.status),
                 formatDateFrench(check.issueDate),
                 check.dueDate ? formatDateFrench(check.dueDate) : '-'
             ]);
             
+            // استخدام autoTable لإنشاء جدول منظم
             doc.autoTable({
                 startY: 30,
                 head: [['N° Chèque', 'Nom', 'Montant', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance']],
                 body: tableData,
                 theme: 'grid',
-                styles: { fontSize: 8, cellPadding: 2 },
-                headStyles: { fillColor: [51, 126, 169], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+                styles: { 
+                    fontSize: 8, 
+                    cellPadding: 2,
+                    textColor: [0, 0, 0]
+                },
+                headStyles: { 
+                    fillColor: [51, 126, 169], 
+                    textColor: [255, 255, 255], 
+                    fontStyle: 'bold', 
+                    halign: 'center',
+                    fontSize: 9
+                },
+                bodyStyles: {
+                    halign: 'right'
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
                 columnStyles: {
                     0: { cellWidth: 25 },
                     1: { cellWidth: 30 },
                     2: { cellWidth: 25, halign: 'right' },
-                    3: { cellWidth: 30 },
+                    3: { cellWidth: 25 },
                     4: { cellWidth: 25 },
                     5: { cellWidth: 25 },
                     6: { cellWidth: 20, halign: 'center' },
@@ -4467,6 +4406,24 @@
                 },
                 margin: { left: 10, right: 10 }
             });
+            
+            // إحصائيات إضافية
+            const finalY = doc.lastAutoTable.finalY + 10;
+            
+            const stats = {
+                pending: filteredChecks.filter(c => c.status === 'pending').length,
+                cleared: filteredChecks.filter(c => c.status === 'cleared').length,
+                bounced: filteredChecks.filter(c => c.status === 'bounced').length
+            };
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Résumé des statistiques:', 20, finalY);
+            
+            doc.setFontSize(9);
+            doc.text(`En attente: ${stats.pending}`, 30, finalY + 8);
+            doc.text(`Compensés: ${stats.cleared}`, 30, finalY + 16);
+            doc.text(`Retournés: ${stats.bounced}`, 30, finalY + 24);
             
             // حفظ الملف
             const fileName = `Rapport_Cheques_${new Date().toISOString().split('T')[0]}.pdf`;
@@ -4477,115 +4434,200 @@
             
         } catch (error) {
             console.error('Error generating PDF:', error);
-            alert('حدث خطأ أثناء إنشاء التقرير');
+            alert('حدث خطأ أثناء إنشاء التقرير. تأكد من تثبيت مكتبة jsPDF-autoTable.');
         }
     }
 
-    function formatDateFrench(dateString) {
-        if (!dateString) return '';
-        return new Date(dateString).toLocaleDateString('fr-FR');
-    }
-
-    function formatCurrencyFrench(amount) {
-        return new Intl.NumberFormat('fr-FR', {
-            style: 'currency',
-            currency: 'MAD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount || 0);
-    }
-
-    function getStatusFrench(status) {
-        switch(status) {
-            case 'pending': return 'En attente';
-            case 'cleared': return 'Compensé';
-            case 'bounced': return 'Retourné';
-            default: return status;
-        }
-    }
-
-    // تصدير إلى Excel بالفرنسية
+    // تصدير إلى Excel بالفرنسية - محسنة
     function exportToExcelFrench() {
-        const wsData = [
-            ['N° Chèque', 'Nom', 'Montant (MAD)', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'],
-            ...checks.map(check => [
-                check.number,
-                check.name,
-                check.amount,
-                check.bank,
-                check.recipient,
-                check.issuer,
-                getStatusFrench(check.status),
-                check.issueDate,
-                check.dueDate || '',
-                check.notes || ''
-            ])
-        ];
-        
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Chèques');
-        
-        XLSX.writeFile(wb, `Cheques_${new Date().toISOString().split('T')[0]}.xlsx`);
-        
-        showNotification('تم التصدير إلى Excel بالفرنسية');
-        closeModal();
+        try {
+            // تحضير البيانات مع أسماء الأعمدة بالفرنسية
+            const wsData = [
+                ['N° Chèque', 'Nom', 'Montant (MAD)', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'],
+                ...checks.map(check => [
+                    check.number || '',
+                    check.name || '',
+                    parseFloat(check.amount) || 0,
+                    check.bank || '',
+                    check.recipient || '',
+                    check.issuer || '',
+                    getStatusFrench(check.status),
+                    formatDateForExcel(check.issueDate),
+                    check.dueDate ? formatDateForExcel(check.dueDate) : '',
+                    (check.notes || '').replace(/[\n\r]/g, ' ') // إزالة الأسطر الجديدة
+                ])
+            ];
+            
+            // إنشاء ورقة العمل
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            
+            // ضبط عرض الأعمدة
+            const colWidths = [
+                { wch: 15 }, // N° Chèque
+                { wch: 25 }, // Nom
+                { wch: 15 }, // Montant
+                { wch: 20 }, // Banque
+                { wch: 20 }, // Bénéficiaire
+                { wch: 20 }, // Émetteur
+                { wch: 15 }, // Statut
+                { wch: 15 }, // Date Émission
+                { wch: 15 }, // Date Échéance
+                { wch: 30 }  // Remarques
+            ];
+            ws['!cols'] = colWidths;
+            
+            // إنشاء ملف Excel
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Chèques');
+            
+            // إضافة ورقة للإحصائيات
+            const statsData = [
+                ['Statistiques', ''],
+                ['Nombre total de chèques', checks.length],
+                ['Montant total', checks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0)],
+                ['En attente', checks.filter(c => c.status === 'pending').length],
+                ['Compensés', checks.filter(c => c.status === 'cleared').length],
+                ['Retournés', checks.filter(c => c.status === 'bounced').length],
+                ['Date d\'export', new Date().toLocaleDateString('fr-FR')]
+            ];
+            
+            const wsStats = XLSX.utils.aoa_to_sheet(statsData);
+            XLSX.utils.book_append_sheet(wb, wsStats, 'Statistiques');
+            
+            // اسم الملف مع التاريخ
+            const fileName = `Cheques_${new Date().toISOString().split('T')[0]}.xlsx`;
+            
+            // حفظ الملف
+            XLSX.writeFile(wb, fileName);
+            
+            showNotification('تم التصدير إلى Excel بنجاح');
+            closeModal();
+            
+        } catch (error) {
+            console.error('Error exporting Excel:', error);
+            alert('حدث خطأ أثناء تصدير الملف. الرجاء المحاولة مرة أخرى.');
+        }
     }
 
-    // تصدير إلى CSV بالفرنسية
+    // تصدير إلى CSV بالفرنسية - محسنة
     function exportToCSVFrench() {
-        const csvContent = [
-            ['N° Chèque', 'Nom', 'Montant (MAD)', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'].join(','),
-            ...checks.map(check => [
-                `"${check.number || ''}"`,
-                `"${check.name || ''}"`,
-                check.amount || 0,
-                `"${check.bank || ''}"`,
-                `"${check.recipient || ''}"`,
-                `"${check.issuer || ''}"`,
-                `"${getStatusFrench(check.status)}"`,
-                check.issueDate || '',
-                check.dueDate || '',
-                `"${(check.notes || '').replace(/"/g, '""')}"`
-            ].join(','))
-        ].join('\n');
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
-        link.setAttribute('download', `Cheques_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showNotification('تم التصدير إلى CSV بالفرنسية');
-        closeModal();
+        try {
+            const headers = ['N° Chèque', 'Nom', 'Montant (MAD)', 'Banque', 'Bénéficiaire', 'Émetteur', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'];
+            
+            const csvRows = [
+                headers.join(','),
+                ...checks.map(check => {
+                    const row = [
+                        `"${(check.number || '').replace(/"/g, '""')}"`,
+                        `"${(check.name || '').replace(/"/g, '""')}"`,
+                        parseFloat(check.amount) || 0,
+                        `"${(check.bank || '').replace(/"/g, '""')}"`,
+                        `"${(check.recipient || '').replace(/"/g, '""')}"`,
+                        `"${(check.issuer || '').replace(/"/g, '""')}"`,
+                        `"${getStatusFrench(check.status).replace(/"/g, '""')}"`,
+                        `"${formatDateForExcel(check.issueDate).replace(/"/g, '""')}"`,
+                        `"${(check.dueDate ? formatDateForExcel(check.dueDate) : '').replace(/"/g, '""')}"`,
+                        `"${(check.notes || '').replace(/"/g, '""').replace(/[\n\r]/g, ' ')}"`
+                    ];
+                    return row.join(',');
+                })
+            ];
+            
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            link.href = URL.createObjectURL(blob);
+            link.download = `Cheques_${new Date().toISOString().split('T')[0]}.csv`;
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('تم التصدير إلى CSV بالفرنسية');
+            closeModal();
+            
+        } catch (error) {
+            console.error('Error exporting CSV:', error);
+            alert('حدث خطأ أثناء تصدير الملف.');
+        }
     }
 
     function exportToJSON() {
-        const data = {
-            version: '2.0',
-            exportDate: new Date().toISOString(),
-            userId: currentUserId,
-            checks: checks
+        try {
+            const data = {
+                version: '2.0',
+                exportDate: new Date().toISOString(),
+                userId: currentUserId,
+                checks: checks.map(check => ({
+                    ...check,
+                    amount: parseFloat(check.amount) || 0
+                }))
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+            const link = document.createElement('a');
+            
+            link.href = URL.createObjectURL(blob);
+            link.download = `checkflow_export_${new Date().toISOString().split('T')[0]}.json`;
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('تم التصدير إلى JSON');
+            closeModal();
+            
+        } catch (error) {
+            console.error('Error exporting JSON:', error);
+            alert('حدث خطأ أثناء تصدير الملف.');
+        }
+    }
+
+    // دوال مساعدة للتصدير
+    function formatDateFrench(dateString) {
+        if (!dateString) return '';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        } catch (e) {
+            return dateString;
+        }
+    }
+
+    function formatCurrencyFrench(amount) {
+        const numAmount = parseFloat(amount) || 0;
+        return new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(numAmount) + ' MAD';
+    }
+
+    function getStatusFrench(status) {
+        const statusMap = {
+            'pending': 'En attente',
+            'cleared': 'Compensé',
+            'bounced': 'Retourné'
         };
-        
-        const dataStr = JSON.stringify(data, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-        
-        const exportFileDefaultName = `checkflow_export_${new Date().toISOString().split('T')[0]}.json`;
-        
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
-        
-        showNotification('تم التصدير إلى JSON');
-        closeModal();
+        return statusMap[status] || status;
+    }
+
+    function formatDateForExcel(dateString) {
+        if (!dateString) return '';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        } catch (e) {
+            return dateString;
+        }
+    }
+
+    function truncateText(text, maxLength) {
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
     }
 
     // دوال إضافية
@@ -4600,14 +4642,16 @@
                 };
                 
                 const dataStr = JSON.stringify(report, null, 2);
-                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+                const link = document.createElement('a');
                 
-                const exportFileDefaultName = `تقرير-التكرار-${new Date().toISOString().split('T')[0]}.json`;
+                link.href = URL.createObjectURL(blob);
+                link.download = `تقرير_التكرار_${new Date().toISOString().split('T')[0]}.json`;
+                link.style.visibility = 'hidden';
                 
-                const linkElement = document.createElement('a');
-                linkElement.setAttribute('href', dataUri);
-                linkElement.setAttribute('download', exportFileDefaultName);
-                linkElement.click();
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
                 
                 showNotification('تم تصدير تقرير التكرار');
             }
@@ -4658,14 +4702,16 @@
         };
         
         const dataStr = JSON.stringify(report, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+        const link = document.createElement('a');
         
-        const exportFileDefaultName = `جميع-المستلمين-${new Date().toISOString().split('T')[0]}.json`;
+        link.href = URL.createObjectURL(blob);
+        link.download = `جميع_المستلمين_${new Date().toISOString().split('T')[0]}.json`;
+        link.style.visibility = 'hidden';
         
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         
         showNotification('تم تصدير تقرير جميع المستلمين');
     }
@@ -4722,14 +4768,16 @@
         };
         
         const dataStr = JSON.stringify(report, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+        const link = document.createElement('a');
         
-        const exportFileDefaultName = `جميع-المعطيين-${new Date().toISOString().split('T')[0]}.json`;
+        link.href = URL.createObjectURL(blob);
+        link.download = `جميع_المعطيين_${new Date().toISOString().split('T')[0]}.json`;
+        link.style.visibility = 'hidden';
         
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         
         showNotification('تم تصدير تقرير جميع المعطيين');
     }
