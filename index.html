@@ -1971,6 +1971,18 @@
                     </div>
                     <div class="quick-action-label">استيراد Excel</div>
                 </div>
+                <div class="quick-action-btn" onclick="generateRiskReportPDF()">
+                    <div class="quick-action-icon" style="background: var(--danger-color);">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="quick-action-label">تقرير المخاطر PDF</div>
+                </div>
+                <div class="quick-action-btn" onclick="openExportModal()">
+                    <div class="quick-action-icon" style="background: var(--success-color);">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="quick-action-label">تصدير جميع</div>
+                </div>
             </div>
 
             <div class="stats-grid">
@@ -2015,6 +2027,10 @@
                     <button class="btn btn-primary" onclick="generatePDFReportFrench()" style="flex: 1; min-width: 150px;">
                         <i class="fas fa-file-pdf"></i>
                         PDF (فرنسي)
+                    </button>
+                    <button class="btn btn-primary" onclick="exportToCSVFrench()" style="flex: 1; min-width: 150px;">
+                        <i class="fas fa-file-csv"></i>
+                        CSV (فرنسي)
                     </button>
                 </div>
             </div>
@@ -2215,10 +2231,16 @@
                 <div class="table-card">
                     <div class="chart-header">
                         <div class="chart-title">تقرير المخاطر - الشيكات المتأخرة</div>
-                        <button class="btn btn-secondary btn-sm" onclick="exportRiskReport()">
-                            <i class="fas fa-download"></i>
-                            تصدير
-                        </button>
+                        <div class="view-controls">
+                            <button class="btn btn-secondary btn-sm" onclick="generateRiskReportPDF()">
+                                <i class="fas fa-file-pdf"></i>
+                                PDF
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="exportRiskReport()">
+                                <i class="fas fa-download"></i>
+                                JSON
+                            </button>
+                        </div>
                     </div>
                     <div class="table-container">
                         <table class="analytics-table">
@@ -2230,6 +2252,7 @@
                                     <th>تاريخ الاستحقاق</th>
                                     <th>الأيام المتأخرة</th>
                                     <th>المستلم</th>
+                                    <th>المعطي</th>
                                 </tr>
                             </thead>
                             <tbody id="riskReportTable">
@@ -3504,11 +3527,12 @@
                         </span>
                     </td>
                     <td>${check.recipient}</td>
+                    <td>${check.issuer}</td>
                 </tr>
             `;
         });
         
-        tableBody.innerHTML = tableHTML || '<tr><td colspan="6" style="text-align: center; padding: 20px;">لا توجد شيكات متأخرة</td></tr>';
+        tableBody.innerHTML = tableHTML || '<tr><td colspan="7" style="text-align: center; padding: 20px;">لا توجد شيكات متأخرة</td></tr>';
     }
 
     // تحديث ملخص التكرارات
@@ -3594,6 +3618,7 @@
                     dueDate: check.dueDate,
                     daysOverdue: daysOverdue,
                     recipient: check.recipient,
+                    issuer: check.issuer,
                     bank: check.bank
                 };
             })
@@ -5653,6 +5678,619 @@
         };
         
         document.body.appendChild(modalContainer);
+    }
+
+    // دوال تصدير PDF المفقودة - تم إضافتها
+    function downloadMuslimPDF(muslimName) {
+        try {
+            const muslimChecks = checks.filter(check => check.recipient === muslimName);
+            if (muslimChecks.length === 0) {
+                alert('لا توجد شيكات لهذا المستلم');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // الغلاف
+            doc.setFillColor(51, 126, 169);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            doc.setFillColor(255, 255, 255);
+            doc.rect(20, 50, 170, 180, 'F');
+            
+            doc.setFontSize(32);
+            doc.setTextColor(51, 126, 169);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Rapport des Chèques', 105, 90, { align: 'center' });
+            
+            doc.setFontSize(24);
+            doc.setTextColor(30, 30, 30);
+            doc.text(muslimName, 105, 110, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Nombre de chèques: ${muslimChecks.length}`, 105, 130, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
+            doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
+            
+            // الصفحة الثانية: الجدول
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(51, 126, 169);
+            doc.text(`Chèques pour: ${muslimName}`, 20, 20);
+            
+            // إحصائيات
+            const stats = {
+                totalAmount: muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+                pending: muslimChecks.filter(c => c.status === 'pending').length,
+                cleared: muslimChecks.filter(c => c.status === 'cleared').length,
+                bounced: muslimChecks.filter(c => c.status === 'bounced').length
+            };
+            
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Montant total: ${formatCurrencyFrench(stats.totalAmount)}`, 20, 30);
+            doc.text(`En attente: ${stats.pending} | Compensés: ${stats.cleared} | Retournés: ${stats.bounced}`, 20, 38);
+            
+            doc.setDrawColor(51, 126, 169);
+            doc.setLineWidth(0.5);
+            doc.line(20, 45, 190, 45);
+            
+            // تحضير بيانات الجدول
+            const tableData = muslimChecks.map(check => [
+                check.number || '-',
+                truncateText(check.name || '-', 20),
+                formatCurrencyFrench(parseFloat(check.amount) || 0),
+                truncateText(check.issuer || '-', 15),
+                truncateText(check.bank || '-', 15),
+                getStatusFrench(check.status),
+                formatDateFrench(check.issueDate),
+                check.dueDate ? formatDateFrench(check.dueDate) : '-'
+            ]);
+            
+            // إنشاء الجدول
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable({
+                    startY: 50,
+                    head: [['N° Chèque', 'Nom', 'Montant', 'Émetteur', 'Banque', 'Statut', 'Date Émission', 'Date Échéance']],
+                    body: tableData,
+                    theme: 'grid',
+                    styles: { 
+                        fontSize: 8, 
+                        cellPadding: 2,
+                        textColor: [0, 0, 0]
+                    },
+                    headStyles: { 
+                        fillColor: [51, 126, 169], 
+                        textColor: [255, 255, 255], 
+                        fontStyle: 'bold',
+                        halign: 'center',
+                        fontSize: 9
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    }
+                });
+            } else {
+                // نسخة احتياطية بدون autoTable
+                doc.setFontSize(10);
+                let yPos = 50;
+                
+                muslimChecks.forEach((check, index) => {
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    
+                    doc.text(`${check.number} - ${check.name}`, 20, yPos);
+                    doc.text(`${formatCurrencyFrench(check.amount)} - ${check.issuer}`, 20, yPos + 7);
+                    doc.text(`${check.bank} - ${getStatusFrench(check.status)}`, 20, yPos + 14);
+                    doc.text(`${formatDateFrench(check.issueDate)}`, 20, yPos + 21);
+                    
+                    if (check.dueDate) {
+                        doc.text(`Échéance: ${formatDateFrench(check.dueDate)}`, 20, yPos + 28);
+                        yPos += 35;
+                    } else {
+                        yPos += 28;
+                    }
+                });
+            }
+            
+            // حفظ الملف
+            const fileName = `Cheques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+            
+            showNotification(`تم تحميل PDF لـ ${muslimName}`);
+            
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('حدث خطأ أثناء إنشاء ملف PDF. تأكد من تثبيت مكتبة jsPDF.');
+        }
+    }
+
+    function downloadIssuerPDF(issuerName) {
+        try {
+            const issuerChecks = checks.filter(check => check.issuer === issuerName);
+            if (issuerChecks.length === 0) {
+                alert('لا توجد شيكات لهذا المعطي');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // الغلاف
+            doc.setFillColor(15, 123, 108);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            doc.setFillColor(255, 255, 255);
+            doc.rect(20, 50, 170, 180, 'F');
+            
+            doc.setFontSize(32);
+            doc.setTextColor(15, 123, 108);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Rapport des Chèques Émis', 105, 90, { align: 'center' });
+            
+            doc.setFontSize(24);
+            doc.setTextColor(30, 30, 30);
+            doc.text(issuerName, 105, 110, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Nombre de chèques émis: ${issuerChecks.length}`, 105, 130, { align: 'center' });
+            
+            // إحصائيات
+            const totalAmount = issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            const avgAmount = issuerChecks.length > 0 ? totalAmount / issuerChecks.length : 0;
+            
+            doc.text(`Montant total émis: ${formatCurrencyFrench(totalAmount)}`, 105, 145, { align: 'center' });
+            doc.text(`Montant moyen: ${formatCurrencyFrench(avgAmount)}`, 105, 155, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
+            doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
+            
+            // الصفحة الثانية: الجدول
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(15, 123, 108);
+            doc.text(`Chèques émis par: ${issuerName}`, 20, 20);
+            
+            doc.setDrawColor(15, 123, 108);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            // تحضير بيانات الجدول
+            const tableData = issuerChecks.map(check => [
+                check.number || '-',
+                truncateText(check.name || '-', 20),
+                formatCurrencyFrench(parseFloat(check.amount) || 0),
+                truncateText(check.recipient || '-', 15),
+                truncateText(check.bank || '-', 15),
+                getStatusFrench(check.status),
+                formatDateFrench(check.issueDate),
+                check.dueDate ? formatDateFrench(check.dueDate) : '-',
+                check.notes ? truncateText(check.notes, 20) : '-'
+            ]);
+            
+            // إنشاء الجدول
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable({
+                    startY: 30,
+                    head: [['N° Chèque', 'Nom', 'Montant', 'Bénéficiaire', 'Banque', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques']],
+                    body: tableData,
+                    theme: 'grid',
+                    styles: { 
+                        fontSize: 8, 
+                        cellPadding: 2,
+                        textColor: [0, 0, 0]
+                    },
+                    headStyles: { 
+                        fillColor: [15, 123, 108], 
+                        textColor: [255, 255, 255], 
+                        fontStyle: 'bold',
+                        halign: 'center',
+                        fontSize: 9
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 25 },
+                        1: { cellWidth: 25 },
+                        2: { cellWidth: 20 },
+                        3: { cellWidth: 25 },
+                        4: { cellWidth: 20 },
+                        5: { cellWidth: 20 },
+                        6: { cellWidth: 25 },
+                        7: { cellWidth: 25 },
+                        8: { cellWidth: 30 }
+                    }
+                });
+            }
+            
+            // حفظ الملف
+            const fileName = `Cheques_Emission_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+            
+            showNotification(`تم تحميل PDF للمعطي ${issuerName}`);
+            
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('حدث خطأ أثناء إنشاء ملف PDF. تأكد من تثبيت مكتبة jsPDF-autoTable.');
+        }
+    }
+
+    function generateRiskReportPDF() {
+        try {
+            const today = new Date();
+            const riskChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                const dueDate = new Date(check.dueDate);
+                return dueDate < today;
+            });
+            
+            if (riskChecks.length === 0) {
+                alert('لا توجد شيكات متأخرة حالياً');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // الغلاف
+            doc.setFillColor(209, 69, 59);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            doc.setFillColor(255, 255, 255);
+            doc.rect(20, 50, 170, 180, 'F');
+            
+            doc.setFontSize(32);
+            doc.setTextColor(209, 69, 59);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Rapport des Risques', 105, 90, { align: 'center' });
+            
+            doc.setFontSize(24);
+            doc.setTextColor(30, 30, 30);
+            doc.text('Chèques en Retard', 105, 110, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Nombre de chèques en retard: ${riskChecks.length}`, 105, 130, { align: 'center' });
+            
+            const totalRiskAmount = riskChecks.reduce((sum, check) => sum + (check.amount || 0), 0);
+            doc.text(`Montant total à risque: ${formatCurrencyFrench(totalRiskAmount)}`, 105, 145, { align: 'center' });
+            
+            // حساب نسبة الخطورة
+            const totalPendingAmount = checks
+                .filter(c => c.status === 'pending')
+                .reduce((sum, c) => sum + (c.amount || 0), 0);
+            
+            const riskPercentage = totalPendingAmount > 0 ? 
+                ((totalRiskAmount / totalPendingAmount) * 100).toFixed(1) : 0;
+            
+            doc.text(`Taux de risque: ${riskPercentage}%`, 105, 160, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`, 105, 180, { align: 'center' });
+            doc.text('CheckFlow Pro © 2024', 105, 280, { align: 'center' });
+            
+            // الصفحة الثانية: الجدول
+            doc.addPage();
+            
+            doc.setFontSize(18);
+            doc.setTextColor(209, 69, 59);
+            doc.text('Rapport des Chèques en Retard', 20, 20);
+            
+            doc.setDrawColor(209, 69, 59);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            // تحضير البيانات
+            riskChecks.sort((a, b) => {
+                const daysA = Math.floor((today - new Date(a.dueDate)) / (1000 * 60 * 60 * 24));
+                const daysB = Math.floor((today - new Date(b.dueDate)) / (1000 * 60 * 60 * 24));
+                return daysB - daysA; // الأكثر تأخراً أولاً
+            });
+            
+            const tableData = riskChecks.map(check => {
+                const dueDate = new Date(check.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                
+                let riskLevel = 'Faible';
+                let riskColor = [144, 238, 144]; // أخضر فاتح
+                if (daysOverdue > 30) {
+                    riskLevel = 'Critique';
+                    riskColor = [255, 99, 71]; // أحمر
+                } else if (daysOverdue > 15) {
+                    riskLevel = 'Élevé';
+                    riskColor = [255, 165, 0]; // برتقالي
+                } else if (daysOverdue > 7) {
+                    riskLevel = 'Moyen';
+                    riskColor = [255, 255, 0]; // أصفر
+                }
+                
+                return [
+                    check.number || '-',
+                    truncateText(check.name || '-', 20),
+                    formatCurrencyFrench(parseFloat(check.amount) || 0),
+                    truncateText(check.recipient || '-', 15),
+                    truncateText(check.issuer || '-', 15),
+                    formatDateFrench(check.dueDate),
+                    daysOverdue.toString(),
+                    riskLevel
+                ];
+            });
+            
+            // إنشاء الجدول
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable({
+                    startY: 30,
+                    head: [['N° Chèque', 'Nom', 'Montant', 'Bénéficiaire', 'Émetteur', 'Date Échéance', 'Jours Retard', 'Niveau Risque']],
+                    body: tableData,
+                    theme: 'grid',
+                    styles: { 
+                        fontSize: 8, 
+                        cellPadding: 2,
+                        textColor: [0, 0, 0]
+                    },
+                    headStyles: { 
+                        fillColor: [209, 69, 59], 
+                        textColor: [255, 255, 255], 
+                        fontStyle: 'bold',
+                        halign: 'center',
+                        fontSize: 9
+                    },
+                    didParseCell: function(data) {
+                        if (data.column.index === 7) { // عمود مستوى الخطورة
+                            if (data.cell.raw === 'Critique') {
+                                data.cell.styles.fillColor = [255, 99, 71];
+                                data.cell.styles.textColor = [255, 255, 255];
+                            } else if (data.cell.raw === 'Élevé') {
+                                data.cell.styles.fillColor = [255, 165, 0];
+                                data.cell.styles.textColor = [255, 255, 255];
+                            } else if (data.cell.raw === 'Moyen') {
+                                data.cell.styles.fillColor = [255, 255, 0];
+                                data.cell.styles.textColor = [0, 0, 0];
+                            } else {
+                                data.cell.styles.fillColor = [144, 238, 144];
+                                data.cell.styles.textColor = [0, 0, 0];
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // صفحة الملخص
+            doc.addPage();
+            
+            doc.setFontSize(16);
+            doc.setTextColor(209, 69, 59);
+            doc.text('Analyse du Risque', 20, 20);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            
+            let yPos = 40;
+            
+            // تحليل حسب المعطي
+            const issuerRisk = {};
+            riskChecks.forEach(check => {
+                const issuer = check.issuer || 'غير محدد';
+                if (!issuerRisk[issuer]) {
+                    issuerRisk[issuer] = { count: 0, amount: 0, maxDays: 0 };
+                }
+                issuerRisk[issuer].count++;
+                issuerRisk[issuer].amount += check.amount || 0;
+                
+                const days = Math.floor((today - new Date(check.dueDate)) / (1000 * 60 * 60 * 24));
+                if (days > issuerRisk[issuer].maxDays) {
+                    issuerRisk[issuer].maxDays = days;
+                }
+            });
+            
+            const topRiskyIssuers = Object.entries(issuerRisk)
+                .sort((a, b) => b[1].amount - a[1].amount)
+                .slice(0, 5);
+            
+            doc.text('Principaux Émetteurs à Risque:', 20, yPos);
+            yPos += 10;
+            
+            topRiskyIssuers.forEach(([issuer, data], index) => {
+                doc.text(`${index + 1}. ${issuer}: ${data.count} chèques, ${formatCurrencyFrench(data.amount)}, ${data.maxDays} jours max`, 25, yPos);
+                yPos += 7;
+            });
+            
+            yPos += 10;
+            
+            // تحليل حسب البنك
+            const bankRisk = {};
+            riskChecks.forEach(check => {
+                const bank = check.bank || 'غير محدد';
+                if (!bankRisk[bank]) {
+                    bankRisk[bank] = { count: 0, amount: 0 };
+                }
+                bankRisk[bank].count++;
+                bankRisk[bank].amount += check.amount || 0;
+            });
+            
+            const topRiskyBanks = Object.entries(bankRisk)
+                .sort((a, b) => b[1].amount - a[1].amount)
+                .slice(0, 5);
+            
+            doc.text('Principales Banques à Risque:', 20, yPos);
+            yPos += 10;
+            
+            topRiskyBanks.forEach(([bank, data], index) => {
+                doc.text(`${index + 1}. ${bank}: ${data.count} chèques, ${formatCurrencyFrench(data.amount)}`, 25, yPos);
+                yPos += 7;
+            });
+            
+            // حفظ الملف
+            const fileName = `Rapport_Risque_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+            
+            showNotification('تم تحميل تقرير المخاطر كـ PDF');
+            
+        } catch (error) {
+            console.error('Error generating risk PDF:', error);
+            alert('حدث خطأ أثناء إنشاء تقرير المخاطر.');
+        }
+    }
+
+    // دوال تصدير Excel للمعطيين والمستلمين
+    function exportMuslimChecksExcel(muslimName) {
+        const muslimChecks = checks.filter(check => check.recipient === muslimName);
+        
+        if (muslimChecks.length === 0) {
+            alert('لا توجد شيكات لهذا المستلم');
+            return;
+        }
+        
+        const wsData = [
+            ['N° Chèque', 'Nom', 'Montant (MAD)', 'Émetteur', 'Banque', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'],
+            ...muslimChecks.map(check => [
+                check.number || '',
+                check.name || '',
+                parseFloat(check.amount) || 0,
+                check.issuer || '',
+                check.bank || '',
+                getStatusFrench(check.status),
+                formatDateForExcel(check.issueDate),
+                check.dueDate ? formatDateForExcel(check.dueDate) : '',
+                (check.notes || '').replace(/[\n\r]/g, ' ')
+            ])
+        ];
+        
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Chèques');
+        
+        const fileName = `Chèques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        
+        showNotification(`تم تصدير Excel لـ ${muslimName}`);
+    }
+
+    function exportIssuerChecksExcel(issuerName) {
+        const issuerChecks = checks.filter(check => check.issuer === issuerName);
+        
+        if (issuerChecks.length === 0) {
+            alert('لا توجد شيكات لهذا المعطي');
+            return;
+        }
+        
+        const wsData = [
+            ['N° Chèque', 'Nom', 'Montant (MAD)', 'Bénéficiaire', 'Banque', 'Statut', 'Date Émission', 'Date Échéance', 'Remarques'],
+            ...issuerChecks.map(check => [
+                check.number || '',
+                check.name || '',
+                parseFloat(check.amount) || 0,
+                check.recipient || '',
+                check.bank || '',
+                getStatusFrench(check.status),
+                formatDateForExcel(check.issueDate),
+                check.dueDate ? formatDateForExcel(check.dueDate) : '',
+                (check.notes || '').replace(/[\n\r]/g, ' ')
+            ])
+        ];
+        
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Chèques');
+        
+        const fileName = `Chèques_Émis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        
+        showNotification(`تم تصدير Excel للمعطي ${issuerName}`);
+    }
+
+    function exportMuslimChecksJSON(muslimName) {
+        const muslimChecks = checks.filter(check => check.recipient === muslimName);
+        
+        if (muslimChecks.length === 0) {
+            alert('لا توجد شيكات لهذا المستلم');
+            return;
+        }
+        
+        const report = {
+            muslimName: muslimName,
+            exportDate: new Date().toISOString(),
+            totalChecks: muslimChecks.length,
+            totalAmount: muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+            checks: muslimChecks.map(check => ({
+                number: check.number,
+                name: check.name,
+                amount: check.amount,
+                issuer: check.issuer,
+                bank: check.bank,
+                status: check.status,
+                issueDate: check.issueDate,
+                dueDate: check.dueDate,
+                notes: check.notes
+            }))
+        };
+        
+        const dataStr = JSON.stringify(report, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+        const link = document.createElement('a');
+        
+        link.href = URL.createObjectURL(blob);
+        link.download = `Cheques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification(`تم تصدير JSON لـ ${muslimName}`);
+    }
+
+    function exportIssuerChecksJSON(issuerName) {
+        const issuerChecks = checks.filter(check => check.issuer === issuerName);
+        
+        if (issuerChecks.length === 0) {
+            alert('لا توجد شيكات لهذا المعطي');
+            return;
+        }
+        
+        const report = {
+            issuerName: issuerName,
+            exportDate: new Date().toISOString(),
+            totalChecks: issuerChecks.length,
+            totalAmount: issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+            checks: issuerChecks.map(check => ({
+                number: check.number,
+                name: check.name,
+                amount: check.amount,
+                recipient: check.recipient,
+                bank: check.bank,
+                status: check.status,
+                issueDate: check.issueDate,
+                dueDate: check.dueDate,
+                notes: check.notes
+            }))
+        };
+        
+        const dataStr = JSON.stringify(report, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+        const link = document.createElement('a');
+        
+        link.href = URL.createObjectURL(blob);
+        link.download = `Cheques_Émis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification(`تم تصدير JSON للمعطي ${issuerName}`);
     }
 
     // مستمعي الأحداث
