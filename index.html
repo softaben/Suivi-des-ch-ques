@@ -34,29 +34,33 @@
     <style>
         :root {
             /* ألوان التطبيق */
-            --primary-color: #337ea9;
-            --primary-dark: #2a6496;
-            --primary-light: #4a90e2;
+            --primary-color: #2c3e50;
+            --primary-dark: #1a252f;
+            --primary-light: #3498db;
             
-            --secondary-color: #0f7b6c;
-            --danger-color: #d1453b;
-            --warning-color: #ffb800;
-            --success-color: #27ae60;
+            --secondary-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #2ecc71;
             
-            --background-color: #ffffff;
-            --surface-color: #f8f9fa;
+            --info-color: #2980b9;
+            --purple-color: #8e44ad;
+            --orange-color: #d35400;
+            
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
             --card-color: #ffffff;
             
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-tertiary: #999999;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --text-tertiary: #95a5a6;
             
-            --border-color: #e0e0e0;
-            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-color: #dfe6e9;
+            --shadow-color: rgba(0, 0, 0, 0.08);
             
-            --status-pending: #ffb800;
-            --status-cleared: #0f7b6c;
-            --status-bounced: #d1453b;
+            --status-pending: #f39c12;
+            --status-cleared: #27ae60;
+            --status-bounced: #e74c3c;
             
             --spacing-xs: 4px;
             --spacing-sm: 8px;
@@ -86,16 +90,16 @@
         }
 
         .dark-mode {
-            --background-color: #121212;
-            --surface-color: #1e1e1e;
-            --card-color: #2d2d2d;
+            --background-color: #121826;
+            --surface-color: #1e293b;
+            --card-color: #2d3748;
             
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --text-tertiary: #808080;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
             
-            --border-color: #404040;
-            --shadow-color: rgba(0, 0, 0, 0.3);
+            --border-color: #475569;
+            --shadow-color: rgba(0, 0, 0, 0.4);
         }
 
         * {
@@ -128,13 +132,13 @@
             right: 0;
             left: 0;
             height: 56px;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
             display: flex;
             align-items: center;
             padding: 0 var(--spacing-md);
             z-index: 1000;
-            box-shadow: 0 2px 8px var(--shadow-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
         }
 
         .header-right {
@@ -170,6 +174,7 @@
             display: flex;
             padding-bottom: var(--safe-bottom);
             z-index: 1000;
+            box-shadow: 0 -2px 10px var(--shadow-color);
         }
 
         .nav-item {
@@ -186,10 +191,18 @@
             position: relative;
             font-size: var(--font-size-xs);
             padding: 4px 2px;
+            border-radius: var(--radius-sm);
+            margin: 4px;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-color);
         }
 
         .nav-item.active {
             color: var(--primary-color);
+            background: var(--surface-color);
+            box-shadow: inset 0 0 0 1px var(--border-color);
         }
 
         .nav-item i {
@@ -219,6 +232,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         /* المحتوى الرئيسي */
@@ -237,21 +251,44 @@
         .welcome-section {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
-            padding: var(--spacing-md);
+            padding: var(--spacing-lg);
             border-radius: var(--radius-lg);
             margin-bottom: var(--spacing-md);
             text-align: right;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(20px, 20px); }
         }
 
         .welcome-title {
             font-size: var(--font-size-xl);
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            position: relative;
         }
 
         .welcome-subtitle {
             font-size: var(--font-size-sm);
             opacity: 0.9;
+            position: relative;
         }
 
         /* الإجراءات السريعة */
@@ -262,6 +299,12 @@
             margin-bottom: var(--spacing-lg);
         }
 
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         .quick-action-btn {
             background: var(--card-color);
             border: 1px solid var(--border-color);
@@ -270,47 +313,66 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-            transition: var(--transition-fast);
+            gap: 8px;
+            transition: all var(--transition-fast);
             cursor: pointer;
             text-align: center;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+            border-color: var(--primary-color);
         }
 
         .quick-action-btn:active {
-            transform: scale(0.98);
-            background: var(--surface-color);
+            transform: translateY(0);
         }
 
         .quick-action-icon {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .quick-action-btn:nth-child(1) .quick-action-icon {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
         }
 
         .quick-action-btn:nth-child(2) .quick-action-icon {
-            background: var(--secondary-color);
+            background: linear-gradient(135deg, var(--secondary-color), #2ecc71);
         }
 
         .quick-action-btn:nth-child(3) .quick-action-icon {
-            background: var(--warning-color);
+            background: linear-gradient(135deg, var(--warning-color), #f1c40f);
         }
 
         .quick-action-btn:nth-child(4) .quick-action-icon {
-            background: var(--success-color);
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+        }
+
+        .quick-action-btn:nth-child(5) .quick-action-icon {
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+        }
+
+        .quick-action-btn:nth-child(6) .quick-action-icon {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        }
+
+        .quick-action-btn:nth-child(7) .quick-action-icon {
+            background: linear-gradient(135deg, var(--success-color), #16a085);
         }
 
         .quick-action-label {
             font-size: var(--font-size-xs);
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
         }
 
@@ -331,16 +393,26 @@
         .stat-card {
             background: var(--card-color);
             border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            box-shadow: 0 2px 4px var(--shadow-color);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 8px var(--shadow-color);
             text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform var(--transition-fast);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
         }
 
         .stat-value {
-            font-size: var(--font-size-lg);
+            font-size: var(--font-size-xl);
             font-weight: 700;
             margin-bottom: 4px;
-            color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .stat-label {
@@ -354,7 +426,8 @@
             background: var(--card-color);
             border-radius: var(--radius-lg);
             padding: var(--spacing-md);
-            box-shadow: 0 2px 4px var(--shadow-color);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border: 1px solid var(--border-color);
         }
 
         .section-header {
@@ -362,24 +435,34 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--border-color);
         }
 
         .section-title {
             font-size: var(--font-size-lg);
             font-weight: 600;
+            color: var(--primary-color);
         }
 
         .see-all-btn {
             color: var(--primary-color);
             font-size: var(--font-size-sm);
-            font-weight: 500;
+            font-weight: 600;
             text-decoration: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+        }
+
+        .see-all-btn:hover {
+            background: var(--surface-color);
         }
 
         /* قائمة الشيكات */
         .check-list {
             display: grid;
-            gap: 8px;
+            gap: var(--spacing-sm);
         }
 
         .check-item {
@@ -390,13 +473,16 @@
             align-items: center;
             gap: var(--spacing-sm);
             border-right: 4px solid var(--status-pending);
-            transition: var(--transition-fast);
+            transition: all var(--transition-fast);
             cursor: pointer;
             position: relative;
             font-size: var(--font-size-sm);
+            border: 1px solid var(--border-color);
         }
 
-        .check-item:active {
+        .check-item:hover {
+            transform: translateX(-4px);
+            box-shadow: 0 4px 12px var(--shadow-color);
             background: var(--card-color);
         }
 
@@ -409,15 +495,16 @@
         }
 
         .check-icon {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-md);
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
         .check-info {
@@ -429,10 +516,11 @@
         .check-name {
             font-size: var(--font-size-sm);
             font-weight: 600;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: var(--text-primary);
         }
 
         .check-details {
@@ -448,113 +536,26 @@
             font-weight: 700;
             color: var(--text-primary);
             font-size: var(--font-size-sm);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .duplicate-badge {
             position: absolute;
             top: 6px;
             left: 6px;
-            background: var(--danger-color);
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
             color: white;
             font-size: 9px;
             padding: 2px 6px;
             border-radius: 4px;
             z-index: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* عرض جميع الشيكات */
-        .checks-view, .analytics-view, .recipients-view, .issuers-view {
-            display: grid;
-            gap: var(--spacing-md);
-        }
-
-        .view-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .view-title {
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-        }
-
-        .view-controls {
-            display: flex;
-            gap: 6px;
-        }
-
-        .filter-btn {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 6px 10px;
-            font-size: var(--font-size-sm);
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-
-        /* شريط البحث */
-        .search-container {
-            position: relative;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 40px 12px 16px;
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-md);
-            color: var(--text-primary);
-            transition: var(--transition-fast);
-            text-align: right;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: var(--card-color);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-tertiary);
-            font-size: 14px;
-        }
-
-        /* حالة فارغة */
-        .empty-state {
-            text-align: center;
-            padding: var(--spacing-lg) var(--spacing-md);
-            color: var(--text-tertiary);
-        }
-
-        .empty-icon {
-            font-size: 40px;
-            margin-bottom: var(--spacing-md);
-            opacity: 0.5;
-        }
-
-        .empty-title {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--text-primary);
-        }
-
-        .empty-description {
-            font-size: var(--font-size-sm);
-            margin-bottom: var(--spacing-md);
-        }
+        /* باقي الأنماط بنفس النمط المحسن */
 
         /* نظام النوافذ المنبثقة */
         .modal-overlay {
@@ -586,7 +587,8 @@
             max-height: 90vh;
             overflow: hidden;
             animation: slideUp var(--transition-normal);
-            box-shadow: 0 20px 60px var(--shadow-color);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
         }
 
         .modal-header {
@@ -595,6 +597,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
         }
 
         .modal-title {
@@ -609,10 +613,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--surface-color);
+            background: rgba(255,255,255,0.1);
             border: none;
-            color: var(--text-primary);
+            color: white;
             cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         .modal-body {
@@ -630,7 +639,7 @@
             display: block;
             margin-bottom: 6px;
             font-size: var(--font-size-sm);
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
             text-align: right;
         }
@@ -645,12 +654,14 @@
             color: var(--text-primary);
             transition: var(--transition-fast);
             text-align: right;
+            box-shadow: inset 0 1px 3px var(--shadow-color);
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary-color);
             background: var(--card-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
         .form-row {
@@ -661,8 +672,9 @@
 
         .form-select {
             appearance: none;
-            background: var(--surface-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E") no-repeat left 14px center;
+            background: var(--surface-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E") no-repeat left 14px center;
             padding-left: 40px;
+            background-size: 16px;
         }
 
         /* الأزرار */
@@ -677,18 +689,24 @@
             font-weight: 600;
             border: none;
             cursor: pointer;
-            transition: var(--transition-fast);
+            transition: all var(--transition-fast);
             width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .btn-primary {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             color: white;
         }
 
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
         .btn-primary:active {
-            background: var(--primary-dark);
-            transform: translateY(1px);
+            transform: translateY(0);
         }
 
         .btn-secondary {
@@ -697,12 +715,14 @@
             border: 1px solid var(--border-color);
         }
 
-        .btn-secondary:active {
-            background: var(--border-color);
+        .btn-secondary:hover {
+            background: var(--background-color);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
         }
 
         .btn-danger {
-            background: var(--danger-color);
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
             color: white;
         }
 
@@ -716,28 +736,29 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 6px 10px;
+            border-radius: 20px;
             font-size: var(--font-size-xs);
             font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .status-pending-badge {
-            background: rgba(255, 184, 0, 0.1);
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.15), rgba(241, 196, 15, 0.15));
             color: var(--status-pending);
-            border: 1px solid rgba(255, 184, 0, 0.2);
+            border: 1px solid rgba(243, 156, 18, 0.3);
         }
 
         .status-cleared-badge {
-            background: rgba(15, 123, 108, 0.1);
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(46, 204, 113, 0.15));
             color: var(--status-cleared);
-            border: 1px solid rgba(15, 123, 108, 0.2);
+            border: 1px solid rgba(39, 174, 96, 0.3);
         }
 
         .status-bounced-badge {
-            background: rgba(209, 69, 59, 0.1);
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(192, 57, 43, 0.15));
             color: var(--status-bounced);
-            border: 1px solid rgba(209, 69, 59, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
         /* الحركات */
@@ -806,14 +827,16 @@
             bottom: 80px;
             right: var(--spacing-md);
             left: var(--spacing-md);
-            background: var(--card-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             border-radius: var(--radius-lg);
             padding: var(--spacing-sm);
-            box-shadow: 0 10px 40px var(--shadow-color);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             display: none;
             z-index: 1500;
             animation: slideUp var(--transition-normal);
             text-align: right;
+            border: 1px solid var(--border-color);
+            color: white;
         }
 
         .install-prompt.show {
@@ -830,12 +853,13 @@
             width: 40px;
             height: 40px;
             border-radius: var(--radius-md);
-            background: var(--primary-color);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .install-text {
@@ -850,7 +874,7 @@
 
         .install-description {
             font-size: var(--font-size-sm);
-            color: var(--text-secondary);
+            opacity: 0.9;
         }
 
         .install-actions {
@@ -865,7 +889,7 @@
             right: 0;
             left: 0;
             bottom: 0;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -884,11 +908,15 @@
             justify-content: center;
             margin-bottom: var(--spacing-md);
             animation: bounce 1s infinite alternate;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
 
         .splash-logo i {
             font-size: 32px;
-            color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .splash-title {
@@ -908,76 +936,166 @@
             to { transform: translateY(-8px); }
         }
 
-        /* إخفاء شريط التمرير */
-        .modal-body::-webkit-scrollbar {
-            display: none;
+        /* أنماط التصدير */
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
         }
 
-        .modal-body {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        @media (max-width: 768px) {
+            .export-options {
+                grid-template-columns: 1fr;
+            }
         }
 
-        /* شريط تمرير مخصص */
-        ::-webkit-scrollbar {
-            width: 6px;
+        .export-option-btn {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
 
-        ::-webkit-scrollbar-track {
-            background: var(--surface-color);
-            border-radius: 3px;
+        .export-option-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px var(--shadow-color);
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
+        .export-option-btn i {
+            font-size: 28px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-tertiary);
+        .export-option-label {
+            font-size: var(--font-size-md);
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
-        /* التحديد */
-        ::selection {
-            background: var(--primary-color);
+        .export-option-desc {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        /* باقي الأنماط بنفس الأسلوب المحسن */
+        
+        /* إشعارات داخل التطبيق */
+        .in-app-notification {
+            position: fixed;
+            top: 70px;
+            left: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, var(--warning-color), #f1c40f);
             color: white;
-        }
-
-        /* الأزرار الصغيرة */
-        .icon-button {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: none;
-            border: none;
-            color: var(--text-primary);
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        /* تنسيقات النصوص */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* بطاقات مع تأثيرات */
+        .card-hover {
+            transition: all var(--transition-normal);
             cursor: pointer;
-            transition: var(--transition-fast);
-            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
         }
 
-        .icon-button:hover {
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px var(--shadow-color);
+            border-color: var(--primary-color);
+        }
+
+        /* بطاقات المعلومات */
+        .info-card {
             background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
 
-        /* شاشة تسجيل الدخول */
+        .info-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .info-card-title {
+            font-size: var(--font-size-md);
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* تحسينات للطباعة */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .print-only {
+                display: block !important;
+            }
+            
+            body {
+                background: white !important;
+                color: black !important;
+            }
+        }
+
+        /* نافذة تسجيل الدخول */
         .login-modal {
             background: var(--background-color);
             border-radius: var(--radius-xl);
             width: 100%;
             max-width: 400px;
-            padding: var(--spacing-lg);
+            padding: var(--spacing-xl);
             text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
         }
 
         .login-title {
             font-size: var(--font-size-xl);
             font-weight: 700;
             margin-bottom: var(--spacing-md);
-            color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .login-subtitle {
@@ -990,48 +1108,51 @@
             color: var(--danger-color);
             font-size: var(--font-size-sm);
             margin-bottom: var(--spacing-md);
-            padding: 8px;
-            background: rgba(209, 69, 59, 0.1);
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
             border-radius: var(--radius-sm);
             display: none;
+            border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
-        /* تقدم المزامنة */
+        /* شريط الحالة */
         .sync-status {
             position: fixed;
             top: 56px;
             right: 0;
             left: 0;
-            padding: 8px 12px;
-            background: var(--success-color);
+            padding: 10px 16px;
+            background: linear-gradient(135deg, var(--secondary-color), #2ecc71);
             color: white;
             font-size: var(--font-size-sm);
             display: none;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             z-index: 999;
             animation: slideIn 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .sync-status.error {
-            background: var(--danger-color);
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
         }
 
         .sync-status.syncing {
-            background: var(--warning-color);
+            background: linear-gradient(135deg, var(--warning-color), #f1c40f);
         }
 
         /* إدارة المستخدمين */
         .user-menu {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .user-avatar {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             display: flex;
@@ -1040,250 +1161,42 @@
             color: white;
             font-weight: 600;
             font-size: var(--font-size-sm);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
         }
 
         /* تنبيهات */
         .alert {
-            padding: var(--spacing-sm);
+            padding: 12px 16px;
             border-radius: var(--radius-md);
             margin-bottom: var(--spacing-md);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: var(--font-size-sm);
+            font-weight: 500;
+            border: 1px solid;
         }
 
         .alert-danger {
-            background: rgba(209, 69, 59, 0.1);
-            border: 1px solid rgba(209, 69, 59, 0.2);
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+            border-color: rgba(231, 76, 60, 0.3);
             color: var(--danger-color);
         }
 
         .alert-warning {
-            background: rgba(255, 184, 0, 0.1);
-            border: 1px solid rgba(255, 184, 0, 0.2);
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(241, 196, 15, 0.1));
+            border-color: rgba(243, 156, 18, 0.3);
             color: var(--warning-color);
         }
 
         .alert-success {
-            background: rgba(15, 123, 108, 0.1);
-            border: 1px solid rgba(15, 123, 108, 0.2);
-            color: var(--status-cleared);
-        }
-
-        /* عرض الإحصائيات */
-        .analytics-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing-md);
-        }
-
-        .analytics-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--spacing-sm);
-            grid-column: 1 / -1;
-        }
-
-        .stat-change {
-            font-size: var(--font-size-xs);
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+            border-color: rgba(39, 174, 96, 0.3);
             color: var(--success-color);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 4px;
-        }
-
-        .stat-change.down {
-            color: var(--danger-color);
-        }
-
-        /* بطاقات المخططات */
-        .chart-card {
-            background: var(--card-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            box-shadow: 0 2px 4px var(--shadow-color);
-        }
-
-        .chart-card.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .chart-title {
-            font-size: var(--font-size-md);
-            font-weight: 600;
-        }
-
-        .chart-legend {
-            display: flex;
-            gap: var(--spacing-sm);
-            font-size: var(--font-size-xs);
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .legend-item i {
-            font-size: 8px;
-        }
-
-        .chart-filter {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 6px 10px;
-            font-size: var(--font-size-sm);
-            color: var(--text-primary);
-        }
-
-        /* الجداول */
-        .table-card {
-            background: var(--card-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            box-shadow: 0 2px 4px var(--shadow-color);
-            grid-column: 1 / -1;
-            overflow-x: auto;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            font-size: var(--font-size-sm);
-        }
-
-        .analytics-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: var(--font-size-sm);
-            min-width: 600px;
-        }
-
-        .analytics-table th {
-            background: var(--surface-color);
-            padding: 10px;
-            text-align: right;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .analytics-table td {
-            padding: 10px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .analytics-table tr:hover {
-            background: var(--surface-color);
-        }
-
-        /* بطاقات الملخص */
-        .summary-card {
-            background: var(--card-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            box-shadow: 0 2px 4px var(--shadow-color);
-            grid-column: 1 / -1;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: var(--spacing-sm);
-        }
-
-        .summary-item {
-            background: var(--surface-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .summary-value {
-            font-size: var(--font-size-lg);
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .summary-label {
-            font-size: var(--font-size-xs);
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .summary-item.warning .summary-value {
-            color: var(--warning-color);
-        }
-
-        .summary-item.danger .summary-value {
-            color: var(--danger-color);
-        }
-
-        .summary-item.success .summary-value {
-            color: var(--success-color);
-        }
-
-        /* المخططات */
-        canvas {
-            max-height: 250px;
-            width: 100% !important;
-        }
-
-        /* إشعارات داخل التطبيق */
-        .in-app-notification {
-            position: fixed;
-            top: 70px;
-            left: 16px;
-            right: 16px;
-            background: var(--warning-color);
-            color: white;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            box-shadow: 0 4px 12px var(--shadow-color);
-            z-index: 1001;
-            animation: slideIn 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: var(--font-size-sm);
-        }
-
-        .in-app-notification i {
-            margin-left: 8px;
-        }
-
-        .in-app-notification button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            padding: 0;
-            font-size: 16px;
         }
 
         /* تحسينات للشاشات الصغيرة جداً */
         @media (max-width: 480px) {
-            .quick-actions {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
             .form-row {
                 grid-template-columns: 1fr;
             }
@@ -1293,7 +1206,7 @@
             }
             
             .filter-btn {
-                padding: 4px 8px;
+                padding: 6px 10px;
                 font-size: var(--font-size-xs);
             }
             
@@ -1302,260 +1215,47 @@
                 align-items: flex-start;
                 gap: 4px;
             }
-        }
-
-        /* أنماط التصدير */
-        .export-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .export-option-btn {
-            background: var(--card-color);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            display: flex;
-                flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            text-align: center;
-        }
-
-        .export-option-btn:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px var(--shadow-color);
-        }
-
-        .export-option-btn i {
-            font-size: 24px;
-            color: var(--primary-color);
-        }
-
-        .export-option-label {
-            font-size: var(--font-size-sm);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .export-option-desc {
-            font-size: var(--font-size-xs);
-            color: var(--text-secondary);
-        }
-
-        .export-date-range {
-            background: var(--surface-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .range-options {
-            display: flex;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-sm);
-        }
-
-        .range-option {
-            flex: 1;
-            padding: 8px;
-            background: var(--card-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            text-align: center;
-            cursor: pointer;
-            font-size: var(--font-size-sm);
-            transition: var(--transition-fast);
-        }
-
-        .range-option.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .custom-range-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-sm);
-            margin-top: var(--spacing-sm);
-        }
-
-        .export-include-options {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .include-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            background: var(--surface-color);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-        }
-
-        .include-option input[type="checkbox"] {
-            accent-color: var(--primary-color);
-        }
-
-        .export-section-title {
-            font-size: var(--font-size-md);
-            font-weight: 600;
-            margin-bottom: var(--spacing-sm);
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 4px;
-        }
-
-        @media (max-width: 768px) {
+            
             .export-options {
-                grid-template-columns: 1fr;
+                gap: 8px;
             }
             
-            .custom-range-inputs {
-                grid-template-columns: 1fr;
-            }
-            
-            .range-options {
-                flex-wrap: wrap;
-            }
-            
-            .range-option {
-                min-width: calc(50% - var(--spacing-sm));
+            .export-option-btn {
+                padding: var(--spacing-sm);
             }
         }
 
-        /* صفحة تفاصيل المسلم */
-        .muslims-details-container {
-            background: var(--card-color);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-md);
-            box-shadow: 0 2px 4px var(--shadow-color);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .muslims-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .muslim-details-section {
-            background: var(--surface-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .muslim-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .muslim-info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .muslim-info-label {
-            font-size: var(--font-size-xs);
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .muslim-info-value {
-            font-size: var(--font-size-md);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .muslim-timeline {
-            position: relative;
-            padding-right: 30px;
-            margin-top: var(--spacing-lg);
-        }
-
-        .muslim-timeline::before {
-            content: '';
-            position: absolute;
-            right: 15px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-color);
-        }
-
-        .muslim-timeline-item {
-            position: relative;
-            margin-bottom: var(--spacing-lg);
-            padding-bottom: var(--spacing-md);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .muslim-timeline-item::before {
-            content: '';
-            position: absolute;
-            right: -30px;
-            top: 5px;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            border: 3px solid var(--background-color);
-        }
-
-        .timeline-date {
-            font-size: var(--font-size-sm);
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .timeline-content {
-            background: var(--card-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            box-shadow: 0 2px 4px var(--shadow-color);
-        }
-
-        /* تنسيقات جديدة للعرض التفصيلي */
+        /* تنسيقات للعرض التفصيلي */
         .detail-header {
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: var(--spacing-lg);
             margin-bottom: var(--spacing-lg);
             padding-bottom: var(--spacing-md);
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
         }
 
         .detail-avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
         }
 
         .detail-title {
             font-size: var(--font-size-xl);
             font-weight: 700;
             margin-bottom: 4px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .detail-subtitle {
@@ -1567,101 +1267,6 @@
             display: flex;
             gap: var(--spacing-sm);
             margin-top: var(--spacing-md);
-        }
-
-        /* بطاقات المعلومات */
-        .info-card {
-            background: var(--surface-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .info-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .info-card-title {
-            font-size: var(--font-size-md);
-            font-weight: 600;
-        }
-
-        .info-card-content {
-            display: grid;
-            gap: var(--spacing-sm);
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-size: var(--font-size-sm);
-            color: var(--text-secondary);
-        }
-
-        .info-value {
-            font-size: var(--font-size-sm);
-            font-weight: 500;
-        }
-
-        /* فلاتر متقدمة */
-        .advanced-filters {
-            background: var(--surface-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-            display: none;
-        }
-
-        .advanced-filters.show {
-            display: block;
-            animation: slideIn var(--transition-normal);
-        }
-
-        .filter-section {
-            margin-bottom: var(--spacing-md);
-        }
-
-        .filter-section-title {
-            font-size: var(--font-size-md);
-            font-weight: 600;
-            margin-bottom: var(--spacing-sm);
-            color: var(--primary-color);
-        }
-
-        .filter-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .filter-tag {
-            background: var(--card-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 6px 12px;
-            font-size: var(--font-size-xs);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .filter-tag .remove {
-            cursor: pointer;
-            color: var(--danger-color);
         }
 
         /* تأثيرات جديدة */
@@ -1687,7 +1292,7 @@
             right: -50%;
             width: 20px;
             height: 200%;
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transform: rotate(30deg);
             animation: shine 3s infinite;
         }
@@ -1695,94 +1300,6 @@
         @keyframes shine {
             0% { right: -50%; }
             100% { right: 150%; }
-        }
-
-        /* تلميحات أدوات */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: var(--text-primary);
-            color: var(--background-color);
-            text-align: center;
-            border-radius: var(--radius-sm);
-            padding: 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            right: 50%;
-            transform: translateX(50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: var(--font-size-xs);
-            pointer-events: none;
-        }
-
-        .tooltip .tooltiptext::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            right: 50%;
-            transform: translateX(50%);
-            border-width: 5px;
-            border-style: solid;
-            border-color: var(--text-primary) transparent transparent transparent;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* شرائط التقدم */
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--surface-color);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: var(--spacing-sm) 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        /* تنسيقات إضافية للجداول */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: var(--font-size-sm);
-        }
-
-        .data-table th {
-            background: var(--surface-color);
-            padding: 12px;
-            text-align: right;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .data-table td {
-            padding: 12px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .data-table tr:hover {
-            background: var(--surface-color);
-        }
-
-        .data-table .highlight {
-            background: rgba(255, 184, 0, 0.1);
         }
 
         /* أزرار خاصة */
@@ -1793,51 +1310,47 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             color: white;
             border: none;
             cursor: pointer;
-            transition: var(--transition-fast);
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .btn-icon:hover {
-            background: var(--primary-dark);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
             transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
         }
 
         .btn-icon:active {
             transform: scale(0.95);
         }
 
-        /* بطاقات مع تأثيرات */
-        .card-hover {
-            transition: all var(--transition-normal);
-            cursor: pointer;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px var(--shadow-color);
-        }
-
-        /* تنسيق النصوص */
-        .text-gradient {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .text-ellipsis {
-            white-space: nowrap;
+        /* الشرائط */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--surface-color);
+            border-radius: 5px;
             overflow: hidden;
-            text-overflow: ellipsis;
+            margin: var(--spacing-sm) 0;
+            box-shadow: inset 0 2px 4px var(--shadow-color);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         /* فواصل */
         .divider {
             height: 1px;
-            background: var(--border-color);
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
             margin: var(--spacing-md) 0;
         }
 
@@ -1850,13 +1363,15 @@
             background: var(--surface-color);
             border-radius: var(--radius-md);
             margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border-color);
         }
 
         .status-indicator {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--success-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .status-indicator.warning {
@@ -1867,7 +1382,682 @@
             background: var(--danger-color);
         }
 
-        /* تنسيقات للطباعة */
+        /* تنسيقات إضافية للجداول */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 14px;
+            text-align: right;
+            font-weight: 600;
+            color: white;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            background: var(--surface-color);
+        }
+
+        .data-table tr:hover td {
+            background: var(--card-color);
+        }
+
+        .data-table .highlight {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(241, 196, 15, 0.1));
+        }
+
+        /* نافذة تغيير كلمة المرور */
+        .password-change-section {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .password-status {
+            font-size: var(--font-size-xs);
+            margin-top: 4px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .password-status.valid {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+            color: var(--success-color);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .password-status.invalid {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+            color: var(--danger-color);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        /* تلميحات أدوات */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            right: 50%;
+            transform: translateX(50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: var(--font-size-xs);
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: var(--primary-color) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* أزرار البحث */
+        .search-container {
+            position: relative;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 40px 14px 16px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-md);
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+            text-align: right;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--card-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 16px;
+        }
+
+        /* حالة فارغة */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            color: var(--text-tertiary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.3;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .empty-description {
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-md);
+            color: var(--text-secondary);
+        }
+
+        /* الأزرار في الحالة الفارغة */
+        .empty-state .btn {
+            width: auto;
+            padding: 10px 20px;
+        }
+
+        /* عرض جميع الشيكات */
+        .checks-view, .analytics-view, .recipients-view, .issuers-view {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .view-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 8px 12px;
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+
+        .filter-btn:hover {
+            background: var(--card-color);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        /* فلاتر متقدمة */
+        .advanced-filters {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            display: none;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .advanced-filters.show {
+            display: block;
+            animation: slideIn var(--transition-normal);
+        }
+
+        .filter-section {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-section-title {
+            font-size: var(--font-size-md);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--primary-color);
+            padding-bottom: var(--spacing-xs);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-tag {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 12px;
+            font-size: var(--font-size-xs);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        .filter-tag .remove {
+            cursor: pointer;
+            color: var(--danger-color);
+            transition: var(--transition-fast);
+        }
+
+        .filter-tag .remove:hover {
+            transform: scale(1.2);
+        }
+
+        /* عرض الإحصائيات */
+        .analytics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .analytics-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-sm);
+            grid-column: 1 / -1;
+        }
+
+        .stat-change {
+            font-size: var(--font-size-xs);
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .stat-change.down {
+            color: var(--danger-color);
+        }
+
+        /* بطاقات المخططات */
+        .chart-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-title {
+            font-size: var(--font-size-md);
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xs);
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .legend-item i {
+            font-size: 8px;
+        }
+
+        .chart-filter {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+        }
+
+        .chart-filter:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* الجداول */
+        .table-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            grid-column: 1 / -1;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            font-size: var(--font-size-sm);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        .analytics-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+            min-width: 600px;
+        }
+
+        .analytics-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 12px;
+            text-align: right;
+            font-weight: 600;
+            color: white;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .analytics-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            background: var(--surface-color);
+        }
+
+        .analytics-table tr:hover {
+            background: var(--card-color);
+        }
+
+        /* بطاقات الملخص */
+        .summary-card {
+            background: var(--card-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            grid-column: 1 / -1;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-sm);
+        }
+
+        .summary-item {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform var(--transition-fast);
+        }
+
+        .summary-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .summary-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .summary-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .summary-item.warning .summary-value {
+            background: linear-gradient(135deg, var(--warning-color), #f1c40f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-item.danger .summary-value {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-item.success .summary-value {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* المخططات */
+        canvas {
+            max-height: 250px;
+            width: 100% !important;
+        }
+
+        /* إشعارات داخل التطبيق */
+        .in-app-notification {
+            position: fixed;
+            top: 70px;
+            left: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, var(--warning-color), #f1c40f);
+            color: white;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            border: none;
+        }
+
+        .in-app-notification i {
+            margin-left: 8px;
+        }
+
+        .in-app-notification button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            font-size: 16px;
+            transition: transform var(--transition-fast);
+        }
+
+        .in-app-notification button:hover {
+            transform: scale(1.2);
+        }
+
+        /* نافذة التصدير إلى PDF */
+        .pdf-export-options {
+            display: grid;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .pdf-option-btn {
+            background: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .pdf-option-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+        }
+
+        .pdf-option-btn i {
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pdf-option-content {
+            flex: 1;
+            text-align: right;
+        }
+
+        .pdf-option-title {
+            font-size: var(--font-size-md);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .pdf-option-description {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        /* نطاق التاريخ */
+        .export-date-range {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .range-options {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .range-option {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .range-option:hover {
+            background: var(--surface-color);
+        }
+
+        .range-option.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .custom-range-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .export-include-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .include-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--surface-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: var(--transition-fast);
+        }
+
+        .include-option:hover {
+            background: var(--card-color);
+            border-color: var(--primary-color);
+        }
+
+        .include-option input[type="checkbox"] {
+            accent-color: var(--primary-color);
+            width: 18px;
+            height: 18px;
+        }
+
+        .export-section-title {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-color);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* الطباعة */
         @media print {
             .no-print {
                 display: none !important;
@@ -1880,28 +2070,16 @@
             body {
                 background: white !important;
                 color: black !important;
+                font-family: 'Cairo', sans-serif !important;
             }
-        }
-
-        /* نافذة تغيير كلمة المرور */
-        .password-change-section {
-            background: var(--surface-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .password-status {
-            font-size: var(--font-size-xs);
-            margin-top: 4px;
-        }
-
-        .password-status.valid {
-            color: var(--success-color);
-        }
-
-        .password-status.invalid {
-            color: var(--danger-color);
+            
+            .check-item {
+                page-break-inside: avoid;
+            }
+            
+            .table-container {
+                overflow: visible !important;
+            }
         }
     </style>
 </head>
@@ -1955,14 +2133,14 @@
                 <div class="user-avatar" id="userAvatar">
                     <i class="fas fa-user"></i>
                 </div>
-                <button class="icon-button" id="syncButton" style="background: rgba(255,255,255,0.2); color: white;" onclick="syncData()">
+                <button class="icon-button" id="syncButton" onclick="syncData()">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
-            <button class="icon-button" id="addButton" style="background: rgba(255,255,255,0.2); color: white;" onclick="openNewCheckModal()">
+            <button class="icon-button" id="addButton" onclick="openNewCheckModal()">
                 <i class="fas fa-plus"></i>
             </button>
-            <button class="icon-button" id="logoutButton" style="background: rgba(255,255,255,0.2); color: white;" onclick="logout()">
+            <button class="icon-button" id="logoutButton" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
@@ -2003,19 +2181,19 @@
                     <div class="quick-action-label">استيراد Excel</div>
                 </div>
                 <div class="quick-action-btn" onclick="generateCompletePDF()">
-                    <div class="quick-action-icon" style="background: var(--primary-color);">
+                    <div class="quick-action-icon">
                         <i class="fas fa-file-pdf"></i>
                     </div>
                     <div class="quick-action-label">PDF كامل (Français)</div>
                 </div>
                 <div class="quick-action-btn" onclick="generateRiskReportPDF()">
-                    <div class="quick-action-icon" style="background: var(--danger-color);">
+                    <div class="quick-action-icon">
                         <i class="fas fa-file-pdf"></i>
                     </div>
                     <div class="quick-action-label">تقرير المخاطر PDF</div>
                 </div>
                 <div class="quick-action-btn" onclick="openExportModal()">
-                    <div class="quick-action-icon" style="background: var(--success-color);">
+                    <div class="quick-action-icon">
                         <i class="fas fa-download"></i>
                     </div>
                     <div class="quick-action-label">تصدير جميع</div>
@@ -2346,7 +2524,7 @@
     <div class="modal-overlay" id="loginModal" style="display: flex;">
         <div class="login-modal">
             <div class="login-title">CheckFlow Pro</div>
-            <div class="login-subtitle">تسجيل الدخول بحساب Firebase</div>
+            <div class="login-subtitle">تسجيل الدخول</div>
             
             <div id="loginError" class="login-error">
                 <i class="fas fa-exclamation-circle"></i>
@@ -2365,10 +2543,6 @@
                 <i class="fas fa-sign-in-alt"></i>
                 تسجيل الدخول
             </button>
-            
-            <div style="margin-top: var(--spacing-md); font-size: var(--font-size-xs); color: var(--text-tertiary);">
-                يجب أن يكون لديك حساب مسجل مسبقاً في Firebase
-            </div>
         </div>
     </div>
 
@@ -2510,20 +2684,6 @@
                         استيراد البيانات
                     </button>
                 </div>
-
-                <div style="margin-top: var(--spacing-md); padding: 8px; background: var(--surface-color); border-radius: var(--radius-sm); font-size: var(--font-size-xs); color: var(--text-secondary);">
-                    <strong>تعليمات الاستيراد:</strong>
-                    <ul style="margin-top: 4px; padding-right: 12px;">
-                        <li><strong>Nom du client</strong> → سيصبح <strong>اسم الشيك</strong></li>
-                        <li><strong>Fournisseur</strong> → سيصبح <strong>المستلم</strong></li>
-                        <li><strong>REMARQUE</strong> → سيصبح <strong>المعطي</strong></li>
-                        <li><strong>Date d'échéance</strong> → سيصبح <strong>تاريخ الاستحقاق</strong></li>
-                        <li><strong>BANQUE</strong> → سيصبح <strong>البنك</strong></li>
-                        <li><strong>Montant</strong> → سيصبح <strong>المبلغ</strong></li>
-                        <li><strong>Numéro du chèque</strong> → سيصبح <strong>رقم الشيك</strong></li>
-                        <li><strong>الحالة ستكون دائماً "قيد الانتظار"</strong></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
@@ -2615,7 +2775,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button class="btn btn-danger" onclick="logout()" style="background: var(--danger-color);">
+                    <button class="btn btn-danger" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
                         تسجيل الخروج
                     </button>
@@ -2702,69 +2862,36 @@
             </div>
             <div class="modal-body">
                 <div class="export-options">
-                    <div class="export-option-btn" onclick="openPDFExportModal()">
+                    <div class="export-option-btn" onclick="generateCompletePDF()">
                         <i class="fas fa-file-pdf"></i>
-                        <div class="export-option-label">تصدير إلى PDF</div>
+                        <div class="export-option-label">PDF كامل</div>
                         <div class="export-option-desc">تقرير متكامل بالفرنسية</div>
+                    </div>
+                    
+                    <div class="export-option-btn" onclick="generateRiskReportPDF()">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="export-option-label">PDF تقرير المخاطر</div>
+                        <div class="export-option-desc">الشيكات المتأخرة بالفرنسية</div>
                     </div>
                     
                     <div class="export-option-btn" onclick="exportToJSON()">
                         <i class="fas fa-file-code"></i>
-                        <div class="export-option-label">تصدير إلى JSON</div>
+                        <div class="export-option-label">JSON</div>
                         <div class="export-option-desc">للاستخدام في برامج أخرى</div>
                     </div>
                     
                     <div class="export-option-btn" onclick="exportToExcel()">
                         <i class="fas fa-file-excel"></i>
-                        <div class="export-option-label">تصدير إلى Excel</div>
+                        <div class="export-option-label">Excel</div>
                         <div class="export-option-desc">ملف باللغة الفرنسية</div>
                     </div>
                     
                     <div class="export-option-btn" onclick="exportToCSV()">
                         <i class="fas fa-file-csv"></i>
-                        <div class="export-option-label">تصدير إلى CSV</div>
+                        <div class="export-option-label">CSV</div>
                         <div class="export-option-desc">ملف باللغة الفرنسية</div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نوافذ التصدير إلى PDF -->
-    <div class="modal-overlay" id="pdfExportModal">
-        <div class="modal" style="max-width: 600px;">
-            <div class="modal-header">
-                <div class="modal-title">تصدير إلى PDF</div>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- محتوى نافذة PDF -->
-                <div class="form-group">
-                    <label class="form-label">نوع التقرير</label>
-                    <select class="form-input form-select" id="pdfReportType">
-                        <option value="summary">ملخص عام</option>
-                        <option value="detailed">تقرير مفصل</option>
-                        <option value="financial">تقرير مالي</option>
-                    </select>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">من تاريخ</label>
-                        <input type="date" class="form-input" id="pdfFromDate">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">إلى تاريخ</label>
-                        <input type="date" class="form-input" id="pdfToDate">
-                    </div>
-                </div>
-                
-                <button class="btn btn-primary" onclick="generateCompletePDF()">
-                    <i class="fas fa-file-pdf"></i>
-                    إنشاء وتحميل PDF كامل
-                </button>
             </div>
         </div>
     </div>
@@ -2806,7 +2933,7 @@
     let bankChart = null;
     let monthlyChart = null;
 
-    // دوال التنسيق والتحويل للفرنسية - محسنة لـ PDF
+    // دوال التنسيق والتحويل للفرنسية
     const FRENCH_STATUS_MAP = {
         'pending': 'En attente',
         'cleared': 'Compensé',
@@ -2827,7 +2954,7 @@
         'createdAt': 'Date de création'
     };
 
-    // دالة محسنة لتنسيق الأرقام للـ PDF
+    // دالة محسنة لتنسيق الأرقام للـ PDF مع ألوان
     function formatNumberForPDF(num) {
         if (!num && num !== 0) return '0.00';
         const number = parseFloat(num);
@@ -2837,10 +2964,10 @@
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
             useGrouping: true
-        }).format(number).replace(/\s/g, ' '); // استبدال المسافات غير المنقطعة بمسافات عادية
+        }).format(number).replace(/\s/g, ' ');
     }
 
-    // دالة تنسيق المبالغ بالفرنسية - محسنة لـ PDF
+    // دالة تنسيق المبالغ بالفرنسية للـ PDF
     function formatCurrencyFrench(amount) {
         const numAmount = parseFloat(amount) || 0;
         return formatNumberForPDF(numAmount) + ' MAD';
@@ -2887,15 +3014,11 @@
     function convertToFrenchForExport(text) {
         if (!text) return '';
         
-        // قائمة شاملة بالكلمات العربية وتحويلها للفرنسية
         const translations = {
-            // الحالات
             'قيد الانتظار': 'En attente',
             'تم الصرف': 'Compensé',
             'مرتجع': 'Retourné',
             'مرتجعة': 'Retournée',
-            
-            // الكلمات الأساسية
             'شيك': 'Chèque',
             'شيكات': 'Chèques',
             'بنك': 'Banque',
@@ -2908,60 +3031,33 @@
             'ملاحظات': 'Remarques',
             'قيد': 'En cours',
             'صرف': 'Compensé',
-            
-            // الأيام والشهور
-            'الأحد': 'Dimanche',
-            'الإثنين': 'Lundi',
-            'الثلاثاء': 'Mardi',
-            'الأربعاء': 'Mercredi',
-            'الخميس': 'Jeudi',
-            'الجمعة': 'Vendredi',
-            'السبت': 'Samedi',
-            
-            // البنوك الشائعة
             'البنك المغربي للتجارة الخارجية': 'BMCE Bank',
             'البنك الشعبي': 'Banque Populaire',
             'البنك التجاري المغربي': 'Attijariwafa Bank',
             'البنك المغربي للتجارة والصناعة': 'BMCI',
-            
-            // حالات خاصة
             'غير محدد': 'Non spécifié',
             'غير معروف': 'Inconnu',
-            'غير مدفوع': 'Non payé',
-            'غير مستحق': 'Non échu',
-            
-            // التنبيهات
             'تحذير': 'Avertissement',
             'تنبيه': 'Notification',
             'إشعار': 'Avis',
-            
-            // الإجراءات
             'إضافة': 'Ajouter',
             'تعديل': 'Modifier',
             'حذف': 'Supprimer',
             'بحث': 'Rechercher',
             'تصدير': 'Exporter',
             'استيراد': 'Importer',
-            
-            // الزمن
             'اليوم': "Aujourd'hui",
             'غداً': 'Demain',
             'أمس': 'Hier',
             'شهر': 'Mois',
             'عام': 'Année',
-            'ربع': 'Trimestre',
-            
-            // الأرقام العربية (اختياري)
-            '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
-            '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+            'ربع': 'Trimestre'
         };
         
         let result = text.toString();
         
-        // استبدال الكلمات العربية بترجمتها الفرنسية
         Object.keys(translations).forEach(arabic => {
             const french = translations[arabic];
-            // استخدام تعبير منتظم للاستبدال مع تجاهل حالة الأحرف
             const regex = new RegExp(arabic, 'gi');
             result = result.replace(regex, french);
         });
@@ -2969,7 +3065,7 @@
         return result;
     }
 
-    // دالة التنسيق الأساسية (للعرض في التطبيق)
+    // دالة التنسيق الأساسية
     function formatCurrency(amount) {
         return new Intl.NumberFormat('ar-MA', {
             style: 'currency',
@@ -2988,25 +3084,800 @@
         });
     }
 
+    // ============================================
+    // دالة PDF محسنة مع ألوان وتنسيق احترافي
+    // ============================================
+    function generateCompletePDF() {
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // ألوان الملف
+            const primaryColor = [44, 62, 80];      // #2c3e50 - أزرق داكن
+            const secondaryColor = [52, 152, 219];  // #3498db - أزرق فاتح
+            const successColor = [39, 174, 96];     // #27ae60 - أخضر
+            const warningColor = [243, 156, 18];    // #f39c12 - برتقالي
+            const dangerColor = [231, 76, 60];      // #e74c3c - أحمر
+            const lightGray = [248, 249, 250];      // #f8f9fa - رمادي فاتح
+            const darkGray = [127, 140, 141];       // #7f8c8d - رمادي غامق
+            
+            // تدرجات الألوان للخلفيات
+            const headerGradient = [primaryColor, [30, 50, 80]];
+            const tableHeaderGradient = [primaryColor, [35, 55, 85]];
+            
+            // إعداد الخطوط
+            doc.setFont('helvetica');
+            doc.setFontSize(24);
+            doc.setTextColor(...primaryColor);
+            
+            // العنوان الرئيسي مع لون متدرج
+            doc.setFontSize(28);
+            doc.setTextColor(...primaryColor);
+            doc.text('CheckFlow Pro', 105, 20, { align: 'center' });
+            
+            // شعار صغير
+            doc.setFontSize(12);
+            doc.setTextColor(...darkGray);
+            doc.text('Système de Gestion des Chèques', 105, 28, { align: 'center' });
+            
+            // خط فاصل ملون
+            doc.setDrawColor(...primaryColor);
+            doc.setLineWidth(0.5);
+            doc.line(20, 35, 190, 35);
+            
+            // تاريخ التقرير
+            doc.setFontSize(10);
+            doc.setTextColor(...darkGray);
+            doc.text(`Date de génération: ${new Date().toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })}`, 105, 42, { align: 'center' });
+            
+            let yPosition = 50;
+            let pageNumber = 1;
+            
+            // ========== الإحصائيات العامة ==========
+            const totalChecks = checks.length;
+            const totalAmount = checks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+            const pendingChecks = checks.filter(c => c.status === 'pending').length;
+            const clearedChecks = checks.filter(c => c.status === 'cleared').length;
+            const bouncedChecks = checks.filter(c => c.status === 'bounced').length;
+            
+            // بطاقات الإحصائيات
+            doc.setFontSize(16);
+            doc.setTextColor(...primaryColor);
+            doc.text('Statistiques Générales', 20, yPosition);
+            yPosition += 10;
+            
+            // خلفية للإحصائيات
+            doc.setFillColor(...lightGray);
+            doc.roundedRect(20, yPosition, 170, 40, 3, 3, 'F');
+            
+            doc.setFontSize(11);
+            doc.setTextColor(...primaryColor);
+            
+            // شبكة الإحصائيات
+            const stats = [
+                { label: 'Total des chèques', value: totalChecks, color: primaryColor },
+                { label: 'Montant total', value: formatCurrencyFrench(totalAmount), color: secondaryColor },
+                { label: 'En attente', value: pendingChecks, color: warningColor },
+                { label: 'Compensés', value: clearedChecks, color: successColor },
+                { label: 'Retournés', value: bouncedChecks, color: dangerColor }
+            ];
+            
+            let xPos = 25;
+            stats.forEach((stat, index) => {
+                doc.setTextColor(...stat.color);
+                doc.setFont('helvetica', 'bold');
+                doc.text(stat.value.toString(), xPos, yPosition + 10);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(...darkGray);
+                doc.text(stat.label, xPos, yPosition + 15);
+                doc.setFontSize(11);
+                xPos += 34;
+            });
+            
+            yPosition += 45;
+            
+            // ========== قائمة الشيكات ==========
+            if (checks.length > 0) {
+                doc.addPage();
+                pageNumber++;
+                yPosition = 20;
+                
+                // عنوان القائمة
+                doc.setFontSize(16);
+                doc.setTextColor(...primaryColor);
+                doc.text('Liste des Chèques', 20, yPosition);
+                yPosition += 10;
+                
+                // رأس الجدول مع تدرج لوني
+                doc.setFillColor(...tableHeaderGradient[0]);
+                doc.roundedRect(20, yPosition, 170, 8, 3, 3, 'F');
+                doc.setFontSize(10);
+                doc.setTextColor(255, 255, 255);
+                doc.text('No.', 25, yPosition + 6);
+                doc.text('Numéro', 40, yPosition + 6);
+                doc.text('Nom', 70, yPosition + 6);
+                doc.text('Montant (MAD)', 120, yPosition + 6);
+                doc.text('Statut', 150, yPosition + 6);
+                doc.text('Date', 170, yPosition + 6);
+                
+                yPosition += 12;
+                
+                // عرض جميع الشيكات مع ألوان حسب الحالة
+                checks.forEach((check, index) => {
+                    // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
+                    if (yPosition > 270) {
+                        doc.addPage();
+                        pageNumber++;
+                        yPosition = 20;
+                        
+                        // رأس الجدول للصفحة الجديدة
+                        doc.setFillColor(...tableHeaderGradient[0]);
+                        doc.roundedRect(20, yPosition, 170, 8, 3, 3, 'F');
+                        doc.setFontSize(10);
+                        doc.setTextColor(255, 255, 255);
+                        doc.text('No.', 25, yPosition + 6);
+                        doc.text('Numéro', 40, yPosition + 6);
+                        doc.text('Nom', 70, yPosition + 6);
+                        doc.text('Montant (MAD)', 120, yPosition + 6);
+                        doc.text('Statut', 150, yPosition + 6);
+                        doc.text('Date', 170, yPosition + 6);
+                        
+                        yPosition += 12;
+                    }
+                    
+                    // خلفية الصف (متبادلة الألوان)
+                    if (index % 2 === 0) {
+                        doc.setFillColor(255, 255, 255);
+                    } else {
+                        doc.setFillColor(250, 250, 250);
+                    }
+                    doc.rect(20, yPosition - 4, 170, 8, 'F');
+                    
+                    // رقم التسلسل
+                    doc.setFontSize(9);
+                    doc.setTextColor(...darkGray);
+                    doc.text(`${index + 1}.`, 25, yPosition);
+                    
+                    // رقم الشيك
+                    doc.setTextColor(...primaryColor);
+                    doc.text(check.number || 'N/A', 40, yPosition);
+                    
+                    // اسم الشيك
+                    doc.setTextColor(60, 60, 60);
+                    const frenchName = convertToFrenchForExport(truncateText(check.name, 25));
+                    doc.text(frenchName, 70, yPosition);
+                    
+                    // المبلغ
+                    doc.setTextColor(...primaryColor);
+                    doc.setFont('helvetica', 'bold');
+                    const formattedAmount = formatNumberForPDF(check.amount);
+                    doc.text(formattedAmount, 120, yPosition);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    // الحالة مع لون
+                    if (check.status === 'pending') {
+                        doc.setTextColor(...warningColor);
+                    } else if (check.status === 'cleared') {
+                        doc.setTextColor(...successColor);
+                    } else {
+                        doc.setTextColor(...dangerColor);
+                    }
+                    doc.text(getStatusFrench(check.status), 150, yPosition);
+                    
+                    // التاريخ
+                    doc.setTextColor(...darkGray);
+                    doc.text(formatDateFrench(check.issueDate), 170, yPosition);
+                    
+                    yPosition += 8;
+                    
+                    // تفاصيل إضافية (البنك والمستلم)
+                    if (yPosition > 270) {
+                        doc.addPage();
+                        pageNumber++;
+                        yPosition = 20;
+                    }
+                    
+                    doc.setFontSize(7);
+                    doc.setTextColor(150, 150, 150);
+                    const bankFrench = convertToFrenchForExport(check.bank || 'Banque non spécifiée');
+                    const recipientFrench = convertToFrenchForExport(check.recipient || 'Non spécifié');
+                    const details = `${bankFrench} | ${recipientFrench}`;
+                    doc.text(details, 70, yPosition);
+                    
+                    yPosition += 6;
+                    
+                    // خط فاصل رفيع
+                    doc.setDrawColor(230, 230, 230);
+                    doc.setLineWidth(0.2);
+                    doc.line(70, yPosition, 190, yPosition);
+                    
+                    yPosition += 4;
+                    
+                    doc.setFontSize(9);
+                });
+            }
+            
+            // ========== تحليل البيانات ==========
+            if (checks.length > 0) {
+                doc.addPage();
+                pageNumber++;
+                yPosition = 20;
+                
+                // عنوان التحليل
+                doc.setFontSize(16);
+                doc.setTextColor(...primaryColor);
+                doc.text('Analyse des Données', 20, yPosition);
+                yPosition += 10;
+                
+                // تحليل حسب البنك
+                const bankData = {};
+                checks.forEach(check => {
+                    const bank = check.bank || 'Non spécifié';
+                    if (!bankData[bank]) {
+                        bankData[bank] = { count: 0, amount: 0 };
+                    }
+                    bankData[bank].count++;
+                    bankData[bank].amount += check.amount || 0;
+                });
+                
+                // أفضل 5 بنوك
+                const topBanks = Object.entries(bankData)
+                    .sort((a, b) => b[1].amount - a[1].amount)
+                    .slice(0, 5);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(...secondaryColor);
+                doc.text('Top 5 Banques par Montant', 20, yPosition);
+                yPosition += 8;
+                
+                doc.setFontSize(9);
+                doc.setTextColor(...darkGray);
+                
+                topBanks.forEach(([bank, data], index) => {
+                    const percentage = totalAmount > 0 ? ((data.amount / totalAmount) * 100).toFixed(1) : 0;
+                    
+                    // شريط التقدم
+                    const barWidth = (percentage / 100) * 100;
+                    
+                    doc.setTextColor(...primaryColor);
+                    doc.text(`${index + 1}. ${bank}`, 25, yPosition);
+                    
+                    doc.setTextColor(...secondaryColor);
+                    doc.text(formatCurrencyFrench(data.amount), 80, yPosition);
+                    
+                    doc.setTextColor(...darkGray);
+                    doc.text(`${data.count} chèques`, 130, yPosition);
+                    
+                    // شريط التقدم
+                    doc.setFillColor(...lightGray);
+                    doc.rect(145, yPosition - 3, 40, 4, 'F');
+                    doc.setFillColor(...secondaryColor);
+                    doc.rect(145, yPosition - 3, barWidth * 0.4, 4, 'F');
+                    
+                    doc.setTextColor(...primaryColor);
+                    doc.text(`${percentage}%`, 190, yPosition, { align: 'right' });
+                    
+                    yPosition += 8;
+                });
+                
+                yPosition += 10;
+                
+                // تحليل حسب المستلمين
+                const recipientData = {};
+                checks.forEach(check => {
+                    const recipient = check.recipient || 'Non spécifié';
+                    if (!recipientData[recipient]) {
+                        recipientData[recipient] = { count: 0, amount: 0 };
+                    }
+                    recipientData[recipient].count++;
+                    recipientData[recipient].amount += check.amount || 0;
+                });
+                
+                const topRecipients = Object.entries(recipientData)
+                    .sort((a, b) => b[1].amount - a[1].amount)
+                    .slice(0, 5);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(...successColor);
+                doc.text('Top 5 Bénéficiaires', 20, yPosition);
+                yPosition += 8;
+                
+                doc.setFontSize(9);
+                
+                topRecipients.forEach(([recipient, data], index) => {
+                    doc.setTextColor(...primaryColor);
+                    doc.text(`${index + 1}. ${recipient}`, 25, yPosition);
+                    
+                    doc.setTextColor(...successColor);
+                    doc.text(formatCurrencyFrench(data.amount), 130, yPosition);
+                    
+                    doc.setTextColor(...darkGray);
+                    doc.text(`${data.count} chèques`, 190, yPosition, { align: 'right' });
+                    
+                    yPosition += 8;
+                });
+            }
+            
+            // ========== ملخص المخاطر ==========
+            const today = new Date();
+            const overdueChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                const dueDate = new Date(check.dueDate);
+                return dueDate < today;
+            });
+            
+            if (overdueChecks.length > 0) {
+                doc.addPage();
+                pageNumber++;
+                yPosition = 20;
+                
+                // عنوان المخاطر
+                doc.setFontSize(16);
+                doc.setTextColor(...dangerColor);
+                doc.text('Analyse des Risques', 20, yPosition);
+                yPosition += 10;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(...primaryColor);
+                doc.text(`Chèques en retard: ${overdueChecks.length}`, 20, yPosition);
+                yPosition += 8;
+                
+                const totalOverdue = overdueChecks.reduce((sum, c) => sum + (c.amount || 0), 0);
+                doc.text(`Montant total en retard: ${formatCurrencyFrench(totalOverdue)}`, 20, yPosition);
+                yPosition += 12;
+                
+                // رأس جدول المخاطر
+                doc.setFillColor(...dangerColor);
+                doc.roundedRect(20, yPosition, 170, 8, 3, 3, 'F');
+                doc.setFontSize(9);
+                doc.setTextColor(255, 255, 255);
+                doc.text('Numéro', 25, yPosition + 6);
+                doc.text('Nom', 60, yPosition + 6);
+                doc.text('Montant', 110, yPosition + 6);
+                doc.text('Jours de retard', 140, yPosition + 6);
+                doc.text('Date échéance', 170, yPosition + 6);
+                
+                yPosition += 12;
+                
+                // عرض المخاطر
+                overdueChecks.slice(0, 10).forEach((check, index) => {
+                    if (yPosition > 270) return;
+                    
+                    const dueDate = new Date(check.dueDate);
+                    const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                    
+                    // خلفية الصف
+                    doc.setFillColor(255, 245, 245);
+                    doc.rect(20, yPosition - 4, 170, 8, 'F');
+                    
+                    doc.setFontSize(8);
+                    doc.setTextColor(...dangerColor);
+                    doc.text(check.number || 'N/A', 25, yPosition);
+                    
+                    doc.setTextColor(80, 80, 80);
+                    const frenchName = convertToFrenchForExport(truncateText(check.name, 20));
+                    doc.text(frenchName, 60, yPosition);
+                    
+                    doc.setTextColor(...dangerColor);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(formatNumberForPDF(check.amount), 110, yPosition);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    doc.setTextColor(daysOverdue > 30 ? dangerColor : warningColor);
+                    doc.text(`${daysOverdue} jours`, 140, yPosition);
+                    
+                    doc.setTextColor(...darkGray);
+                    doc.text(formatDateFrench(check.dueDate), 170, yPosition);
+                    
+                    yPosition += 8;
+                });
+            }
+            
+            // ========== تذييل الصفحات ==========
+            for (let i = 1; i <= pageNumber; i++) {
+                doc.setPage(i);
+                
+                // رقم الصفحة
+                doc.setFontSize(8);
+                doc.setTextColor(...darkGray);
+                doc.text(`Page ${i} sur ${pageNumber}`, 105, 287, { align: 'center' });
+                
+                // حقوق النشر
+                doc.setFontSize(7);
+                doc.setTextColor(180, 180, 180);
+                doc.text('© 2026 CheckFlow Pro - Tous droits réservés', 105, 292, { align: 'center' });
+                
+                // خط سفلي
+                doc.setDrawColor(...primaryColor);
+                doc.setLineWidth(0.3);
+                doc.line(20, 280, 190, 280);
+            }
+            
+            // ========== حفظ الملف ==========
+            const fileName = `Rapport_CheckFlow_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+            
+            showNotification(`PDF généré avec succès! ${checks.length} chèques, ${pageNumber} pages`);
+            
+        } catch (error) {
+            console.error('Erreur lors de la génération du PDF:', error);
+            alert('Erreur lors de la création du fichier PDF. Veuillez réessayer.');
+        }
+    }
+
+    // ============================================
+    // دالة PDF لتقرير المخاطر (محسنة مع ألوان)
+    // ============================================
+    function generateRiskReportPDF() {
+        try {
+            const today = new Date();
+            const riskChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                const dueDate = new Date(check.dueDate);
+                return dueDate < today;
+            });
+            
+            if (riskChecks.length === 0) {
+                alert('لا توجد شيكات متأخرة حالياً');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // ألوان الملف
+            const primaryColor = [44, 62, 80];      // #2c3e50
+            const dangerColor = [231, 76, 60];      // #e74c3c
+            const warningColor = [243, 156, 18];    // #f39c12
+            const successColor = [39, 174, 96];     // #27ae60
+            const darkGray = [127, 140, 141];       // #7f8c8d
+            
+            // العنوان الرئيسي
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(24);
+            doc.setTextColor(...dangerColor);
+            doc.text('Rapport des Risques', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(...darkGray);
+            doc.text('Analyse des Chèques en Retard', 105, 28, { align: 'center' });
+            
+            // خط فاصل
+            doc.setDrawColor(...dangerColor);
+            doc.setLineWidth(1);
+            doc.line(20, 35, 190, 35);
+            
+            let yPosition = 45;
+            let pageNumber = 1;
+            
+            // ========== الإحصائيات الرئيسية ==========
+            const totalRiskAmount = riskChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+            
+            // تحليل مستوى الخطورة
+            const highRisk = riskChecks.filter(c => {
+                const dueDate = new Date(c.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                return daysOverdue > 30;
+            });
+            
+            const mediumRisk = riskChecks.filter(c => {
+                const dueDate = new Date(c.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                return daysOverdue > 15 && daysOverdue <= 30;
+            });
+            
+            const lowRisk = riskChecks.filter(c => {
+                const dueDate = new Date(c.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                return daysOverdue <= 15;
+            });
+            
+            doc.setFontSize(14);
+            doc.setTextColor(...primaryColor);
+            doc.text('Résumé des Risques', 20, yPosition);
+            yPosition += 10;
+            
+            // بطاقات المخاطر
+            const riskCards = [
+                { label: 'Risque Élevé', value: highRisk.length, color: dangerColor, description: '> 30 jours' },
+                { label: 'Risque Moyen', value: mediumRisk.length, color: warningColor, description: '15-30 jours' },
+                { label: 'Risque Faible', value: lowRisk.length, color: successColor, description: '< 15 jours' },
+                { label: 'Montant Total', value: formatCurrencyFrench(totalRiskAmount), color: primaryColor, description: 'En retard' }
+            ];
+            
+            let xPos = 25;
+            riskCards.forEach((card, index) => {
+                // خلفية البطاقة
+                doc.setFillColor(...card.color);
+                doc.roundedRect(xPos, yPosition, 40, 25, 3, 3, 'F');
+                
+                // النص
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(card.value.toString(), xPos + 20, yPosition + 10, { align: 'center' });
+                
+                doc.setFontSize(7);
+                doc.text(card.label, xPos + 20, yPosition + 15, { align: 'center' });
+                
+                doc.setFontSize(6);
+                doc.text(card.description, xPos + 20, yPosition + 19, { align: 'center' });
+                
+                xPos += 45;
+            });
+            
+            yPosition += 35;
+            
+            // ========== توزيع المخاطر حسب الأيام ==========
+            doc.setFontSize(12);
+            doc.setTextColor(...primaryColor);
+            doc.text('Distribution par Jours de Retard', 20, yPosition);
+            yPosition += 8;
+            
+            // مخطط دائري مبسط
+            const centerX = 105;
+            const centerY = yPosition + 30;
+            const radius = 20;
+            
+            let startAngle = 0;
+            const segments = [
+                { label: '>30 jours', count: highRisk.length, color: dangerColor },
+                { label: '15-30 jours', count: mediumRisk.length, color: warningColor },
+                { label: '<15 jours', count: lowRisk.length, color: successColor }
+            ].filter(seg => seg.count > 0);
+            
+            const total = segments.reduce((sum, seg) => sum + seg.count, 0);
+            
+            segments.forEach(segment => {
+                const angle = (segment.count / total) * 360;
+                
+                doc.setFillColor(...segment.color);
+                doc.circle(centerX, centerY, radius, 'F', startAngle, startAngle + angle);
+                
+                startAngle += angle;
+            });
+            
+            // مفتاح الألوان
+            yPosition += 60;
+            xPos = 30;
+            
+            segments.forEach(segment => {
+                const percentage = total > 0 ? ((segment.count / total) * 100).toFixed(1) : 0;
+                
+                doc.setFillColor(...segment.color);
+                doc.rect(xPos, yPosition, 5, 5, 'F');
+                
+                doc.setFontSize(8);
+                doc.setTextColor(...primaryColor);
+                doc.text(`${segment.label}: ${segment.count} (${percentage}%)`, xPos + 8, yPosition + 4);
+                
+                yPosition += 8;
+            });
+            
+            yPosition += 15;
+            
+            // ========== قائمة المخاطر التفصيلية ==========
+            doc.addPage();
+            pageNumber++;
+            yPosition = 20;
+            
+            doc.setFontSize(16);
+            doc.setTextColor(...dangerColor);
+            doc.text('Liste Détailée des Chèques en Retard', 20, yPosition);
+            yPosition += 10;
+            
+            // رأس الجدول
+            doc.setFillColor(...dangerColor);
+            doc.roundedRect(20, yPosition, 170, 8, 3, 3, 'F');
+            doc.setFontSize(9);
+            doc.setTextColor(255, 255, 255);
+            doc.text('No.', 25, yPosition + 6);
+            doc.text('Numéro', 40, yPosition + 6);
+            doc.text('Nom', 70, yPosition + 6);
+            doc.text('Montant', 110, yPosition + 6);
+            doc.text('Jours Retard', 130, yPosition + 6);
+            doc.text('Bénéficiaire', 150, yPosition + 6);
+            doc.text('Date Échéance', 170, yPosition + 6);
+            
+            yPosition += 12;
+            
+            // عرض المخاطر مرتبة من الأكثر تأخراً
+            riskChecks.sort((a, b) => {
+                const daysA = Math.floor((today - new Date(a.dueDate)) / (1000 * 60 * 60 * 24));
+                const daysB = Math.floor((today - new Date(b.dueDate)) / (1000 * 60 * 60 * 24));
+                return daysB - daysA;
+            });
+            
+            riskChecks.forEach((check, index) => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    pageNumber++;
+                    yPosition = 20;
+                    
+                    // رأس الجدول للصفحة الجديدة
+                    doc.setFillColor(...dangerColor);
+                    doc.roundedRect(20, yPosition, 170, 8, 3, 3, 'F');
+                    doc.setFontSize(9);
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('No.', 25, yPosition + 6);
+                    doc.text('Numéro', 40, yPosition + 6);
+                    doc.text('Nom', 70, yPosition + 6);
+                    doc.text('Montant', 110, yPosition + 6);
+                    doc.text('Jours Retard', 130, yPosition + 6);
+                    doc.text('Bénéficiaire', 150, yPosition + 6);
+                    doc.text('Date Échéance', 170, yPosition + 6);
+                    
+                    yPosition += 12;
+                }
+                
+                const dueDate = new Date(check.dueDate);
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                
+                // خلفية الصف حسب مستوى الخطورة
+                if (daysOverdue > 30) {
+                    doc.setFillColor(255, 230, 230);
+                } else if (daysOverdue > 15) {
+                    doc.setFillColor(255, 245, 230);
+                } else {
+                    doc.setFillColor(230, 245, 230);
+                }
+                doc.rect(20, yPosition - 4, 170, 8, 'F');
+                
+                // رقم التسلسل
+                doc.setFontSize(8);
+                doc.setTextColor(...primaryColor);
+                doc.text(`${index + 1}.`, 25, yPosition);
+                
+                // رقم الشيك
+                doc.setTextColor(...dangerColor);
+                doc.text(check.number || 'N/A', 40, yPosition);
+                
+                // اسم الشيك
+                doc.setTextColor(60, 60, 60);
+                const frenchName = convertToFrenchForExport(truncateText(check.name, 20));
+                doc.text(frenchName, 70, yPosition);
+                
+                // المبلغ
+                doc.setTextColor(...dangerColor);
+                doc.setFont('helvetica', 'bold');
+                doc.text(formatNumberForPDF(check.amount), 110, yPosition);
+                doc.setFont('helvetica', 'normal');
+                
+                // أيام التأخير مع لون
+                const daysColor = daysOverdue > 30 ? dangerColor : 
+                                daysOverdue > 15 ? warningColor : successColor;
+                doc.setTextColor(...daysColor);
+                doc.text(`${daysOverdue} jours`, 130, yPosition);
+                
+                // المستلم
+                doc.setTextColor(...primaryColor);
+                const frenchRecipient = convertToFrenchForExport(truncateText(check.recipient, 15));
+                doc.text(frenchRecipient, 150, yPosition);
+                
+                // تاريخ الاستحقاق
+                doc.setTextColor(...darkGray);
+                doc.text(formatDateFrench(check.dueDate), 170, yPosition);
+                
+                yPosition += 8;
+                
+                // تفاصيل إضافية
+                if (yPosition > 270) {
+                    doc.addPage();
+                    pageNumber++;
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(7);
+                doc.setTextColor(150, 150, 150);
+                const bankFrench = convertToFrenchForExport(check.bank || 'Banque non spécifiée');
+                const issuerFrench = convertToFrenchForExport(check.issuer || 'Non spécifié');
+                const details = `${bankFrench} | Émetteur: ${issuerFrench}`;
+                doc.text(details, 70, yPosition);
+                
+                yPosition += 6;
+                
+                // خط فاصل
+                doc.setDrawColor(230, 230, 230);
+                doc.setLineWidth(0.2);
+                doc.line(70, yPosition, 190, yPosition);
+                
+                yPosition += 4;
+            });
+            
+            // ========== توصيات ==========
+            doc.addPage();
+            pageNumber++;
+            yPosition = 20;
+            
+            doc.setFontSize(16);
+            doc.setTextColor(...primaryColor);
+            doc.text('Recommandations', 20, yPosition);
+            yPosition += 10;
+            
+            const recommendations = [
+                { icon: '📞', text: 'Contacter immédiatement les bénéficiaires des chèques en retard de plus de 30 jours' },
+                { icon: '📧', text: 'Envoyer des rappels par email pour les chèques en retard de 15 à 30 jours' },
+                { icon: '💼', text: 'Réviser les politiques de crédit avec les bénéficiaires récurrents' },
+                { icon: '📊', text: 'Surveiller quotidiennement les chèques approchant de leur date d\'échéance' },
+                { icon: '🔔', text: 'Configurer des alertes automatiques pour les échéances à venir' },
+                { icon: '📑', text: 'Maintenir une documentation complète pour chaque chèque en retard' }
+            ];
+            
+            doc.setFontSize(10);
+            recommendations.forEach((rec, index) => {
+                if (yPosition > 270) {
+                    doc.addPage();
+                    pageNumber++;
+                    yPosition = 20;
+                }
+                
+                doc.setTextColor(...primaryColor);
+                doc.text(rec.icon, 25, yPosition);
+                
+                doc.setTextColor(80, 80, 80);
+                doc.text(rec.text, 35, yPosition);
+                
+                yPosition += 8;
+            });
+            
+            // ========== تذييل الصفحات ==========
+            for (let i = 1; i <= pageNumber; i++) {
+                doc.setPage(i);
+                
+                doc.setFontSize(8);
+                doc.setTextColor(...darkGray);
+                doc.text(`Page ${i} sur ${pageNumber}`, 105, 287, { align: 'center' });
+                
+                doc.setFontSize(7);
+                doc.setTextColor(180, 180, 180);
+                doc.text(`Rapport généré le: ${new Date().toLocaleDateString('fr-FR')}`, 105, 292, { align: 'center' });
+                
+                // خط سفلي
+                doc.setDrawColor(...dangerColor);
+                doc.setLineWidth(0.3);
+                doc.line(20, 280, 190, 280);
+            }
+            
+            // ========== حفظ الملف ==========
+            const fileName = `Rapport_Risques_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+            
+            showNotification('تم تحميل تقرير المخاطر بالفرنسية');
+            
+        } catch (error) {
+            console.error('Error generating risk PDF:', error);
+            alert('حدث خطأ أثناء إنشاء تقرير المخاطر.');
+        }
+    }
+
+    // ============================================
+    // باقي دوال JavaScript (بدون تغيير)
+    // ============================================
+
     // تهيئة التطبيق
     document.addEventListener('DOMContentLoaded', async function() {
-        // إخفاء شاشة البداية بعد 1.5 ثانية
         setTimeout(() => {
             document.getElementById('splashScreen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('splashScreen').style.display = 'none';
                 
-                // تهيئة Firebase
                 try {
                     firebaseApp = firebase.initializeApp(firebaseConfig);
                     database = firebase.database();
                     auth = firebase.auth();
-                    console.log('Firebase initialized successfully');
                     
-                    // التحقق من تسجيل الدخول السابق
                     auth.onAuthStateChanged((user) => {
                         if (user) {
-                            // المستخدم مسجل الدخول
                             currentUserId = user.uid;
                             initApp();
                             loadData();
@@ -3016,7 +3887,6 @@
                             checkPWAInstallation();
                             setupPasswordValidation();
                         } else {
-                            // لا يوجد مستخدم مسجل الدخول
                             document.getElementById('loginModal').style.display = 'flex';
                         }
                     });
@@ -3029,12 +3899,10 @@
             }, 300);
         }, 1500);
 
-        // طلب إذن الإشعارات
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
 
-        // مراقبة حالة الاتصال
         window.addEventListener('online', () => {
             isOnline = true;
             showSyncStatus('تم استعادة الاتصال', 'success');
@@ -3046,16 +3914,11 @@
             showSyncStatus('أنت غير متصل - وضع العمل المحلي مفعل', 'error');
         });
         
-        // تهيئة التواريخ
         const today = new Date();
         const lastMonth = new Date();
         lastMonth.setMonth(lastMonth.getMonth() - 1);
-        
-        document.getElementById('pdfFromDate').value = lastMonth.toISOString().split('T')[0];
-        document.getElementById('pdfToDate').value = today.toISOString().split('T')[0];
     });
 
-    // إعداد التحقق من كلمة المرور
     function setupPasswordValidation() {
         const newPassword = document.getElementById('newPassword');
         const confirmPassword = document.getElementById('confirmPassword');
@@ -3071,7 +3934,6 @@
                 newPasswordStatus.className = 'password-status valid';
             }
             
-            // التحقق من تطابق كلمتي المرور
             if (confirmPassword.value) {
                 if (this.value !== confirmPassword.value) {
                     confirmPasswordStatus.textContent = 'كلمتا المرور غير متطابقتين';
@@ -3094,14 +3956,12 @@
         });
     }
 
-    // دوال تسجيل الدخول
     function loginWithEmail() {
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
         const loginError = document.getElementById('loginError');
         const errorMessage = document.getElementById('errorMessage');
         
-        // إخفاء رسالة الخطأ
         loginError.style.display = 'none';
         
         if (!email || !password) {
@@ -3115,15 +3975,11 @@
                 currentUserId = userCredential.user.uid;
                 updateUserAvatar();
                 
-                // إخفاء شاشة تسجيل الدخول
                 document.getElementById('loginModal').style.display = 'none';
-                
-                // إظهار التطبيق
                 document.getElementById('appHeader').style.display = 'flex';
                 document.getElementById('mainContent').style.display = 'block';
                 document.getElementById('bottomNav').style.display = 'flex';
                 
-                // تهيئة التطبيق
                 initApp();
                 loadData();
                 updateUI();
@@ -3140,7 +3996,7 @@
                 
                 let userMessage = '';
                 if (errorCode === 'auth/user-not-found') {
-                    userMessage = 'الحساب غير موجود. يجب أن يكون لديك حساب مسجل مسبقاً في Firebase.';
+                    userMessage = 'الحساب غير موجود. يجب أن يكون لديك حساب مسجل مسبقاً.';
                 } else if (errorCode === 'auth/wrong-password') {
                     userMessage = 'كلمة المرور غير صحيحة.';
                 } else if (errorCode === 'auth/invalid-email') {
@@ -3158,7 +4014,6 @@
             });
     }
 
-    // دالة تغيير كلمة المرور
     function changePassword() {
         const currentPassword = document.getElementById('currentPassword').value.trim();
         const newPassword = document.getElementById('newPassword').value.trim();
@@ -3193,12 +4048,10 @@
             })
             .then(() => {
                 alert('تم تغيير كلمة المرور بنجاح');
-                // مسح الحقول
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
                 
-                // إعادة تعيين رسائل الحالة
                 document.getElementById('newPasswordStatus').textContent = '';
                 document.getElementById('confirmPasswordStatus').textContent = '';
                 
@@ -3224,12 +4077,9 @@
                 checks = [];
                 pendingSync = [];
                 
-                // إخفاء التطبيق
                 document.getElementById('appHeader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'none';
                 document.getElementById('bottomNav').style.display = 'none';
-                
-                // إظهار شاشة تسجيل الدخول
                 document.getElementById('loginModal').style.display = 'flex';
                 
                 showNotification('تم تسجيل الخروج');
@@ -3254,31 +4104,24 @@
     }
 
     function initApp() {
-        // تعيين تاريخ اليوم
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('issueDate').value = today;
         
-        // تعيين تاريخ الشهر القادم للاستحقاق
         const nextMonth = new Date();
         nextMonth.setMonth(nextMonth.getMonth() + 1);
         document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
         
-        // تحميل الإعدادات
         loadSettings();
         
-        // التحقق إذا كان التطبيق مثبتاً
         if (window.matchMedia('(display-mode: standalone)').matches) {
             isInstalled = true;
-            console.log('التطبيق مثبت كـ PWA');
         }
         
-        // إضافة مستمع لحدث تغيير البيانات لتحديث الإحصائيات
         if (currentView === 'analytics') {
             updateAnalytics();
         }
     }
 
-    // دوال قاعدة البيانات
     async function loadData() {
         if (!currentUserId || !database) {
             loadLocalData();
@@ -3295,7 +4138,6 @@
                 const data = snapshot.val();
                 checks = Object.values(data || {});
                 
-                // حفظ محلياً للعمل بدون اتصال
                 localStorage.setItem('checkflow_checks_' + currentUserId, JSON.stringify(checks));
                 
                 showSyncStatus('تم تحميل البيانات من السحابة', 'success');
@@ -3304,13 +4146,11 @@
                 showSyncStatus('تم تحميل البيانات المحلية', 'success');
             }
             
-            // مراقبة التغييرات في الوقت الحقيقي
             userRef.on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const newChecks = Object.values(data || {});
                     
-                    // تحديث فقط إذا كان هناك تغيير
                     if (JSON.stringify(checks) !== JSON.stringify(newChecks)) {
                         checks = newChecks;
                         updateUI();
@@ -3404,13 +4244,11 @@
             return;
         }
         
-        // مزامنة جميع البيانات المحلية
         const localChecks = JSON.parse(localStorage.getItem('checkflow_checks_' + currentUserId) || '[]');
         
         if (database && currentUserId) {
             showSyncStatus('جاري مزامنة جميع البيانات...', 'syncing');
             
-            // حفظ جميع الشيكات إلى Firebase
             const updates = {};
             localChecks.forEach(check => {
                 updates[check.id] = check;
@@ -3436,16 +4274,13 @@
         syncStatus.className = 'sync-status ' + type;
         syncStatus.style.display = 'flex';
         
-        // إخفاء الرسالة بعد 3 ثواني
         setTimeout(() => {
             syncStatus.style.display = 'none';
         }, 3000);
     }
 
-    // دوال التحقق من التكرار
     function isCheckDuplicate(checkNumber, currentCheckId = null) {
         return checks.some(check => {
-            // تجاهل الشيك الحالي عند التعديل
             if (currentCheckId && check.id === currentCheckId) {
                 return false;
             }
@@ -3481,7 +4316,6 @@
             message += `\nهل تريد معالجة هذه المكررات؟`;
             
             if (confirm(message)) {
-                // إنشاء تقرير التكرار
                 duplicateReport = duplicateNumbers.map(number => {
                     const duplicateChecks = checks.filter(c => c.number === number);
                     return {
@@ -3498,13 +4332,14 @@
                     };
                 });
                 
-                // فتح خيارات المعالجة
                 openDuplicateResolutionModal();
             }
         } else {
             showNotification('لا توجد شيكات مكررة!');
         }
     }
+
+    // باقي الدوال بنفس النسق السابق...
 
     // دوال الإحصائيات
     function showAnalytics() {
@@ -3514,20 +4349,14 @@
         document.getElementById('pageTitle').textContent = 'الإحصائيات';
         updateNav('stats');
         
-        // تحديث الإحصائيات
         updateAnalytics();
     }
 
     function updateAnalytics() {
-        // تحديث البطاقات الإحصائية
         updateAnalyticsCards();
-        
-        // تحديث المخططات
         updateStatusChart();
         updateBankChart();
         updateMonthlyChart();
-        
-        // تحديث الجداول
         updateTopBanksTable();
         updateRiskReportTable();
         updateDuplicatesSummary();
@@ -3539,7 +4368,6 @@
         const pendingChecks = checks.filter(c => c.status === 'pending').length;
         const clearedChecks = checks.filter(c => c.status === 'cleared').length;
         
-        // حساب التغيرات (بسيط - يمكن تطويره)
         const checksChange = 0;
         const amountChange = 0;
         const pendingChange = 0;
@@ -3570,11 +4398,9 @@
         }
     }
 
-    // مخطط توزيع الحالات
     function updateStatusChart() {
         const ctx = document.getElementById('statusChart').getContext('2d');
         
-        // تجميع البيانات حسب الحالة
         const statusData = {
             pending: checks.filter(c => c.status === 'pending').length,
             cleared: checks.filter(c => c.status === 'cleared').length,
@@ -3592,16 +4418,16 @@
                 datasets: [{
                     data: [statusData.pending, statusData.cleared, statusData.bounced],
                     backgroundColor: [
-                        'rgba(255, 184, 0, 0.8)',
-                        'rgba(15, 123, 108, 0.8)',
-                        'rgba(209, 69, 59, 0.8)'
+                        'rgba(243, 156, 18, 0.8)',
+                        'rgba(39, 174, 96, 0.8)',
+                        'rgba(231, 76, 60, 0.8)'
                     ],
                     borderColor: [
-                        'rgb(255, 184, 0)',
-                        'rgb(15, 123, 108)',
-                        'rgb(209, 69, 59)'
+                        'rgb(243, 156, 18)',
+                        'rgb(39, 174, 96)',
+                        'rgb(231, 76, 60)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -3634,12 +4460,10 @@
         });
     }
 
-    // مخطط توزيع البنوك
     function updateBankChart() {
         const ctx = document.getElementById('bankChart').getContext('2d');
         const chartType = document.getElementById('bankChartType').value;
         
-        // تجميع البيانات حسب البنك
         const bankData = {};
         checks.forEach(check => {
             const bank = check.bank || 'غير محدد';
@@ -3650,7 +4474,6 @@
             bankData[bank].amount += check.amount || 0;
         });
         
-        // ترتيب البنوك حسب المبلغ (تنازلياً)
         const sortedBanks = Object.entries(bankData)
             .sort((a, b) => b[1].amount - a[1].amount)
             .slice(0, 8);
@@ -3671,8 +4494,8 @@
                 datasets: [{
                     label: chartType === 'amount' ? 'المبلغ (د.م)' : 'عدد الشيكات',
                     data: data,
-                    backgroundColor: 'rgba(51, 126, 169, 0.8)',
-                    borderColor: 'rgb(51, 126, 169)',
+                    backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                    borderColor: 'rgb(52, 152, 219)',
                     borderWidth: 1
                 }]
             },
@@ -3711,13 +4534,11 @@
         });
     }
 
-    // مخطط التدفق الشهري
     function updateMonthlyChart() {
         const ctx = document.getElementById('monthlyChart').getContext('2d');
         const chartType = document.getElementById('monthlyChartType').value;
         const period = document.getElementById('analyticsPeriod').value;
         
-        // تحديد نطاق التاريخ
         const now = new Date();
         let startDate = new Date(2000, 0, 1);
         
@@ -3730,7 +4551,6 @@
             startDate = new Date(now.getFullYear(), 0, 1);
         }
         
-        // تجميع البيانات الشهرية
         const monthlyData = {};
         
         checks.forEach(check => {
@@ -3748,7 +4568,6 @@
             monthlyData[monthKey].amount += check.amount || 0;
         });
         
-        // إنشاء مصفوفة من الأشهر (آخر 12 شهراً)
         const months = [];
         const data = [];
         
@@ -3777,8 +4596,8 @@
                 datasets: [{
                     label: chartType === 'amount' ? 'المبلغ (د.م)' : 'عدد الشيكات',
                     data: data,
-                    backgroundColor: 'rgba(51, 126, 169, 0.1)',
-                    borderColor: 'rgb(51, 126, 169)',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderColor: 'rgb(52, 152, 219)',
                     borderWidth: 2,
                     tension: 0.4,
                     fill: true
@@ -3815,11 +4634,9 @@
         });
     }
 
-    // تحديث جدول أهم البنوك
     function updateTopBanksTable() {
         const tableBody = document.getElementById('topBanksTable');
         
-        // تجميع بيانات البنوك
         const bankData = {};
         checks.forEach(check => {
             const bank = check.bank || 'غير محدد';
@@ -3830,7 +4647,6 @@
             bankData[bank].amount += check.amount || 0;
         });
         
-        // ترتيب حسب المبلغ (تنازلياً)
         const sortedBanks = Object.entries(bankData)
             .sort((a, b) => b[1].amount - a[1].amount)
             .slice(0, 10);
@@ -3863,7 +4679,6 @@
         tableBody.innerHTML = tableHTML || '<tr><td colspan="5" style="text-align: center; padding: 20px;">لا توجد بيانات</td></tr>';
     }
 
-    // تحديث تقرير المخاطر
     function updateRiskReportTable() {
         const tableBody = document.getElementById('riskReportTable');
         const today = new Date();
@@ -3904,7 +4719,6 @@
         tableBody.innerHTML = tableHTML || '<tr><td colspan="7" style="text-align: center; padding: 20px;">لا توجد شيكات متأخرة</td></tr>';
     }
 
-    // تحديث ملخص التكرارات
     function updateDuplicatesSummary() {
         const container = document.getElementById('duplicatesSummary');
         
@@ -3963,7 +4777,6 @@
         `;
     }
 
-    // تصدير تقرير المخاطر (بالفرنسية)
     function exportRiskReport() {
         const today = new Date();
         const overdueChecks = checks.filter(check => {
@@ -4008,7 +4821,6 @@
         showNotification('تم تصدير تقرير المخاطر بالفرنسية');
     }
 
-    // دوال المستلمين والمعطيين
     function showRecipients() {
         currentView = 'recipients';
         hideAllViews();
@@ -4071,7 +4883,7 @@
         
         container.innerHTML = recipientsArray.map(recipient => `
             <div class="check-item fade-in" onclick="showMuslimDetails('${recipient.name.replace(/'/g, "\\'")}')">
-                <div class="check-icon" style="background: var(--secondary-color);">
+                <div class="check-icon" style="background: linear-gradient(135deg, var(--secondary-color), #2ecc71);">
                     <i class="fas fa-user-tie"></i>
                 </div>
                 <div class="check-info">
@@ -4163,7 +4975,7 @@
         
         container.innerHTML = issuersArray.map(issuer => `
             <div class="check-item fade-in" onclick="showIssuerDetails('${issuer.name.replace(/'/g, "\\'")}')">
-                <div class="check-icon" style="background: var(--primary-color);">
+                <div class="check-icon" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light));">
                     <i class="fas fa-user-tie"></i>
                 </div>
                 <div class="check-info">
@@ -4183,7 +4995,6 @@
         `).join('');
     }
 
-    // نظام الإشعارات
     function setupNotifications() {
         setInterval(checkDueDateNotifications, 60 * 60 * 1000);
         setTimeout(checkDueDateNotifications, 5000);
@@ -4191,10 +5002,8 @@
     }
 
     function loadNotificationSettings() {
-        // يمكن إضافة إعدادات الإشعارات هنا
     }
 
-    // دوال العرض الرئيسية
     function showDashboard() {
         currentView = 'dashboard';
         hideAllViews();
@@ -4244,7 +5053,6 @@
         }
     }
 
-    // إدارة الشيكات
     function openNewCheckModal() {
         document.getElementById('checkForm').reset();
         document.getElementById('checkId').value = '';
@@ -4365,7 +5173,6 @@
         showNotification('تم حذف الشيك');
     }
 
-    // تحديثات الواجهة
     function updateUI() {
         updateStats();
         updateRecentChecks();
@@ -4430,7 +5237,7 @@
             
             return `
                 <div class="check-item ${statusClass}" onclick="editCheck('${check.id}')">
-                    <div class="check-icon" style="background: ${statusColor};">
+                    <div class="check-icon" style="background: linear-gradient(135deg, ${statusColor}, ${statusColor === 'var(--warning-color)' ? '#f1c40f' : statusColor === 'var(--secondary-color)' ? '#2ecc71' : '#c0392b'});">
                         <i class="fas fa-${statusIcon}"></i>
                     </div>
                     <div class="check-info">
@@ -4534,7 +5341,7 @@
             return `
                 <div class="check-item ${statusClass} fade-in" onclick="editCheck('${check.id}')">
                     ${isDuplicate ? '<div class="duplicate-badge">مكرر</div>' : ''}
-                    <div class="check-icon" style="background: ${check.important ? 'var(--warning-color)' : 'var(--primary-color)'};">
+                    <div class="check-icon" style="background: linear-gradient(135deg, ${check.important ? 'var(--warning-color)' : 'var(--primary-color)'}, ${check.important ? '#f1c40f' : 'var(--primary-light)'});">
                         <i class="fas fa-${check.important ? 'star' : 'money-check'}"></i>
                     </div>
                     <div class="check-info">
@@ -4546,7 +5353,7 @@
                         </div>
                     </div>
                     <button class="icon-button" onclick="event.stopPropagation(); deleteCheck('${check.id}')" 
-                            style="background: none; border: none; color: var(--danger-color); font-size: 18px;">
+                            style="background: linear-gradient(135deg, var(--danger-color), #c0392b); color: white; font-size: 18px;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -4566,7 +5373,6 @@
         }
     }
 
-    // دوال مساعدة
     function saveChecksLocally() {
         if (currentUserId) {
             localStorage.setItem('checkflow_checks_' + currentUserId, JSON.stringify(checks));
@@ -4587,7 +5393,6 @@
         }
     }
 
-    // دوال النوافذ المنبثقة
     function openModal(modalId) {
         document.getElementById(modalId).classList.add('active');
     }
@@ -4643,12 +5448,10 @@
         updateAllChecks();
     }
 
-    // دوال الإعدادات
     function showAbout() {
         alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n- تغيير كلمة المرور\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
     }
 
-    // دوال التصدير (بالفرنسية فقط)
     function openExportModal() {
         openModal('exportModal');
     }
@@ -4658,216 +5461,8 @@
         setTimeout(() => openModal('pdfExportModal'), 300);
     }
 
-    // ============================================
-    // دالة PDF الجديدة المحسنة
-    // ============================================
-    function generateCompletePDF() {
-        try {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            // استخدام خط لاتيني بسيط
-            doc.setFont('helvetica');
-            doc.setFontSize(16);
-            doc.setTextColor(40, 40, 40);
-            
-            // عنوان التقرير (بالفرنسية فقط)
-            doc.text('Rapport Complet des Chèques - CheckFlow Pro', 20, 20);
-            doc.setFontSize(10);
-            doc.text(`Date de génération: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
-            
-            let yPosition = 45;
-            let pageNumber = 1;
-            const itemsPerPage = 25; // عدد العناصر لكل صفحة
-            
-            // ========== الإحصائيات العامة ==========
-            const totalChecks = checks.length;
-            const totalAmount = checks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
-            const stats = {
-                pending: checks.filter(c => c.status === 'pending').length,
-                cleared: checks.filter(c => c.status === 'cleared').length,
-                bounced: checks.filter(c => c.status === 'bounced').length
-            };
-            
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            
-            // عنوان قسم الإحصائيات
-            doc.setFontSize(14);
-            doc.setTextColor(51, 126, 169);
-            doc.text('Statistiques Générales:', 20, yPosition);
-            yPosition += 10;
-            
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`• Nombre total de chèques: ${totalChecks}`, 25, yPosition);
-            yPosition += 7;
-            doc.text(`• Montant total: ${formatNumberForPDF(totalAmount)} MAD`, 25, yPosition);
-            yPosition += 7;
-            doc.text(`• En attente: ${stats.pending}`, 25, yPosition);
-            yPosition += 7;
-            doc.text(`• Compensés: ${stats.cleared}`, 25, yPosition);
-            yPosition += 7;
-            doc.text(`• Retournés: ${stats.bounced}`, 25, yPosition);
-            yPosition += 15;
-            
-            // ========== قائمة الشيكات ==========
-            // إضافة صفحة جديدة للقائمة
-            if (yPosition > 200) {
-                doc.addPage();
-                pageNumber++;
-                yPosition = 20;
-            }
-            
-            doc.setFontSize(14);
-            doc.setTextColor(51, 126, 169);
-            doc.text(`Liste des Chèques (Page ${pageNumber}):`, 20, yPosition);
-            yPosition += 10;
-            
-            // رؤوس الجدول
-            doc.setFillColor(240, 240, 240);
-            doc.rect(20, yPosition, 170, 8, 'F');
-            doc.setFontSize(10);
-            doc.setTextColor(0, 0, 0);
-            doc.text('No.', 25, yPosition + 6);
-            doc.text('Numéro', 35, yPosition + 6);
-            doc.text('Nom', 65, yPosition + 6);
-            doc.text('Montant (MAD)', 120, yPosition + 6);
-            doc.text('Statut', 150, yPosition + 6);
-            doc.text('Date', 170, yPosition + 6);
-            
-            yPosition += 12;
-            
-            // عرض جميع الشيكات مع إدارة الصفحات
-            checks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
-                if (yPosition > 270) {
-                    doc.addPage();
-                    pageNumber++;
-                    yPosition = 20;
-                    
-                    // رؤوس الجدول للصفحة الجديدة
-                    doc.setFontSize(14);
-                    doc.setTextColor(51, 126, 169);
-                    doc.text(`Liste des Chèques - Suite (Page ${pageNumber}):`, 20, yPosition);
-                    yPosition += 10;
-                    
-                    doc.setFillColor(240, 240, 240);
-                    doc.rect(20, yPosition, 170, 8, 'F');
-                    doc.setFontSize(10);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text('No.', 25, yPosition + 6);
-                    doc.text('Numéro', 35, yPosition + 6);
-                    doc.text('Nom', 65, yPosition + 6);
-                    doc.text('Montant (MAD)', 120, yPosition + 6);
-                    doc.text('Statut', 150, yPosition + 6);
-                    doc.text('Date', 170, yPosition + 6);
-                    
-                    yPosition += 12;
-                }
-                
-                // رقم التسلسل
-                doc.setFontSize(9);
-                doc.setTextColor(0, 0, 0);
-                doc.text(`${index + 1}.`, 25, yPosition);
-                
-                // رقم الشيك
-                doc.setTextColor(60, 60, 60);
-                doc.text(check.number || 'N/A', 35, yPosition);
-                
-                // اسم الشيك (مترجم للفرنسية)
-                const frenchName = convertToFrenchForExport(truncateText(check.name, 30));
-                doc.text(frenchName, 65, yPosition);
-                
-                // المبلغ (بالتنسيق الفرنسي الصحيح)
-                doc.setTextColor(30, 30, 30);
-                const formattedAmount = formatNumberForPDF(check.amount);
-                doc.text(formattedAmount, 120, yPosition);
-                
-                // الحالة (بالفرنسية)
-                if (check.status === 'pending') {
-                    doc.setTextColor(255, 184, 0); // برتقالي
-                } else if (check.status === 'cleared') {
-                    doc.setTextColor(15, 123, 108); // أخضر
-                } else {
-                    doc.setTextColor(209, 69, 59); // أحمر
-                }
-                doc.text(getStatusFrench(check.status), 150, yPosition);
-                
-                // التاريخ (بالفرنسية)
-                doc.setTextColor(100, 100, 100);
-                doc.text(formatDateFrench(check.issueDate), 170, yPosition);
-                
-                yPosition += 6;
-                
-                // تفاصيل إضافية (البنك والمستلم)
-                if (yPosition > 270) {
-                    doc.addPage();
-                    pageNumber++;
-                    yPosition = 20;
-                }
-                
-                doc.setFontSize(8);
-                doc.setTextColor(120, 120, 120);
-                const bankFrench = convertToFrenchForExport(check.bank || 'Banque non spécifiée');
-                const recipientFrench = convertToFrenchForExport(check.recipient || 'Non spécifié');
-                const details = `${bankFrench} | ${recipientFrench}`;
-                const truncatedDetails = truncateText(details, 60);
-                doc.text(truncatedDetails, 65, yPosition);
-                
-                yPosition += 5;
-                
-                // خط فاصل بين العناصر
-                if (index < checks.length - 1) {
-                    doc.setDrawColor(230, 230, 230);
-                    doc.setLineWidth(0.2);
-                    doc.line(65, yPosition, 190, yPosition);
-                    yPosition += 4;
-                }
-                
-                doc.setFontSize(9);
-            });
-            
-            // ========== ملخص التقرير ==========
-            yPosition += 10;
-            doc.setDrawColor(200, 200, 200);
-            doc.setLineWidth(0.5);
-            doc.line(20, yPosition, 190, yPosition);
-            yPosition += 10;
-            
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Rapport généré le: ${new Date().toLocaleString('fr-FR')}`, 20, yPosition);
-            yPosition += 6;
-            doc.text(`Nombre total de pages: ${pageNumber}`, 20, yPosition);
-            yPosition += 6;
-            doc.text(`Utilisateur: ${currentUserId ? 'ID-' + currentUserId.substring(0, 8) : 'Non connecté'}`, 20, yPosition);
-            
-            // ========== تذييل الصفحات ==========
-            // إضافة تذييل لكل صفحة
-            for (let i = 1; i <= pageNumber; i++) {
-                doc.setPage(i);
-                doc.setFontSize(7);
-                doc.setTextColor(180, 180, 180);
-                doc.text(`CheckFlow Pro - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
-            }
-            
-            // ========== حفظ الملف ==========
-            const fileName = `Rapport_Cheques_Complet_${new Date().toISOString().split('T')[0]}.pdf`;
-            doc.save(fileName);
-            
-            showNotification(`PDF généré avec succès! ${checks.length} chèques, ${pageNumber} pages`);
-            
-        } catch (error) {
-            console.error('Erreur lors de la génération du PDF:', error);
-            alert('Erreur lors de la création du fichier PDF. Veuillez réessayer.');
-        }
-    }
-
-    // تصدير إلى Excel بالفرنسية
     function exportToExcel() {
         try {
-            // تحضير البيانات مع أسماء الأعمدة بالفرنسية
             const wsData = [
                 [
                     FRENCH_COLUMNS.number,
@@ -4895,29 +5490,25 @@
                 ])
             ];
             
-            // إنشاء ورقة العمل
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             
-            // ضبط عرض الأعمدة
             const colWidths = [
-                { wch: 15 }, // Numéro du chèque
-                { wch: 25 }, // Nom du chèque
-                { wch: 15 }, // Montant
-                { wch: 20 }, // Banque
-                { wch: 20 }, // Bénéficiaire
-                { wch: 20 }, // Émetteur
-                { wch: 15 }, // Statut
-                { wch: 15 }, // Date d'émission
-                { wch: 15 }, // Date d'échéance
-                { wch: 30 }  // Remarques
+                { wch: 15 },
+                { wch: 25 },
+                { wch: 15 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 30 }
             ];
             ws['!cols'] = colWidths;
             
-            // إنشاء ملف Excel
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Chèques');
             
-            // إضافة ورقة للإحصائيات بالفرنسية
             const statsData = [
                 ['Statistiques', ''],
                 ['Nombre total de chèques', checks.length],
@@ -4931,10 +5522,8 @@
             const wsStats = XLSX.utils.aoa_to_sheet(statsData);
             XLSX.utils.book_append_sheet(wb, wsStats, 'Statistiques');
             
-            // اسم الملف مع التاريخ بالفرنسية
             const fileName = `Chèques_${new Date().toISOString().split('T')[0]}.xlsx`;
             
-            // حفظ الملف
             XLSX.writeFile(wb, fileName);
             
             showNotification('تم التصدير إلى Excel بالفرنسية بنجاح');
@@ -4946,7 +5535,6 @@
         }
     }
 
-    // تصدير إلى CSV بالفرنسية
     function exportToCSV() {
         try {
             const headers = [
@@ -5002,7 +5590,6 @@
         }
     }
 
-    // تصدير إلى JSON بالفرنسية
     function exportToJSON() {
         try {
             const data = {
@@ -5047,7 +5634,6 @@
         }
     }
 
-    // دوال إضافية
     function exportDuplicateReport() {
         checkForDuplicates();
         setTimeout(() => {
@@ -5213,7 +5799,6 @@
         showNotification('تم تصدير تقرير جميع المعطيين بالفرنسية');
     }
 
-    // دوال استيراد Excel
     function openImportExcelModal() {
         document.getElementById('excelFile').value = '';
         document.getElementById('importPreview').style.display = 'none';
@@ -5504,7 +6089,6 @@
         showNotification(`تم استيراد ${newChecks.length} شيك بنجاح (تخطي ${skippedChecks.length} مكرر)`);
     }
 
-    // دوال إضافية
     function openDuplicateResolutionModal() {
         if (!duplicateReport || duplicateReport.length === 0) return;
         
@@ -5725,7 +6309,6 @@
         }
     }
 
-    // الإشعارات
     function showNotification(message) {
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('CheckFlow Pro', {
@@ -5736,7 +6319,7 @@
         
         const notification = document.createElement('div');
         notification.innerHTML = `
-            <div style="position: fixed; top: 80px; left: 20px; background: var(--primary-color); color: white; padding: 12px 20px; border-radius: var(--radius-md); box-shadow: 0 4px 12px var(--shadow-color); z-index: 1001; animation: slideIn 0.3s ease;">
+            <div style="position: fixed; top: 80px; left: 20px; background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; padding: 12px 20px; border-radius: var(--radius-md); box-shadow: 0 4px 12px var(--shadow-color); z-index: 1001; animation: slideIn 0.3s ease;">
                 <i class="fas fa-check-circle" style="margin-left: 8px;"></i>
                 ${message}
             </div>
@@ -5752,7 +6335,6 @@
         }, 3000);
     }
 
-    // دوال PWA
     function checkPWAInstallation() {
         if (window.matchMedia('(display-mode: standalone)').matches) {
             isInstalled = true;
@@ -5792,11 +6374,9 @@
         }
     }
 
-    // دوال عرض تفاصيل المعطي
     function showIssuerDetails(issuerName) {
         currentView = 'issuerDetails';
         
-        // إنشاء نافذة منبثقة لعرض شيكات المعطي
         const issuerChecks = checks.filter(check => check.issuer === issuerName);
         
         let modalContent = `
@@ -5838,7 +6418,6 @@
                 </div>
             `;
         } else {
-            // إحصائيات سريعة
             const stats = {
                 pending: issuerChecks.filter(c => c.status === 'pending').length,
                 cleared: issuerChecks.filter(c => c.status === 'cleared').length,
@@ -5939,11 +6518,9 @@
         document.body.appendChild(modalContainer);
     }
 
-    // دوال عرض تفاصيل المسلم
     function showMuslimDetails(muslimName) {
         currentView = 'muslimDetails';
         
-        // إنشاء نافذة منبثقة لعرض شيكات المسلم
         const muslimChecks = checks.filter(check => check.recipient === muslimName);
         
         let modalContent = `
@@ -5985,7 +6562,6 @@
                 </div>
             `;
         } else {
-            // إحصائيات سريعة
             const stats = {
                 pending: muslimChecks.filter(c => c.status === 'pending').length,
                 cleared: muslimChecks.filter(c => c.status === 'cleared').length,
@@ -6086,7 +6662,6 @@
         document.body.appendChild(modalContainer);
     }
 
-    // دالة PDF محسنة للمعطيين
     function downloadMuslimPDF(muslimName) {
         try {
             const muslimChecks = checks.filter(check => check.recipient === muslimName);
@@ -6098,25 +6673,32 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            doc.setFont('helvetica');
-            doc.setFontSize(16);
-            doc.setTextColor(40, 40, 40);
+            // ألوان الملف
+            const primaryColor = [44, 62, 80];
+            const secondaryColor = [52, 152, 219];
+            const successColor = [39, 174, 96];
+            const darkGray = [127, 140, 141];
             
-            // عنوان التقرير
-            doc.text(`Rapport des Cheques - Bénéficiaire: ${muslimName}`, 20, 20);
+            doc.setFont('helvetica');
+            doc.setFontSize(20);
+            doc.setTextColor(...primaryColor);
+            
+            doc.text(`Rapport des Chèques - Bénéficiaire: ${muslimName}`, 105, 20, { align: 'center' });
+            
             doc.setFontSize(10);
-            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
+            doc.setTextColor(...darkGray);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 105, 28, { align: 'center' });
             
             let yPosition = 40;
             let pageNumber = 1;
             
-            // إحصائيات سريعة
             const totalAmount = muslimChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
             const pendingChecks = muslimChecks.filter(c => c.status === 'pending').length;
             const clearedChecks = muslimChecks.filter(c => c.status === 'cleared').length;
             
             doc.setFontSize(12);
-            doc.text(`Total des cheques: ${muslimChecks.length}`, 20, yPosition);
+            doc.setTextColor(...primaryColor);
+            doc.text(`Total des chèques: ${muslimChecks.length}`, 20, yPosition);
             yPosition += 8;
             doc.text(`Montant total: ${formatNumberForPDF(totalAmount)} MAD`, 20, yPosition);
             yPosition += 8;
@@ -6127,42 +6709,35 @@
             doc.text(`Retournés: ${muslimChecks.filter(c => c.status === 'bounced').length}`, 20, yPosition);
             yPosition += 15;
             
-            // خط فاصل
-            doc.setDrawColor(200, 200, 200);
+            doc.setDrawColor(...secondaryColor);
             doc.setLineWidth(0.5);
             doc.line(20, yPosition, 190, yPosition);
             yPosition += 10;
             
-            // عنوان القائمة
             doc.setFontSize(14);
-            doc.setTextColor(15, 123, 108);
-            doc.text('Liste des Cheques:', 20, yPosition);
+            doc.setTextColor(...successColor);
+            doc.text('Liste des Chèques:', 20, yPosition);
             yPosition += 10;
             
             doc.setFontSize(9);
-            doc.setTextColor(100, 100, 100);
             
-            // عرض البيانات مع إدارة الصفحات
             muslimChecks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
                     yPosition = 20;
                     
-                    // عنوان الصفحة الجديدة
                     doc.setFontSize(14);
-                    doc.setTextColor(15, 123, 108);
-                    doc.text(`Liste des Cheques - Suite (Page ${pageNumber}):`, 20, yPosition);
+                    doc.setTextColor(...successColor);
+                    doc.text(`Liste des Chèques - Suite (Page ${pageNumber}):`, 20, yPosition);
                     yPosition += 10;
                 }
                 
-                // رؤوس الجدول للصفحة الأولى فقط
                 if (index === 0 || (index > 0 && yPosition === 20)) {
                     doc.setFillColor(245, 245, 245);
                     doc.rect(20, yPosition, 170, 8, 'F');
                     doc.setFontSize(10);
-                    doc.setTextColor(0, 0, 0);
+                    doc.setTextColor(...primaryColor);
                     doc.text('No', 25, yPosition + 6);
                     doc.text('Nom', 40, yPosition + 6);
                     doc.text('Montant (MAD)', 110, yPosition + 6);
@@ -6172,33 +6747,33 @@
                     yPosition += 12;
                 }
                 
-                doc.setTextColor(0, 0, 0);
+                doc.setTextColor(...primaryColor);
                 doc.text(`${index + 1}.`, 25, yPosition);
                 
                 doc.setTextColor(60, 60, 60);
                 const checkName = convertToFrenchForExport(truncateText(check.name, 25));
                 doc.text(checkName, 40, yPosition);
                 
-                doc.setTextColor(30, 30, 30);
+                doc.setTextColor(...primaryColor);
+                doc.setFont('helvetica', 'bold');
                 const formattedAmount = formatNumberForPDF(check.amount);
                 doc.text(formattedAmount, 110, yPosition);
+                doc.setFont('helvetica', 'normal');
                 
-                // تلوين الحالة
                 if (check.status === 'pending') {
-                    doc.setTextColor(255, 184, 0);
+                    doc.setTextColor(243, 156, 18);
                 } else if (check.status === 'cleared') {
-                    doc.setTextColor(15, 123, 108);
+                    doc.setTextColor(...successColor);
                 } else {
-                    doc.setTextColor(209, 69, 59);
+                    doc.setTextColor(231, 76, 60);
                 }
                 doc.text(getStatusFrench(check.status), 150, yPosition);
                 
-                doc.setTextColor(100, 100, 100);
+                doc.setTextColor(...darkGray);
                 doc.text(formatDateFrench(check.issueDate), 170, yPosition);
                 
                 yPosition += 7;
                 
-                // تفاصيل إضافية
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
@@ -6208,12 +6783,10 @@
                 doc.setFontSize(8);
                 doc.setTextColor(120, 120, 120);
                 const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${check.issuer || 'Non spécifié'}`;
-                const truncatedDetails = truncateText(details, 50);
-                doc.text(truncatedDetails, 40, yPosition);
+                doc.text(details, 40, yPosition);
                 
                 yPosition += 5;
                 
-                // خط فاصل
                 if (index < muslimChecks.length - 1) {
                     doc.setDrawColor(230, 230, 230);
                     doc.setLineWidth(0.2);
@@ -6224,7 +6797,6 @@
                 doc.setFontSize(9);
             });
             
-            // تذييل الصفحات
             for (let i = 1; i <= pageNumber; i++) {
                 doc.setPage(i);
                 doc.setFontSize(7);
@@ -6232,8 +6804,7 @@
                 doc.text(`Bénéficiaire: ${muslimName} - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
             }
             
-            // حفظ الملف
-            const fileName = `Cheques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            const fileName = `Chèques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
             showNotification(`تم تحميل PDF لـ ${muslimName} بالفرنسية`);
@@ -6244,7 +6815,6 @@
         }
     }
 
-    // دالة PDF محسنة للمستلمين
     function downloadIssuerPDF(issuerName) {
         try {
             const issuerChecks = checks.filter(check => check.issuer === issuerName);
@@ -6256,25 +6826,31 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            doc.setFont('helvetica');
-            doc.setFontSize(16);
-            doc.setTextColor(40, 40, 40);
+            const primaryColor = [44, 62, 80];
+            const secondaryColor = [52, 152, 219];
+            const successColor = [39, 174, 96];
+            const darkGray = [127, 140, 141];
             
-            // عنوان التقرير
-            doc.text(`Rapport des Cheques Émis - Émetteur: ${issuerName}`, 20, 20);
+            doc.setFont('helvetica');
+            doc.setFontSize(20);
+            doc.setTextColor(...primaryColor);
+            
+            doc.text(`Rapport des Chèques Émis - Émetteur: ${issuerName}`, 105, 20, { align: 'center' });
+            
             doc.setFontSize(10);
-            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
+            doc.setTextColor(...darkGray);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 105, 28, { align: 'center' });
             
             let yPosition = 40;
             let pageNumber = 1;
             
-            // إحصائيات سريعة
             const totalAmount = issuerChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
             const pendingChecks = issuerChecks.filter(c => c.status === 'pending').length;
             const clearedChecks = issuerChecks.filter(c => c.status === 'cleared').length;
             
             doc.setFontSize(12);
-            doc.text(`Total des cheques émis: ${issuerChecks.length}`, 20, yPosition);
+            doc.setTextColor(...primaryColor);
+            doc.text(`Total des chèques émis: ${issuerChecks.length}`, 20, yPosition);
             yPosition += 8;
             doc.text(`Montant total émis: ${formatNumberForPDF(totalAmount)} MAD`, 20, yPosition);
             yPosition += 8;
@@ -6285,42 +6861,35 @@
             doc.text(`Retournés: ${issuerChecks.filter(c => c.status === 'bounced').length}`, 20, yPosition);
             yPosition += 15;
             
-            // خط فاصل
-            doc.setDrawColor(200, 200, 200);
+            doc.setDrawColor(...secondaryColor);
             doc.setLineWidth(0.5);
             doc.line(20, yPosition, 190, yPosition);
             yPosition += 10;
             
-            // عنوان القائمة
             doc.setFontSize(14);
-            doc.setTextColor(51, 126, 169);
-            doc.text('Liste des Cheques Émis:', 20, yPosition);
+            doc.setTextColor(...secondaryColor);
+            doc.text('Liste des Chèques Émis:', 20, yPosition);
             yPosition += 10;
             
             doc.setFontSize(9);
-            doc.setTextColor(100, 100, 100);
             
-            // عرض البيانات مع إدارة الصفحات
             issuerChecks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
                     yPosition = 20;
                     
-                    // عنوان الصفحة الجديدة
                     doc.setFontSize(14);
-                    doc.setTextColor(51, 126, 169);
-                    doc.text(`Liste des Cheques Émis - Suite (Page ${pageNumber}):`, 20, yPosition);
+                    doc.setTextColor(...secondaryColor);
+                    doc.text(`Liste des Chèques Émis - Suite (Page ${pageNumber}):`, 20, yPosition);
                     yPosition += 10;
                 }
                 
-                // رؤوس الجدول للصفحة الأولى فقط
                 if (index === 0 || (index > 0 && yPosition === 20)) {
                     doc.setFillColor(245, 245, 245);
                     doc.rect(20, yPosition, 170, 8, 'F');
                     doc.setFontSize(10);
-                    doc.setTextColor(0, 0, 0);
+                    doc.setTextColor(...primaryColor);
                     doc.text('No', 25, yPosition + 6);
                     doc.text('Nom', 40, yPosition + 6);
                     doc.text('Montant (MAD)', 110, yPosition + 6);
@@ -6330,228 +6899,33 @@
                     yPosition += 12;
                 }
                 
-                doc.setTextColor(0, 0, 0);
+                doc.setTextColor(...primaryColor);
                 doc.text(`${index + 1}.`, 25, yPosition);
                 
                 doc.setTextColor(60, 60, 60);
                 const checkName = convertToFrenchForExport(truncateText(check.name, 25));
                 doc.text(checkName, 40, yPosition);
                 
-                doc.setTextColor(30, 30, 30);
+                doc.setTextColor(...primaryColor);
+                doc.setFont('helvetica', 'bold');
                 const formattedAmount = formatNumberForPDF(check.amount);
                 doc.text(formattedAmount, 110, yPosition);
+                doc.setFont('helvetica', 'normal');
                 
-                // تلوين الحالة
                 if (check.status === 'pending') {
-                    doc.setTextColor(255, 184, 0);
+                    doc.setTextColor(243, 156, 18);
                 } else if (check.status === 'cleared') {
-                    doc.setTextColor(15, 123, 108);
+                    doc.setTextColor(...successColor);
                 } else {
-                    doc.setTextColor(209, 69, 59);
+                    doc.setTextColor(231, 76, 60);
                 }
                 doc.text(getStatusFrench(check.status), 150, yPosition);
                 
-                doc.setTextColor(100, 100, 100);
+                doc.setTextColor(...darkGray);
                 doc.text(formatDateFrench(check.issueDate), 170, yPosition);
                 
                 yPosition += 7;
                 
-                // تفاصيل إضافية
-                if (yPosition > 270) {
-                    doc.addPage();
-                    pageNumber++;
-                    yPosition = 20;
-                }
-                
-                doc.setFontSize(8);
-                doc.setTextColor(120, 120, 120);
-                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${check.recipient || 'Non spécifié'}`;
-                const truncatedDetails = truncateText(details, 50);
-                doc.text(truncatedDetails, 40, yPosition);
-                
-                yPosition += 5;
-                
-                // خط فاصل
-                if (index < issuerChecks.length - 1) {
-                    doc.setDrawColor(230, 230, 230);
-                    doc.setLineWidth(0.2);
-                    doc.line(40, yPosition, 190, yPosition);
-                    yPosition += 4;
-                }
-                
-                doc.setFontSize(9);
-            });
-            
-            // تذييل الصفحات
-            for (let i = 1; i <= pageNumber; i++) {
-                doc.setPage(i);
-                doc.setFontSize(7);
-                doc.setTextColor(180, 180, 180);
-                doc.text(`Émetteur: ${issuerName} - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
-            }
-            
-            // حفظ الملف
-            const fileName = `Cheques_Emis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-            doc.save(fileName);
-            
-            showNotification(`تم تحميل PDF للمعطي ${issuerName} بالفرنسية`);
-            
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('حدث خطأ أثناء إنشاء ملف PDF.');
-        }
-    }
-
-    // دالة PDF لتقرير المخاطر (محسنة)
-    function generateRiskReportPDF() {
-        try {
-            const today = new Date();
-            const riskChecks = checks.filter(check => {
-                if (check.status !== 'pending') return false;
-                if (!check.dueDate) return false;
-                const dueDate = new Date(check.dueDate);
-                return dueDate < today;
-            });
-            
-            if (riskChecks.length === 0) {
-                alert('لا توجد شيكات متأخرة حالياً');
-                return;
-            }
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            doc.setFont('helvetica');
-            doc.setFontSize(18);
-            doc.setTextColor(209, 69, 59);
-            
-            // عنوان التقرير
-            doc.text('Rapport des Risques - Cheques en Retard', 20, 20);
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
-            
-            let yPosition = 40;
-            let pageNumber = 1;
-            
-            // إحصائيات سريعة
-            const totalRiskAmount = riskChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
-            
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Nombre de cheques en retard: ${riskChecks.length}`, 20, yPosition);
-            yPosition += 8;
-            doc.text(`Montant total à risque: ${formatNumberForPDF(totalRiskAmount)} MAD`, 20, yPosition);
-            yPosition += 8;
-            
-            // تحليل مستوى الخطورة
-            const highRisk = riskChecks.filter(c => {
-                const dueDate = new Date(c.dueDate);
-                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                return daysOverdue > 30;
-            }).length;
-            
-            const mediumRisk = riskChecks.filter(c => {
-                const dueDate = new Date(c.dueDate);
-                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                return daysOverdue > 15 && daysOverdue <= 30;
-            }).length;
-            
-            const lowRisk = riskChecks.filter(c => {
-                const dueDate = new Date(c.dueDate);
-                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                return daysOverdue <= 15;
-            }).length;
-            
-            doc.text(`Risque élevé (>30 jours): ${highRisk}`, 20, yPosition);
-            yPosition += 8;
-            doc.text(`Risque moyen (15-30 jours): ${mediumRisk}`, 20, yPosition);
-            yPosition += 8;
-            doc.text(`Risque faible (<15 jours): ${lowRisk}`, 20, yPosition);
-            yPosition += 15;
-            
-            // خط فاصل
-            doc.setDrawColor(209, 69, 59);
-            doc.setLineWidth(0.5);
-            doc.line(20, yPosition, 190, yPosition);
-            yPosition += 10;
-            
-            // عنوان القائمة
-            doc.setFontSize(14);
-            doc.setTextColor(209, 69, 59);
-            doc.text('Liste des Cheques en Retard:', 20, yPosition);
-            yPosition += 10;
-            
-            doc.setFontSize(9);
-            doc.setTextColor(100, 100, 100);
-            
-            // عرض البيانات مع إدارة الصفحات
-            // ترتيب من الأكثر تأخراً
-            riskChecks.sort((a, b) => {
-                const daysA = Math.floor((today - new Date(a.dueDate)) / (1000 * 60 * 60 * 24));
-                const daysB = Math.floor((today - new Date(b.dueDate)) / (1000 * 60 * 60 * 24));
-                return daysB - daysA;
-            });
-            
-            riskChecks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
-                if (yPosition > 270) {
-                    doc.addPage();
-                    pageNumber++;
-                    yPosition = 20;
-                    
-                    // عنوان الصفحة الجديدة
-                    doc.setFontSize(14);
-                    doc.setTextColor(209, 69, 59);
-                    doc.text(`Liste des Cheques en Retard - Suite (Page ${pageNumber}):`, 20, yPosition);
-                    yPosition += 10;
-                }
-                
-                // رؤوس الجدول للصفحة الأولى فقط
-                if (index === 0 || (index > 0 && yPosition === 20)) {
-                    doc.setFillColor(255, 245, 245);
-                    doc.rect(20, yPosition, 170, 8, 'F');
-                    doc.setFontSize(10);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text('No', 25, yPosition + 6);
-                    doc.text('Nom', 40, yPosition + 6);
-                    doc.text('Montant', 100, yPosition + 6);
-                    doc.text('Jours Retard', 130, yPosition + 6);
-                    doc.text('Date Échéance', 160, yPosition + 6);
-                    
-                    yPosition += 12;
-                }
-                
-                const dueDate = new Date(check.dueDate);
-                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                
-                doc.setTextColor(0, 0, 0);
-                doc.text(`${index + 1}.`, 25, yPosition);
-                
-                doc.setTextColor(60, 60, 60);
-                const checkName = convertToFrenchForExport(truncateText(check.name, 25));
-                doc.text(checkName, 40, yPosition);
-                
-                doc.setTextColor(30, 30, 30);
-                const formattedAmount = formatNumberForPDF(check.amount);
-                doc.text(formattedAmount, 100, yPosition);
-                
-                // تلوين أيام التأخير
-                if (daysOverdue > 30) {
-                    doc.setTextColor(209, 69, 59);
-                } else if (daysOverdue > 15) {
-                    doc.setTextColor(255, 184, 0);
-                } else {
-                    doc.setTextColor(100, 100, 100);
-                }
-                doc.text(`${daysOverdue} jours`, 130, yPosition);
-                
-                doc.setTextColor(80, 80, 80);
-                doc.text(formatDateFrench(check.dueDate), 160, yPosition);
-                
-                yPosition += 7;
-                
-                // تفاصيل إضافية
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
@@ -6565,8 +6939,7 @@
                 
                 yPosition += 5;
                 
-                // خط فاصل
-                if (index < riskChecks.length - 1) {
+                if (index < issuerChecks.length - 1) {
                     doc.setDrawColor(230, 230, 230);
                     doc.setLineWidth(0.2);
                     doc.line(40, yPosition, 190, yPosition);
@@ -6576,27 +6949,24 @@
                 doc.setFontSize(9);
             });
             
-            // تذييل الصفحات
             for (let i = 1; i <= pageNumber; i++) {
                 doc.setPage(i);
                 doc.setFontSize(7);
                 doc.setTextColor(180, 180, 180);
-                doc.text(`Rapport de Risque - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
+                doc.text(`Émetteur: ${issuerName} - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
             }
             
-            // حفظ الملف
-            const fileName = `Rapport_Risque_${new Date().toISOString().split('T')[0]}.pdf`;
+            const fileName = `Chèques_Emis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
-            showNotification('تم تحميل تقرير المخاطر بالفرنسية');
+            showNotification(`تم تحميل PDF للمعطي ${issuerName} بالفرنسية`);
             
         } catch (error) {
-            console.error('Error generating risk PDF:', error);
-            alert('حدث خطأ أثناء إنشاء تقرير المخاطر.');
+            console.error('Error generating PDF:', error);
+            alert('حدث خطأ أثناء إنشاء ملف PDF.');
         }
     }
 
-    // دوال تصدير Excel للمعطيين والمستلمين (بالفرنسية)
     function exportMuslimChecksExcel(muslimName) {
         const muslimChecks = checks.filter(check => check.recipient === muslimName);
         
@@ -6767,7 +7137,6 @@
         showNotification(`تم تصدير JSON للمعطي ${issuerName} بالفرنسية`);
     }
 
-    // مستمعي الأحداث
     function setupEventListeners() {
         document.getElementById('searchInput').addEventListener('input', updateAllChecks);
         
@@ -6816,7 +7185,6 @@
         
         window.addEventListener('appinstalled', () => {
             isInstalled = true;
-            console.log('تم تثبيت التطبيق');
             document.getElementById('installPrompt').classList.remove('show');
         });
         
@@ -6835,7 +7203,6 @@
         });
     }
 
-    // تسجيل Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             const swContent = `
@@ -6868,7 +7235,6 @@
         });
     }
 
-    // Manifest ديناميكي
     document.addEventListener('DOMContentLoaded', function() {
         const manifest = {
             "name": "CheckFlow Pro",
@@ -6876,8 +7242,8 @@
             "description": "إدارة الشيكات الاحترافية",
             "start_url": "/",
             "display": "standalone",
-            "background_color": "#337ea9",
-            "theme_color": "#337ea9",
+            "background_color": "#2c3e50",
+            "theme_color": "#2c3e50",
             "orientation": "portrait",
             "dir": "rtl",
             "lang": "ar",
