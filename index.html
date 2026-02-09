@@ -986,6 +986,16 @@
             margin-bottom: var(--spacing-lg);
         }
 
+        .login-error {
+            color: var(--danger-color);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-md);
+            padding: 8px;
+            background: rgba(209, 69, 59, 0.1);
+            border-radius: var(--radius-sm);
+            display: none;
+        }
+
         /* تقدم المزامنة */
         .sync-status {
             position: fixed;
@@ -1872,6 +1882,27 @@
                 color: black !important;
             }
         }
+
+        /* نافذة تغيير كلمة المرور */
+        .password-change-section {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .password-status {
+            font-size: var(--font-size-xs);
+            margin-top: 4px;
+        }
+
+        .password-status.valid {
+            color: var(--success-color);
+        }
+
+        .password-status.invalid {
+            color: var(--danger-color);
+        }
     </style>
 </head>
 <body>
@@ -2317,6 +2348,11 @@
             <div class="login-title">CheckFlow Pro</div>
             <div class="login-subtitle">تسجيل الدخول بحساب Firebase</div>
             
+            <div id="loginError" class="login-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorMessage">خطأ في تسجيل الدخول</span>
+            </div>
+            
             <div class="form-group">
                 <input type="email" class="form-input" id="loginEmail" placeholder="البريد الإلكتروني" value="">
             </div>
@@ -2502,6 +2538,31 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- قسم تغيير كلمة المرور -->
+                <div class="password-change-section">
+                    <div class="form-group">
+                        <label class="form-label">كلمة المرور الحالية</label>
+                        <input type="password" class="form-input" id="currentPassword" placeholder="أدخل كلمة المرور الحالية">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">كلمة المرور الجديدة</label>
+                        <input type="password" class="form-input" id="newPassword" placeholder="كلمة المرور الجديدة (6 أحرف على الأقل)">
+                        <div class="password-status" id="newPasswordStatus"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">تأكيد كلمة المرور الجديدة</label>
+                        <input type="password" class="form-input" id="confirmPassword" placeholder="أعد إدخال كلمة المرور الجديدة">
+                        <div class="password-status" id="confirmPasswordStatus"></div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="changePassword()">
+                        <i class="fas fa-key"></i>
+                        تغيير كلمة المرور
+                    </button>
+                </div>
+                
                 <div class="form-group">
                     <label class="form-label">المظهر</label>
                     <select class="form-input form-select" id="themeSelect">
@@ -2558,6 +2619,12 @@
                         <i class="fas fa-sign-out-alt"></i>
                         تسجيل الخروج
                     </button>
+                </div>
+
+                <!-- حقوق المطور -->
+                <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color); text-align: center; font-size: var(--font-size-xs); color: var(--text-tertiary);">
+                    <div>تطوير بواسطة <strong>abentaoufik</strong></div>
+                    <div>© 2026 جميع الحقوق محفوظة</div>
                 </div>
             </div>
         </div>
@@ -2947,6 +3014,7 @@
                             setupEventListeners();
                             setupNotifications();
                             checkPWAInstallation();
+                            setupPasswordValidation();
                         } else {
                             // لا يوجد مستخدم مسجل الدخول
                             document.getElementById('loginModal').style.display = 'flex';
@@ -2987,13 +3055,58 @@
         document.getElementById('pdfToDate').value = today.toISOString().split('T')[0];
     });
 
+    // إعداد التحقق من كلمة المرور
+    function setupPasswordValidation() {
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const newPasswordStatus = document.getElementById('newPasswordStatus');
+        const confirmPasswordStatus = document.getElementById('confirmPasswordStatus');
+        
+        newPassword.addEventListener('input', function() {
+            if (this.value.length < 6) {
+                newPasswordStatus.textContent = 'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
+                newPasswordStatus.className = 'password-status invalid';
+            } else {
+                newPasswordStatus.textContent = 'كلمة المرور صالحة';
+                newPasswordStatus.className = 'password-status valid';
+            }
+            
+            // التحقق من تطابق كلمتي المرور
+            if (confirmPassword.value) {
+                if (this.value !== confirmPassword.value) {
+                    confirmPasswordStatus.textContent = 'كلمتا المرور غير متطابقتين';
+                    confirmPasswordStatus.className = 'password-status invalid';
+                } else {
+                    confirmPasswordStatus.textContent = 'كلمتا المرور متطابقتين';
+                    confirmPasswordStatus.className = 'password-status valid';
+                }
+            }
+        });
+        
+        confirmPassword.addEventListener('input', function() {
+            if (newPassword.value !== this.value) {
+                confirmPasswordStatus.textContent = 'كلمتا المرور غير متطابقتين';
+                confirmPasswordStatus.className = 'password-status invalid';
+            } else {
+                confirmPasswordStatus.textContent = 'كلمتا المرور متطابقتين';
+                confirmPasswordStatus.className = 'password-status valid';
+            }
+        });
+    }
+
     // دوال تسجيل الدخول
     function loginWithEmail() {
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
+        const loginError = document.getElementById('loginError');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // إخفاء رسالة الخطأ
+        loginError.style.display = 'none';
         
         if (!email || !password) {
-            alert('الرجاء إدخال البريد الإلكتروني وكلمة المرور');
+            errorMessage.textContent = 'الرجاء إدخال البريد الإلكتروني وكلمة المرور';
+            loginError.style.display = 'flex';
             return;
         }
         
@@ -3017,21 +3130,89 @@
                 setupEventListeners();
                 setupNotifications();
                 checkPWAInstallation();
+                setupPasswordValidation();
                 
                 showNotification('تم تسجيل الدخول بنجاح');
             })
             .catch((error) => {
                 const errorCode = error.code;
-                const errorMessage = error.message;
+                const errorMessageText = error.message;
                 
+                let userMessage = '';
                 if (errorCode === 'auth/user-not-found') {
-                    alert('الحساب غير موجود. يجب أن يكون لديك حساب مسجل مسبقاً.');
+                    userMessage = 'الحساب غير موجود. يجب أن يكون لديك حساب مسجل مسبقاً في Firebase.';
                 } else if (errorCode === 'auth/wrong-password') {
-                    alert('كلمة المرور غير صحيحة.');
+                    userMessage = 'كلمة المرور غير صحيحة.';
                 } else if (errorCode === 'auth/invalid-email') {
-                    alert('البريد الإلكتروني غير صالح.');
+                    userMessage = 'البريد الإلكتروني غير صالح.';
+                } else if (errorCode === 'auth/too-many-requests') {
+                    userMessage = 'تم حظر الحساب مؤقتاً بسبب محاولات تسجيل دخول فاشلة متعددة.';
+                } else if (errorCode === 'auth/user-disabled') {
+                    userMessage = 'تم تعطيل هذا الحساب.';
                 } else {
-                    alert('خطأ في تسجيل الدخول: ' + errorMessage);
+                    userMessage = 'خطأ في تسجيل الدخول: ' + errorMessageText;
+                }
+                
+                errorMessage.textContent = userMessage;
+                loginError.style.display = 'flex';
+            });
+    }
+
+    // دالة تغيير كلمة المرور
+    function changePassword() {
+        const currentPassword = document.getElementById('currentPassword').value.trim();
+        const newPassword = document.getElementById('newPassword').value.trim();
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        
+        if (!currentPassword) {
+            alert('الرجاء إدخال كلمة المرور الحالية');
+            return;
+        }
+        
+        if (!newPassword || newPassword.length < 6) {
+            alert('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert('كلمتا المرور غير متطابقتين');
+            return;
+        }
+        
+        const user = auth.currentUser;
+        if (!user) {
+            alert('لم يتم العثور على مستخدم مسجل الدخول');
+            return;
+        }
+        
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+        
+        user.reauthenticateWithCredential(credential)
+            .then(() => {
+                return user.updatePassword(newPassword);
+            })
+            .then(() => {
+                alert('تم تغيير كلمة المرور بنجاح');
+                // مسح الحقول
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                // إعادة تعيين رسائل الحالة
+                document.getElementById('newPasswordStatus').textContent = '';
+                document.getElementById('confirmPasswordStatus').textContent = '';
+                
+                showNotification('تم تغيير كلمة المرور بنجاح');
+            })
+            .catch((error) => {
+                console.error('Error changing password:', error);
+                
+                if (error.code === 'auth/wrong-password') {
+                    alert('كلمة المرور الحالية غير صحيحة');
+                } else if (error.code === 'auth/weak-password') {
+                    alert('كلمة المرور ضعيفة. يجب أن تكون 6 أحرف على الأقل');
+                } else {
+                    alert('خطأ في تغيير كلمة المرور: ' + error.message);
                 }
             });
     }
@@ -4464,7 +4645,7 @@
 
     // دوال الإعدادات
     function showAbout() {
-        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n© 2024 جميع الحقوق محفوظة');
+        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n- تغيير كلمة المرور\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
     }
 
     // دوال التصدير (بالفرنسية فقط)
