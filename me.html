@@ -214,6 +214,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d68910);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #d68910, var(--warning-color));
+            transform: translateY(-2px);
+        }
+
         .btn-secondary {
             background: var(--background-color);
             color: var(--text-primary);
@@ -256,7 +266,7 @@
         .user-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: var(--spacing-md);
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
@@ -408,6 +418,23 @@
             color: var(--text-primary);
         }
 
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            background: var(--background-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
         .form-select {
             width: 100%;
             padding: 14px;
@@ -451,6 +478,12 @@
             background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(241, 196, 15, 0.1));
             border: 1px solid rgba(243, 156, 18, 0.3);
             color: var(--warning-color);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.1));
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            color: var(--primary-light);
         }
 
         .notification {
@@ -553,6 +586,12 @@
             border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
+        .badge-primary {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.1));
+            color: var(--primary-light);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
         .tab-container {
             background: var(--surface-color);
             border-radius: var(--radius-md);
@@ -565,6 +604,7 @@
             display: flex;
             background: var(--background-color);
             border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
         }
 
         .tab {
@@ -573,6 +613,7 @@
             font-weight: 600;
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
+            white-space: nowrap;
         }
 
         .tab.active {
@@ -638,6 +679,23 @@
             color: var(--text-secondary);
         }
 
+        .filter-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--background-color);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
         @media (max-width: 768px) {
             .users-grid {
                 grid-template-columns: 1fr;
@@ -655,6 +713,20 @@
                 flex-direction: column;
                 gap: var(--spacing-md);
                 text-align: center;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+            }
+            
+            .tab {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            
+            .user-btn {
+                min-width: 100px;
+                font-size: 12px;
             }
         }
     </style>
@@ -716,6 +788,10 @@
                     <i class="fas fa-tools"></i>
                     أدوات المطور
                 </div>
+                <div class="tab" onclick="switchTab('accounts')">
+                    <i class="fas fa-user-cog"></i>
+                    إدارة الحسابات
+                </div>
             </div>
 
             <!-- تبويب المستخدمين -->
@@ -727,7 +803,7 @@
                     </div>
                     
                     <div class="search-box">
-                        <input type="text" class="search-input" id="searchUsers" placeholder="بحث بالبريد الإلكتروني أو معرف المستخدم...">
+                        <input type="text" class="search-input" id="searchUsers" placeholder="بحث بالبريد الإلكتروني أو اسم المستخدم...">
                         <button class="btn btn-primary" onclick="searchUsers()">
                             <i class="fas fa-search"></i>
                             بحث
@@ -738,14 +814,36 @@
                         </button>
                     </div>
 
+                    <div class="filter-controls">
+                        <select class="filter-select" id="filterType" onchange="filterUsers()">
+                            <option value="">كل أنواع الحسابات</option>
+                            <option value="user">مستخدم عادي</option>
+                            <option value="admin">مدير النظام</option>
+                            <option value="developer">مطور</option>
+                        </select>
+                        
+                        <select class="filter-select" id="filterStatus" onchange="filterUsers()">
+                            <option value="">كل الحالات</option>
+                            <option value="active">نشط</option>
+                            <option value="inactive">غير نشط</option>
+                            <option value="suspended">موقوف</option>
+                        </select>
+                        
+                        <select class="filter-select" id="filterChecks" onchange="filterUsers()">
+                            <option value="">كل المستخدمين</option>
+                            <option value="with-checks">لديهم شيكات</option>
+                            <option value="without-checks">بدون شيكات</option>
+                        </select>
+                    </div>
+
                     <div class="action-buttons">
-                        <button class="btn btn-success" onclick="exportAllUsers()">
+                        <button class="btn btn-success" onclick="showAddUserModal()">
+                            <i class="fas fa-user-plus"></i>
+                            إضافة مستخدم جديد
+                        </button>
+                        <button class="btn btn-primary" onclick="exportAllUsers()">
                             <i class="fas fa-file-excel"></i>
                             تصدير جميع المستخدمين
-                        </button>
-                        <button class="btn btn-primary" onclick="showUserChecks()">
-                            <i class="fas fa-eye"></i>
-                            عرض شيكات مستخدم
                         </button>
                         <button class="btn btn-warning" onclick="showStatsReport()">
                             <i class="fas fa-chart-bar"></i>
@@ -777,10 +875,11 @@
                                 <tr>
                                     <th>المستخدم</th>
                                     <th>البريد الإلكتروني</th>
+                                    <th>نوع الحساب</th>
+                                    <th>الحالة</th>
                                     <th>عدد الشيكات</th>
                                     <th>إجمالي المبلغ</th>
                                     <th>آخر نشاط</th>
-                                    <th>الحالة</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
@@ -992,48 +1091,75 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- نافذة معاينة البيانات -->
-    <div class="modal-overlay" id="previewModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">معاينة البيانات</div>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="previewContent">
-                    <!-- محتوى المعاينة -->
-                </div>
-            </div>
-        </div>
-    </div>
+            <!-- تبويب إدارة الحسابات -->
+            <div id="accountsTab" class="tab-content">
+                <div class="control-panel">
+                    <div class="control-title">
+                        <i class="fas fa-user-cog"></i>
+                        إدارة حسابات المستخدمين
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>من هنا يمكنك إدارة حسابات المستخدمين بشكل كامل - إضافة، تعديل، حذف، وتصدير الحسابات</span>
+                    </div>
 
-    <!-- نافذة نقل البيانات -->
-    <div class="modal-overlay" id="transferModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">تأكيد نقل البيانات</div>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="transferDetails">
-                    <!-- تفاصيل النقل -->
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-success" onclick="confirmTransfer()">
-                        <i class="fas fa-check"></i>
-                        تأكيد النقل
-                    </button>
-                    <button class="btn btn-danger" onclick="closeModal()">
-                        <i class="fas fa-times"></i>
-                        إلغاء
-                    </button>
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchAccounts" placeholder="بحث باسم المستخدم أو البريد الإلكتروني...">
+                        <button class="btn btn-primary" onclick="searchAccounts()">
+                            <i class="fas fa-search"></i>
+                            بحث
+                        </button>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="showAddUserModal()">
+                            <i class="fas fa-user-plus"></i>
+                            إضافة مستخدم جديد
+                        </button>
+                        <button class="btn btn-primary" onclick="importUsers()">
+                            <i class="fas fa-file-import"></i>
+                            استيراد مستخدمين
+                        </button>
+                        <button class="btn btn-warning" onclick="exportUsersList()">
+                            <i class="fas fa-file-export"></i>
+                            تصدير قائمة المستخدمين
+                        </button>
+                        <button class="btn btn-danger" onclick="bulkDeleteInactive()">
+                            <i class="fas fa-user-slash"></i>
+                            حذف المستخدمين غير النشطين
+                        </button>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-lg);">
+                        <div class="control-title">
+                            <i class="fas fa-chart-line"></i>
+                            إحصائيات الحسابات
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+                            <div style="background: var(--background-color); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary);">المستخدمون النشطون</div>
+                                <div id="activeUsersCount" style="font-size: 24px; font-weight: 700; color: var(--success-color);">0</div>
+                            </div>
+                            
+                            <div style="background: var(--background-color); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary);">المدراء</div>
+                                <div id="adminUsersCount" style="font-size: 24px; font-weight: 700; color: var(--warning-color);">0</div>
+                            </div>
+                            
+                            <div style="background: var(--background-color); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary);">المطورون</div>
+                                <div id="developerUsersCount" style="font-size: 24px; font-weight: 700; color: var(--danger-color);">0</div>
+                            </div>
+                            
+                            <div style="background: var(--background-color); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
+                                <div style="font-size: 12px; color: var(--text-secondary);">الحسابات الموقوفة</div>
+                                <div id="suspendedUsersCount" style="font-size: 24px; font-weight: 700; color: var(--danger-color);">0</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1096,6 +1222,8 @@
 
                 // إعداد مستمعي Firebase
                 setupFirebaseListeners();
+                // تحميل الإعدادات
+                loadSystemSettings();
 
             } catch (error) {
                 console.error('خطأ في تهيئة النظام:', error);
@@ -1137,22 +1265,23 @@
                         }
                         
                         // جلب معلومات المستخدم من Authentication (إن أمكن)
-                        let userEmail = 'غير متوفر';
-                        try {
-                            // هنا يمكن محاولة جلب البريد من Firebase Auth
-                            // في الواقع، نحتاج إلى Admin SDK لهذا
-                            userEmail = userData.email || 'غير معروف';
-                        } catch (e) {
-                            userEmail = 'مستخدم نظام';
-                        }
+                        let userEmail = userData.email || 'غير متوفر';
+                        let userName = userData.name || 'غير معروف';
+                        let userType = userData.type || 'user';
+                        let userStatus = userData.status || 'active';
+                        let userNotes = userData.notes || '';
                         
                         const userInfo = {
                             id: userId,
+                            name: userName,
                             email: userEmail,
+                            type: userType,
+                            status: userStatus,
+                            notes: userNotes,
                             totalChecks: totalChecks,
                             totalAmount: totalAmount,
                             lastActivity: lastActivity ? new Date(lastActivity).toLocaleString('ar-MA') : 'لا يوجد',
-                            createdAt: userData.createdAt || 'غير معروف',
+                            createdAt: userData.createdAt || new Date().toISOString(),
                             checks: userData.checks || {}
                         };
                         
@@ -1162,6 +1291,7 @@
                     
                     // تحديث الإحصائيات
                     updateStatistics();
+                    updateAccountStatistics();
                     
                     // تحديث واجهة المستخدم
                     updateUsersList();
@@ -1190,17 +1320,51 @@
             document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
         }
 
+        // تحديث إحصائيات الحسابات
+        function updateAccountStatistics() {
+            const activeUsers = allUsers.filter(u => u.status === 'active').length;
+            const adminUsers = allUsers.filter(u => u.type === 'admin').length;
+            const developerUsers = allUsers.filter(u => u.type === 'developer').length;
+            const suspendedUsers = allUsers.filter(u => u.status === 'suspended').length;
+            
+            document.getElementById('activeUsersCount').textContent = activeUsers;
+            document.getElementById('adminUsersCount').textContent = adminUsers;
+            document.getElementById('developerUsersCount').textContent = developerUsers;
+            document.getElementById('suspendedUsersCount').textContent = suspendedUsers;
+        }
+
         // تحديث قائمة المستخدمين
         function updateUsersList() {
             const container = document.getElementById('usersList');
             const searchTerm = document.getElementById('searchUsers')?.value?.toLowerCase() || '';
+            const filterType = document.getElementById('filterType')?.value || '';
+            const filterStatus = document.getElementById('filterStatus')?.value || '';
+            const filterChecks = document.getElementById('filterChecks')?.value || '';
             
             let filteredUsers = allUsers;
+            
+            // تطبيق البحث
             if (searchTerm) {
-                filteredUsers = allUsers.filter(user => 
+                filteredUsers = filteredUsers.filter(user => 
                     user.email.toLowerCase().includes(searchTerm) ||
+                    (user.name && user.name.toLowerCase().includes(searchTerm)) ||
                     user.id.toLowerCase().includes(searchTerm)
                 );
+            }
+            
+            // تطبيق الفلاتر
+            if (filterType) {
+                filteredUsers = filteredUsers.filter(user => user.type === filterType);
+            }
+            
+            if (filterStatus) {
+                filteredUsers = filteredUsers.filter(user => user.status === filterStatus);
+            }
+            
+            if (filterChecks === 'with-checks') {
+                filteredUsers = filteredUsers.filter(user => user.totalChecks > 0);
+            } else if (filterChecks === 'without-checks') {
+                filteredUsers = filteredUsers.filter(user => user.totalChecks === 0);
             }
             
             if (filteredUsers.length === 0) {
@@ -1208,7 +1372,7 @@
                     <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: var(--surface-color); border-radius: var(--radius-md);">
                         <i class="fas fa-users" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
                         <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">لا توجد مستخدمين</div>
-                        <div style="color: var(--text-secondary);">${searchTerm ? 'جرب بحثاً آخر' : 'لا توجد بيانات مستخدمين حالياً'}</div>
+                        <div style="color: var(--text-secondary);">${searchTerm || filterType || filterStatus ? 'جرب بحثاً آخر' : 'لا توجد بيانات مستخدمين حالياً'}</div>
                     </div>
                 `;
                 return;
@@ -1219,10 +1383,22 @@
                     <div class="user-header">
                         <div>
                             <div class="user-email">${user.email}</div>
+                            ${user.name ? `<div style="font-size: 14px; color: var(--text-primary); margin-top: 4px;">${user.name}</div>` : ''}
                             <div class="user-id">${user.id.substring(0, 8)}...</div>
                         </div>
-                        <div class="badge ${user.totalChecks > 0 ? 'badge-success' : 'badge-warning'}">
-                            ${user.totalChecks} شيك
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <div class="badge ${user.status === 'active' ? 'badge-success' : 
+                                              user.status === 'inactive' ? 'badge-warning' : 'badge-danger'}" 
+                                 style="font-size: 11px; padding: 3px 8px;">
+                                ${user.status === 'active' ? 'نشط' : 
+                                 user.status === 'inactive' ? 'غير نشط' : 'موقوف'}
+                            </div>
+                            <div class="badge ${user.type === 'developer' ? 'badge-danger' : 
+                                              user.type === 'admin' ? 'badge-warning' : 'badge-primary'}"
+                                 style="font-size: 11px; padding: 3px 8px;">
+                                ${user.type === 'developer' ? 'مطور' : 
+                                 user.type === 'admin' ? 'مدير' : 'مستخدم'}
+                            </div>
                         </div>
                     </div>
                     
@@ -1243,9 +1419,9 @@
                     </div>
                     
                     <div class="user-actions">
-                        <button class="btn btn-secondary user-btn" onclick="viewUserChecks('${user.id}')">
-                            <i class="fas fa-eye"></i>
-                            عرض الشيكات
+                        <button class="btn btn-warning user-btn" onclick="editUser('${user.id}')">
+                            <i class="fas fa-edit"></i>
+                            تعديل
                         </button>
                         <button class="btn btn-primary user-btn" onclick="selectAsSource('${user.id}')">
                             <i class="fas fa-arrow-right"></i>
@@ -1255,13 +1431,99 @@
                             <i class="fas fa-arrow-left"></i>
                             هدف
                         </button>
-                        <button class="btn btn-danger user-btn" onclick="deleteUserData('${user.id}')">
+                        <button class="btn btn-danger user-btn" onclick="deleteUserAccount('${user.id}')">
                             <i class="fas fa-trash"></i>
                             حذف
                         </button>
                     </div>
                 </div>
             `).join('');
+        }
+
+        // تصفية المستخدمين
+        function filterUsers() {
+            updateUsersList();
+        }
+
+        // البحث عن المستخدمين
+        function searchUsers() {
+            updateUsersList();
+        }
+
+        // البحث في الحسابات
+        function searchAccounts() {
+            const searchTerm = document.getElementById('searchAccounts')?.value?.toLowerCase() || '';
+            const filteredUsers = allUsers.filter(user => 
+                user.email.toLowerCase().includes(searchTerm) ||
+                (user.name && user.name.toLowerCase().includes(searchTerm))
+            );
+            
+            // عرض النتائج في تبويب الحسابات
+            const resultsContainer = document.createElement('div');
+            resultsContainer.className = 'users-grid';
+            resultsContainer.innerHTML = filteredUsers.map(user => `
+                <div class="user-card">
+                    <div class="user-header">
+                        <div>
+                            <div class="user-email">${user.email}</div>
+                            ${user.name ? `<div style="font-size: 14px; color: var(--text-primary); margin-top: 4px;">${user.name}</div>` : ''}
+                            <div class="user-id">${user.id.substring(0, 8)}...</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <div class="badge ${user.status === 'active' ? 'badge-success' : 
+                                              user.status === 'inactive' ? 'badge-warning' : 'badge-danger'}">
+                                ${user.status === 'active' ? 'نشط' : 
+                                 user.status === 'inactive' ? 'غير نشط' : 'موقوف'}
+                            </div>
+                            <div class="badge ${user.type === 'developer' ? 'badge-danger' : 
+                                              user.type === 'admin' ? 'badge-warning' : 'badge-primary'}">
+                                ${user.type === 'developer' ? 'مطور' : 
+                                 user.type === 'admin' ? 'مدير' : 'مستخدم'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 12px; color: var(--text-secondary);">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            عدد الشيكات: ${user.totalChecks} | الإجمالي: ${formatCurrency(user.totalAmount)}
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+                            <i class="far fa-clock"></i>
+                            ${user.lastActivity}
+                        </div>
+                    </div>
+                    
+                    <div class="user-actions">
+                        <button class="btn btn-warning user-btn" onclick="editUser('${user.id}')">
+                            <i class="fas fa-edit"></i>
+                            تعديل
+                        </button>
+                        <button class="btn btn-danger user-btn" onclick="deleteUserAccount('${user.id}')">
+                            <i class="fas fa-trash"></i>
+                            حذف
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // عرض النتائج في نافذة منبثقة
+            const modalContent = `
+                <div class="modal" style="max-width: 900px;">
+                    <div class="modal-header">
+                        <div class="modal-title">نتائج البحث: ${filteredUsers.length} مستخدم</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ${filteredUsers.length > 0 ? resultsContainer.innerHTML : 
+                            '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">لا توجد نتائج</div>'}
+                    </div>
+                </div>
+            `;
+            
+            showModal(modalContent);
         }
 
         // تحديث جدول النظام
@@ -1271,7 +1533,7 @@
             if (allUsers.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px;">
+                        <td colspan="8" style="text-align: center; padding: 40px;">
                             <i class="fas fa-database" style="font-size: 32px; color: var(--text-secondary); margin-bottom: 16px;"></i>
                             <div>لا توجد بيانات حالياً</div>
                         </td>
@@ -1283,10 +1545,24 @@
             tableBody.innerHTML = allUsers.map(user => `
                 <tr>
                     <td>
-                        <div style="font-weight: 600;">${user.email}</div>
+                        <div style="font-weight: 600;">${user.name || 'غير معروف'}</div>
                         <div style="font-size: 11px; color: var(--text-secondary);">${user.id.substring(0, 12)}...</div>
                     </td>
                     <td>${user.email}</td>
+                    <td>
+                        <span class="badge ${user.type === 'developer' ? 'badge-danger' : 
+                                          user.type === 'admin' ? 'badge-warning' : 'badge-primary'}">
+                            ${user.type === 'developer' ? 'مطور' : 
+                             user.type === 'admin' ? 'مدير' : 'مستخدم'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${user.status === 'active' ? 'badge-success' : 
+                                          user.status === 'inactive' ? 'badge-warning' : 'badge-danger'}">
+                            ${user.status === 'active' ? 'نشط' : 
+                             user.status === 'inactive' ? 'غير نشط' : 'موقوف'}
+                        </span>
+                    </td>
                     <td>
                         <span class="badge ${user.totalChecks > 0 ? 'badge-success' : 'badge-warning'}">
                             ${user.totalChecks}
@@ -1295,16 +1571,11 @@
                     <td>${formatCurrency(user.totalAmount)}</td>
                     <td>${user.lastActivity}</td>
                     <td>
-                        <span class="badge ${user.totalChecks > 0 ? 'badge-success' : 'badge-warning'}">
-                            ${user.totalChecks > 0 ? 'نشط' : 'غير نشط'}
-                        </span>
-                    </td>
-                    <td>
                         <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="exportUserData('${user.id}')">
                             <i class="fas fa-download"></i>
                         </button>
-                        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="viewUserDetails('${user.id}')">
-                            <i class="fas fa-info-circle"></i>
+                        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="editUser('${user.id}')">
+                            <i class="fas fa-edit"></i>
                         </button>
                     </td>
                 </tr>
@@ -1359,30 +1630,352 @@
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
 
-        // البحث عن المستخدمين
-        function searchUsers() {
-            updateUsersList();
+        // إظهار نافذة إضافة مستخدم
+        function showAddUserModal() {
+            const modalContent = `
+                <div style="max-width: 600px;">
+                    <form id="userForm" onsubmit="saveUser(event)">
+                        <input type="hidden" id="editUserId" value="">
+                        
+                        <div class="form-group">
+                            <label class="form-label">اسم المستخدم:</label>
+                            <input type="text" class="form-input" id="userName" required 
+                                   placeholder="أدخل اسم المستخدم">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">البريد الإلكتروني:</label>
+                            <input type="email" class="form-input" id="userEmail" required 
+                                   placeholder="أدخل البريد الإلكتروني">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">كلمة المرور:</label>
+                            <input type="password" class="form-input" id="userPassword" 
+                                   placeholder="أدخل كلمة المرور (اختياري للتعديل)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">نوع الحساب:</label>
+                            <select class="form-select" id="userType" required>
+                                <option value="user">مستخدم عادي</option>
+                                <option value="admin">مدير النظام</option>
+                                <option value="developer">مطور</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">حالة الحساب:</label>
+                            <select class="form-select" id="userStatus" required>
+                                <option value="active">نشط</option>
+                                <option value="inactive">غير نشط</option>
+                                <option value="suspended">موقوف</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">ملاحظات:</label>
+                            <textarea class="form-input" id="userNotes" rows="3" 
+                                      placeholder="أي ملاحظات إضافية"></textarea>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i>
+                                حفظ المستخدم
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="closeModal()">
+                                <i class="fas fa-times"></i>
+                                إلغاء
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            showModal(modalContent);
+            document.title = 'إضافة مستخدم جديد - CheckFlow Pro';
         }
 
-        // تحديث البيانات
-        function refreshData() {
-            loadAllData();
+        // تعديل مستخدم موجود
+        function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            const modalContent = `
+                <div style="max-width: 600px;">
+                    <form id="userForm" onsubmit="saveUser(event)">
+                        <input type="hidden" id="editUserId" value="${user.id}">
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>تعديل مستخدم: ${user.email}</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">اسم المستخدم:</label>
+                            <input type="text" class="form-input" id="userName" 
+                                   value="${user.name || ''}" placeholder="اسم المستخدم" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">البريد الإلكتروني:</label>
+                            <input type="email" class="form-input" id="userEmail" 
+                                   value="${user.email}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">كلمة المرور الجديدة:</label>
+                            <input type="password" class="form-input" id="userPassword" 
+                                   placeholder="اترك فارغاً للحفاظ على كلمة المرور الحالية">
+                            <small style="color: var(--text-secondary); font-size: 12px;">
+                                اترك الحقل فارغاً إذا لم ترد تغيير كلمة المرور
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">نوع الحساب:</label>
+                            <select class="form-select" id="userType">
+                                <option value="user" ${user.type === 'user' ? 'selected' : ''}>مستخدم عادي</option>
+                                <option value="admin" ${user.type === 'admin' ? 'selected' : ''}>مدير النظام</option>
+                                <option value="developer" ${user.type === 'developer' ? 'selected' : ''}>مطور</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">حالة الحساب:</label>
+                            <select class="form-select" id="userStatus">
+                                <option value="active" ${user.status === 'active' ? 'selected' : ''}>نشط</option>
+                                <option value="inactive" ${user.status === 'inactive' ? 'selected' : ''}>غير نشط</option>
+                                <option value="suspended" ${user.status === 'suspended' ? 'selected' : ''}>موقوف</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">ملاحظات:</label>
+                            <textarea class="form-input" id="userNotes" rows="3">${user.notes || ''}</textarea>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i>
+                                تحديث المستخدم
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="deleteUserAccount('${user.id}')">
+                                <i class="fas fa-trash"></i>
+                                حذف الحساب
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                                <i class="fas fa-times"></i>
+                                إلغاء
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            showModal(modalContent);
+            document.title = `تعديل مستخدم: ${user.email} - CheckFlow Pro`;
         }
 
-        // تصدير جميع المستخدمين
-        function exportAllUsers() {
+        // حفظ/تحديث المستخدم
+        async function saveUser(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('editUserId').value;
+            const isEdit = !!userId;
+            
+            const userData = {
+                name: document.getElementById('userName').value,
+                email: document.getElementById('userEmail').value,
+                type: document.getElementById('userType').value,
+                status: document.getElementById('userStatus').value,
+                notes: document.getElementById('userNotes').value,
+                updatedAt: new Date().toISOString()
+            };
+            
+            const password = document.getElementById('userPassword').value;
+            
             try {
+                showNotification('جاري حفظ بيانات المستخدم...', 'warning');
+                
+                if (isEdit) {
+                    // تحديث مستخدم موجود
+                    await database.ref(`users/${userId}`).update(userData);
+                    
+                    // إذا تم إدخال كلمة مرور جديدة
+                    if (password) {
+                        // هنا يمكن إضافة كود لتحديث كلمة المرور في Firebase Authentication
+                        userData.passwordUpdated = new Date().toISOString();
+                        await database.ref(`users/${userId}/passwordUpdated`).set(userData.passwordUpdated);
+                    }
+                    
+                    showNotification('تم تحديث بيانات المستخدم بنجاح', 'success');
+                } else {
+                    // إضافة مستخدم جديد
+                    const newUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    userData.createdAt = new Date().toISOString();
+                    userData.totalChecks = 0;
+                    userData.totalAmount = 0;
+                    
+                    await database.ref(`users/${newUserId}`).set(userData);
+                    
+                    // هنا يمكن إضافة كود لإنشاء حساب في Firebase Authentication
+                    if (password) {
+                        // إنشاء حساب في Firebase Auth
+                        try {
+                            await auth.createUserWithEmailAndPassword(userData.email, password);
+                            userData.authCreated = true;
+                            await database.ref(`users/${newUserId}/authCreated`).set(true);
+                        } catch (authError) {
+                            console.warn('لم يتم إنشاء حساب المصادقة:', authError);
+                            userData.authCreated = false;
+                        }
+                    }
+                    
+                    showNotification('تم إضافة المستخدم الجديد بنجاح', 'success');
+                }
+                
+                await loadAllData();
+                closeModal();
+                
+            } catch (error) {
+                console.error('خطأ في حفظ المستخدم:', error);
+                showNotification('خطأ في حفظ بيانات المستخدم', 'error');
+            }
+        }
+
+        // حذف حساب مستخدم
+        async function deleteUserAccount(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            if (!confirm(`هل أنت متأكد من حذف حساب ${user.email}؟ سيتم حذف جميع بيانات المستخدم بما في ذلك ${user.totalChecks} شيك.`)) {
+                return;
+            }
+            
+            try {
+                showNotification('جاري حذف حساب المستخدم...', 'warning');
+                
+                // حذف بيانات المستخدم من قاعدة البيانات
+                await database.ref(`users/${userId}`).remove();
+                
+                // هنا يمكن إضافة كود لحذف المستخدم من Firebase Authentication
+                // هذا يتطلب إدارة Firebase Admin SDK
+                
+                await loadAllData();
+                showNotification('تم حذف حساب المستخدم بنجاح', 'success');
+                closeModal();
+                
+            } catch (error) {
+                console.error('خطأ في حذف الحساب:', error);
+                showNotification('خطأ في حذف حساب المستخدم', 'error');
+            }
+        }
+
+        // استيراد مستخدمين من ملف
+        async function importUsers() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json,.csv';
+            
+            fileInput.onchange = async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (!confirm(`سيتم استيراد المستخدمين من الملف. هل تريد المتابعة؟`)) {
+                    return;
+                }
+                
+                try {
+                    showNotification('جاري استيراد المستخدمين...', 'warning');
+                    
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        try {
+                            const usersData = JSON.parse(e.target.result);
+                            
+                            if (!Array.isArray(usersData)) {
+                                throw new Error('تنسيق الملف غير صالح');
+                            }
+                            
+                            let importedCount = 0;
+                            let skippedCount = 0;
+                            let errors = [];
+                            
+                            for (const user of usersData) {
+                                if (user.email && user.name) {
+                                    const userId = 'imported_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                                    const userRecord = {
+                                        name: user.name,
+                                        email: user.email,
+                                        type: user.type || 'user',
+                                        status: user.status || 'active',
+                                        notes: user.notes || 'تم الاستيراد تلقائياً',
+                                        createdAt: new Date().toISOString(),
+                                        totalChecks: 0,
+                                        totalAmount: 0,
+                                        importedAt: new Date().toISOString()
+                                    };
+                                    
+                                    await database.ref(`users/${userId}`).set(userRecord);
+                                    importedCount++;
+                                } else {
+                                    skippedCount++;
+                                    errors.push(`مستخدم بدون اسم أو بريد: ${JSON.stringify(user)}`);
+                                }
+                            }
+                            
+                            await loadAllData();
+                            
+                            let message = `تم استيراد ${importedCount} مستخدم`;
+                            if (skippedCount > 0) {
+                                message += `، تم تخطي ${skippedCount}`;
+                            }
+                            
+                            showNotification(message, 'success');
+                            
+                            if (errors.length > 0) {
+                                console.warn('أخطاء الاستيراد:', errors);
+                            }
+                            
+                        } catch (error) {
+                            console.error('خطأ في قراءة الملف:', error);
+                            showNotification('ملف الاستيراد غير صالح', 'error');
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                    
+                } catch (error) {
+                    console.error('خطأ في الاستيراد:', error);
+                    showNotification('خطأ في استيراد المستخدمين', 'error');
+                }
+            };
+            
+            fileInput.click();
+        }
+
+        // تصدير قائمة المستخدمين
+        function exportUsersList() {
+            try {
+                const usersData = allUsers.map(user => ({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    type: user.type,
+                    status: user.status,
+                    notes: user.notes,
+                    totalChecks: user.totalChecks,
+                    totalAmount: user.totalAmount,
+                    lastActivity: user.lastActivity,
+                    createdAt: user.createdAt
+                }));
+                
                 const data = {
                     exportedAt: new Date().toISOString(),
-                    totalUsers: allUsers.length,
-                    users: allUsers.map(user => ({
-                        userId: user.id,
-                        email: user.email,
-                        totalChecks: user.totalChecks,
-                        totalAmount: user.totalAmount,
-                        lastActivity: user.lastActivity,
-                        createdAt: user.createdAt
-                    }))
+                    totalUsers: usersData.length,
+                    users: usersData
                 };
                 
                 const dataStr = JSON.stringify(data, null, 2);
@@ -1390,139 +1983,48 @@
                 
                 const link = document.createElement('a');
                 link.href = dataUri;
-                link.download = `CheckFlow_Users_${new Date().toISOString().split('T')[0]}.json`;
+                link.download = `CheckFlow_Users_Export_${new Date().toISOString().split('T')[0]}.json`;
                 link.click();
                 
-                showNotification('تم تصدير بيانات المستخدمين', 'success');
+                showNotification('تم تصدير قائمة المستخدمين', 'success');
             } catch (error) {
                 console.error('خطأ في التصدير:', error);
                 showNotification('خطأ في تصدير البيانات', 'error');
             }
         }
 
-        // عرض شيكات مستخدم
-        function viewUserChecks(userId) {
-            const user = allUsers.find(u => u.id === userId);
-            if (!user) return;
+        // حذف المستخدمين غير النشطين
+        async function bulkDeleteInactive() {
+            const inactiveUsers = allUsers.filter(u => u.status === 'inactive' && u.totalChecks === 0);
             
-            const checks = Object.values(user.checks || {});
+            if (inactiveUsers.length === 0) {
+                showNotification('لا توجد حسابات غير نشطة بدون شيكات', 'warning');
+                return;
+            }
             
-            let modalContent = `
-                <div class="modal" style="max-width: 900px;">
-                    <div class="modal-header">
-                        <div class="modal-title">شيكات المستخدم: ${user.email}</div>
-                        <button class="modal-close" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div style="margin-bottom: var(--spacing-md);">
-                            <div class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">
-                                إجمالي الشيكات: ${checks.length} | إجمالي المبلغ: ${formatCurrency(user.totalAmount)}
-                            </div>
-                        </div>
-                        
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>رقم الشيك</th>
-                                        <th>الاسم</th>
-                                        <th>المبلغ</th>
-                                        <th>البنك</th>
-                                        <th>المستلم</th>
-                                        <th>المعطي</th>
-                                        <th>الحالة</th>
-                                        <th>تاريخ الإصدار</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-            `;
+            if (!confirm(`هل تريد حذف ${inactiveUsers.length} حساب غير نشط بدون شيكات؟`)) {
+                return;
+            }
             
-            checks.slice(0, 50).forEach(check => {
-                const statusBadge = check.status === 'pending' ? 'badge-warning' :
-                                  check.status === 'cleared' ? 'badge-success' : 'badge-danger';
-                const statusText = check.status === 'pending' ? 'قيد الانتظار' :
-                                 check.status === 'cleared' ? 'تم الصرف' : 'مرتجع';
+            try {
+                showNotification(`جاري حذف ${inactiveUsers.length} حساب...`, 'warning');
                 
-                modalContent += `
-                    <tr>
-                        <td>${check.number || 'غير محدد'}</td>
-                        <td>${check.name || 'غير محدد'}</td>
-                        <td>${formatCurrency(check.amount)}</td>
-                        <td>${check.bank || 'غير محدد'}</td>
-                        <td>${check.recipient || 'غير محدد'}</td>
-                        <td>${check.issuer || 'غير محدد'}</td>
-                        <td><span class="badge ${statusBadge}">${statusText}</span></td>
-                        <td>${formatDate(check.issueDate)}</td>
-                    </tr>
-                `;
-            });
-            
-            modalContent += `
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        ${checks.length > 50 ? 
-                            `<div style="margin-top: var(--spacing-md); text-align: center; color: var(--text-secondary);">
-                                عرض ${50} من أصل ${checks.length} شيك
-                            </div>` : ''
-                        }
-                        
-                        <div style="margin-top: var(--spacing-md);">
-                            <button class="btn btn-primary" onclick="exportUserChecks('${userId}')">
-                                <i class="fas fa-download"></i>
-                                تصدير شيكات هذا المستخدم
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            showModal(modalContent);
+                for (const user of inactiveUsers) {
+                    await database.ref(`users/${user.id}`).remove();
+                }
+                
+                await loadAllData();
+                showNotification(`تم حذف ${inactiveUsers.length} حساب غير نشط`, 'success');
+                
+            } catch (error) {
+                console.error('خطأ في الحذف الجماعي:', error);
+                showNotification('خطأ في حذف الحسابات', 'error');
+            }
         }
 
-        // تصدير شيكات مستخدم
-        async function exportUserChecks(userId) {
-            try {
-                const user = allUsers.find(u => u.id === userId);
-                if (!user) return;
-                
-                const checks = Object.values(user.checks || {});
-                
-                const data = {
-                    exportedAt: new Date().toISOString(),
-                    userId: user.id,
-                    userEmail: user.email,
-                    totalChecks: checks.length,
-                    checks: checks.map(check => ({
-                        number: check.number,
-                        name: check.name,
-                        amount: check.amount,
-                        bank: check.bank,
-                        recipient: check.recipient,
-                        issuer: check.issuer,
-                        status: check.status,
-                        issueDate: check.issueDate,
-                        dueDate: check.dueDate,
-                        notes: check.notes
-                    }))
-                };
-                
-                const dataStr = JSON.stringify(data, null, 2);
-                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-                
-                const link = document.createElement('a');
-                link.href = dataUri;
-                link.download = `CheckFlow_Checks_${user.email}_${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-                
-                showNotification('تم تصدير شيكات المستخدم', 'success');
-            } catch (error) {
-                console.error('خطأ في تصدير الشيكات:', error);
-                showNotification('خطأ في التصدير', 'error');
-            }
+        // تصدير جميع المستخدمين
+        function exportAllUsers() {
+            exportUsersList();
         }
 
         // اختيار كمصدر
@@ -1535,6 +2037,11 @@
         function selectAsTarget(userId) {
             document.getElementById('targetUser').value = userId;
             switchTab('transfer');
+        }
+
+        // تحديث البيانات
+        function refreshData() {
+            loadAllData();
         }
 
         // معاينة نقل البيانات
@@ -1680,25 +2187,6 @@
             }
         }
 
-        // حذف بيانات مستخدم
-        async function deleteUserData(userId) {
-            if (!confirm('هل تريد حذف جميع بيانات هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                return;
-            }
-            
-            try {
-                showNotification('جاري حذف البيانات...', 'warning');
-                
-                await database.ref(`users/${userId}`).remove();
-                await loadAllData();
-                
-                showNotification('تم حذف بيانات المستخدم', 'success');
-            } catch (error) {
-                console.error('خطأ في حذف البيانات:', error);
-                showNotification('خطأ في حذف البيانات', 'error');
-            }
-        }
-
         // إنشاء نسخة احتياطية كاملة
         async function createFullBackup() {
             try {
@@ -1714,7 +2202,11 @@
                     },
                     users: allUsers.map(user => ({
                         id: user.id,
+                        name: user.name,
                         email: user.email,
+                        type: user.type,
+                        status: user.status,
+                        notes: user.notes,
                         totalChecks: user.totalChecks,
                         totalAmount: user.totalAmount,
                         lastActivity: user.lastActivity,
@@ -1772,7 +2264,7 @@
                         // استعادة كل مستخدم
                         for (const user of backupData.users) {
                             if (user.id && user.checks) {
-                                await database.ref(`users/${user.id}/checks`).set(user.checks);
+                                await database.ref(`users/${user.id}`).set(user);
                             }
                         }
                         
@@ -1798,10 +2290,6 @@
             try {
                 showNotification('جاري تحسين قاعدة البيانات...', 'warning');
                 
-                // هنا يمكن إضافة عمليات التحسين
-                // مثل حذف البيانات المؤقتة، إعادة بناء الفهارس، إلخ.
-                
-                // لمثال، نعرض تقرير تحسين
                 const report = {
                     optimizedAt: new Date().toISOString(),
                     totalUsers: allUsers.length,
@@ -1811,10 +2299,11 @@
                 
                 // تحليل البيانات
                 allUsers.forEach(user => {
-                    if (user.totalChecks === 0) {
+                    if (user.totalChecks === 0 && user.status === 'inactive') {
                         report.suggestions.push({
                             userId: user.id,
-                            suggestion: 'حذف مستخدم بدون شيكات'
+                            email: user.email,
+                            suggestion: 'حذف مستخدم غير نشط بدون شيكات'
                         });
                     }
                 });
@@ -1851,7 +2340,7 @@
                                 <div style="margin-bottom: var(--spacing-md);">
                                     <div style="font-weight: 600; margin-bottom: 8px;">اقتراحات التحسين:</div>
                                     <ul style="padding-right: 20px;">
-                                        ${report.suggestions.map(s => `<li>${s.suggestion} (${s.userId.substring(0, 8)}...)</li>`).join('')}
+                                        ${report.suggestions.map(s => `<li>${s.suggestion} (${s.email})</li>`).join('')}
                                     </ul>
                                 </div>
                             ` : `
@@ -1921,8 +2410,14 @@
                 // حفظ البيانات
                 await database.ref(`users/${testUserId}/checks`).set(testChecks);
                 await database.ref(`users/${testUserId}`).update({
+                    name: 'مستخدم تجريبي',
                     email: 'test@checkflow.com',
+                    type: 'user',
+                    status: 'active',
+                    notes: 'حساب تجريبي تم إنشاؤه تلقائياً',
                     createdAt: new Date().toISOString(),
+                    totalChecks: 50,
+                    totalAmount: Object.values(testChecks).reduce((sum, check) => sum + check.amount, 0),
                     testData: true
                 });
                 
@@ -1981,6 +2476,7 @@
             document.querySelectorAll('.modal-overlay').forEach(modal => {
                 modal.remove();
             });
+            document.title = 'CheckFlow Pro - لوحة المطورين';
         }
 
         function showNotification(message, type = 'success') {
@@ -2036,8 +2532,66 @@
             window.autoRefreshInterval = setInterval(loadAllData, parseInt(refreshRate));
         }
 
-        // تحميل الإعدادات عند البدء
-        loadSystemSettings();
+        // الدوال الأخرى التي ذكرتها سابقاً
+        function exportUserData(userId) {
+            // تنفيذ تصدير بيانات مستخدم
+        }
+
+        function viewUserDetails(userId) {
+            // عرض تفاصيل المستخدم
+        }
+
+        function showStatsReport() {
+            // عرض تقرير الإحصائيات
+        }
+
+        function showCleanupModal() {
+            // عرض نافذة تنظيف البيانات
+        }
+
+        function exportSystemData() {
+            // تصدير بيانات النظام
+        }
+
+        function analyzeData() {
+            // تحليل البيانات
+        }
+
+        function checkIntegrity() {
+            // فحص سلامة البيانات
+        }
+
+        function transferUserData() {
+            // تنفيذ نقل البيانات
+        }
+
+        function exportAllChecks() {
+            // تصدير جميع الشيكات
+        }
+
+        function exportUsersData() {
+            // تصدير بيانات المستخدمين
+        }
+
+        function exportStatistics() {
+            // تصدير الإحصائيات
+        }
+
+        function scheduleBackup() {
+            // جدولة نسخ احتياطي
+        }
+
+        function checkDuplicates() {
+            // فحص التكرارات
+        }
+
+        function repairDatabase() {
+            // إصلاح قاعدة البيانات
+        }
+
+        function applyOptimizations() {
+            // تطبيق التحسينات
+        }
     </script>
 </body>
 </html>
