@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckFlow Pro - لوحة المطورين</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --primary-dark: #1a252f;
+            --primary-light: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #dfe6e9;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --radius-md: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--background-color);
+            color: var(--text-primary);
+            direction: rtl;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            color: var(--warning-color);
+        }
+
+        .developer-info {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.users {
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .stat-card.checks {
+            border-top: 4px solid var(--success-color);
+        }
+
+        .stat-card.amount {
+            border-top: 4px solid var(--warning-color);
+        }
+
+        .stat-card.sync {
+            border-top: 4px solid var(--danger-color);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .control-panel {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .control-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-color);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            background: var(--background-color);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c0392b, var(--danger-color));
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #27ae60, var(--success-color));
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--background-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-color);
+            border-color: var(--primary-color);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .user-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--background-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: monospace;
+        }
+
+        .user-email {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .user-stat-item {
+            text-align: center;
+            padding: 12px;
+            background: var(--background-color);
+            border-radius: var(--radius-md);
+        }
+
+        .user-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .user-stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .user-btn {
+            flex: 1;
+            padding: 10px 16px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: var(--spacing-md);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            background: var(--background-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: var(--danger-color);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+            border: 1px solid rgba(39, 174, 96, 0.3);
+            color: var(--success-color);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(241, 196, 15, 0.1));
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            color: var(--warning-color);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            color: white;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification.show {
+            display: flex;
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, var(--warning-color), #f1c40f);
+        }
+
+        .table-container {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 16px;
+            text-align: right;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 14px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .data-table tr:hover {
+            background: var(--background-color);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+            color: var(--success-color);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(241, 196, 15, 0.1));
+            color: var(--warning-color);
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+            color: var(--danger-color);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .tab-container {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--background-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 16px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background: var(--surface-color);
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            padding: var(--spacing-lg);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .export-option {
+            background: var(--background-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .export-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .export-option i {
+            font-size: 32px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .export-option-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .export-option-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: var(--spacing-md);
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- رأس الصفحة -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-code"></i>
+                CheckFlow Pro - لوحة المطورين
+            </h1>
+            <div class="developer-info">
+                <i class="fas fa-user-shield"></i>
+                تم الدخول كـ: مطور النظام | آخر تحديث: <span id="lastUpdate">جاري التحميل...</span>
+            </div>
+        </div>
+
+        <!-- بطاقات الإحصائيات -->
+        <div class="stats-cards">
+            <div class="stat-card users">
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">إجمالي المستخدمين</div>
+            </div>
+            <div class="stat-card checks">
+                <div class="stat-value" id="totalChecks">0</div>
+                <div class="stat-label">إجمالي الشيكات</div>
+            </div>
+            <div class="stat-card amount">
+                <div class="stat-value" id="totalAmount">0 د.م</div>
+                <div class="stat-label">إجمالي المبالغ</div>
+            </div>
+            <div class="stat-card sync">
+                <div class="stat-value" id="syncStatus">✓</div>
+                <div class="stat-label">حالة المزامنة</div>
+            </div>
+        </div>
+
+        <!-- علامات التبويب -->
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('users')">
+                    <i class="fas fa-users"></i>
+                    جميع المستخدمين
+                </div>
+                <div class="tab" onclick="switchTab('data')">
+                    <i class="fas fa-database"></i>
+                    بيانات النظام
+                </div>
+                <div class="tab" onclick="switchTab('transfer')">
+                    <i class="fas fa-exchange-alt"></i>
+                    نقل البيانات
+                </div>
+                <div class="tab" onclick="switchTab('backup')">
+                    <i class="fas fa-download"></i>
+                    نسخ احتياطي
+                </div>
+                <div class="tab" onclick="switchTab('tools')">
+                    <i class="fas fa-tools"></i>
+                    أدوات المطور
+                </div>
+            </div>
+
+            <!-- تبويب المستخدمين -->
+            <div id="usersTab" class="tab-content active">
+                <div class="control-panel">
+                    <div class="control-title">
+                        <i class="fas fa-search"></i>
+                        البحث والتحكم في المستخدمين
+                    </div>
+                    
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchUsers" placeholder="بحث بالبريد الإلكتروني أو معرف المستخدم...">
+                        <button class="btn btn-primary" onclick="searchUsers()">
+                            <i class="fas fa-search"></i>
+                            بحث
+                        </button>
+                        <button class="btn btn-secondary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i>
+                            تحديث
+                        </button>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="exportAllUsers()">
+                            <i class="fas fa-file-excel"></i>
+                            تصدير جميع المستخدمين
+                        </button>
+                        <button class="btn btn-primary" onclick="showUserChecks()">
+                            <i class="fas fa-eye"></i>
+                            عرض شيكات مستخدم
+                        </button>
+                        <button class="btn btn-warning" onclick="showStatsReport()">
+                            <i class="fas fa-chart-bar"></i>
+                            تقرير الإحصائيات
+                        </button>
+                        <button class="btn btn-danger" onclick="showCleanupModal()">
+                            <i class="fas fa-trash"></i>
+                            تنظيف البيانات
+                        </button>
+                    </div>
+                </div>
+
+                <div class="users-grid" id="usersList">
+                    <!-- سيتم تحميل قائمة المستخدمين هنا -->
+                </div>
+            </div>
+
+            <!-- تبويب بيانات النظام -->
+            <div id="dataTab" class="tab-content">
+                <div class="control-panel">
+                    <div class="control-title">
+                        <i class="fas fa-database"></i>
+                        بيانات النظام والتحليلات
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>المستخدم</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>عدد الشيكات</th>
+                                    <th>إجمالي المبلغ</th>
+                                    <th>آخر نشاط</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="systemDataTable">
+                                <!-- سيتم ملؤها تلقائياً -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="exportSystemData()">
+                            <i class="fas fa-download"></i>
+                            تصدير جميع البيانات
+                        </button>
+                        <button class="btn btn-success" onclick="analyzeData()">
+                            <i class="fas fa-chart-pie"></i>
+                            تحليل البيانات
+                        </button>
+                        <button class="btn btn-warning" onclick="checkIntegrity()">
+                            <i class="fas fa-check-double"></i>
+                            فحص سلامة البيانات
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تبويب نقل البيانات -->
+            <div id="transferTab" class="tab-content">
+                <div class="control-panel">
+                    <div class="control-title">
+                        <i class="fas fa-exchange-alt"></i>
+                        نقل البيانات بين المستخدمين
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span><strong>تنبيه:</strong> هذه العملية تنقل جميع شيكات المستخدم من مستخدم إلى آخر. تأكد من صحة البيانات.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">اختر المستخدم المصدر (من):</label>
+                        <select class="form-select" id="sourceUser">
+                            <option value="">-- اختر المستخدم المصدر --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">اختر المستخدم الهدف (إلى):</label>
+                        <select class="form-select" id="targetUser">
+                            <option value="">-- اختر المستخدم الهدف --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">خيارات النقل:</label>
+                        <div style="display: grid; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="deleteSource" checked>
+                                <span>حذف البيانات من المستخدم المصدر بعد النقل</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="mergeData" checked>
+                                <span>دمج البيانات مع البيانات الموجودة في المستخدم الهدف</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="notifyUsers">
+                                <span>إرسال إشعار للمستخدمين</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="previewTransfer()">
+                            <i class="fas fa-eye"></i>
+                            معاينة البيانات
+                        </button>
+                        <button class="btn btn-success" onclick="transferUserData()">
+                            <i class="fas fa-exchange-alt"></i>
+                            نقل البيانات
+                        </button>
+                        <button class="btn btn-danger" onclick="resetTransferForm()">
+                            <i class="fas fa-times"></i>
+                            إعادة تعيين
+                        </button>
+                    </div>
+                </div>
+
+                <div id="transferPreview" style="display: none;">
+                    <!-- معاينة النقل ستظهر هنا -->
+                </div>
+            </div>
+
+            <!-- تبويب النسخ الاحتياطي -->
+            <div id="backupTab" class="tab-content">
+                <div class="control-panel">
+                    <div class="control-title">
+                        <i class="fas fa-download"></i>
+                        النسخ الاحتياطي والاستعادة
+                    </div>
+                    
+                    <div class="export-options">
+                        <div class="export-option" onclick="createFullBackup()">
+                            <i class="fas fa-database"></i>
+                            <div class="export-option-title">نسخة احتياطية كاملة</div>
+                            <div class="export-option-desc">جميع بيانات النظام</div>
+                        </div>
+                        
+                        <div class="export-option" onclick="exportAllChecks()">
+                            <i class="fas fa-file-excel"></i>
+                            <div class="export-option-title">جميع الشيكات</div>
+                            <div class="export-option-desc">تصدير جميع شيكات المستخدمين</div>
+                        </div>
+                        
+                        <div class="export-option" onclick="exportUsersData()">
+                            <i class="fas fa-users"></i>
+                            <div class="export-option-title">بيانات المستخدمين</div>
+                            <div class="export-option-desc">معلومات المستخدمين وتفضيلاتهم</div>
+                        </div>
+                        
+                        <div class="export-option" onclick="exportStatistics()">
+                            <i class="fas fa-chart-bar"></i>
+                            <div class="export-option-title">الإحصائيات</div>
+                            <div class="export-option-desc">تقارير وإحصائيات النظام</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-lg);">
+                        <div class="control-title">
+                            <i class="fas fa-upload"></i>
+                            استعادة البيانات
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">اختر ملف النسخ الاحتياطي:</label>
+                            <input type="file" class="form-input" id="backupFile" accept=".json,.zip,.xlsx,.csv" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="restoreBackup()">
+                                <i class="fas fa-upload"></i>
+                                استعادة النسخة الاحتياطية
+                            </button>
+                            <button class="btn btn-primary" onclick="scheduleBackup()">
+                                <i class="fas fa-calendar-alt"></i>
+                                جدولة نسخ احتياطي
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تبويب أدوات المطور -->
+            <div id="toolsTab" class="tab-content">
+                <div class="control-panel">
+                    <div class="control-title">
+                        <i class="fas fa-tools"></i>
+                        أدوات المطور المتقدمة
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="optimizeDatabase()">
+                            <i class="fas fa-bolt"></i>
+                            تحسين قاعدة البيانات
+                        </button>
+                        <button class="btn btn-warning" onclick="checkDuplicates()">
+                            <i class="fas fa-clone"></i>
+                            فحص التكرارات
+                        </button>
+                        <button class="btn btn-danger" onclick="repairDatabase()">
+                            <i class="fas fa-wrench"></i>
+                            إصلاح قاعدة البيانات
+                        </button>
+                        <button class="btn btn-success" onclick="generateTestData()">
+                            <i class="fas fa-vial"></i>
+                            توليد بيانات تجريبية
+                        </button>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-lg);">
+                        <div class="control-title">
+                            <i class="fas fa-cogs"></i>
+                            إعدادات النظام
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">مستوى التسجيل:</label>
+                            <select class="form-select" id="logLevel">
+                                <option value="debug">تفصيلي (Debug)</option>
+                                <option value="info">معلومات (Info)</option>
+                                <option value="warn">تحذيرات (Warn)</option>
+                                <option value="error">أخطاء فقط (Error)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">معدل التحديث التلقائي:</label>
+                            <select class="form-select" id="refreshRate">
+                                <option value="30000">30 ثانية</option>
+                                <option value="60000">دقيقة واحدة</option>
+                                <option value="300000">5 دقائق</option>
+                                <option value="900000">15 دقيقة</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="saveSystemSettings()">
+                            <i class="fas fa-save"></i>
+                            حفظ الإعدادات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة معاينة البيانات -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">معاينة البيانات</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent">
+                    <!-- محتوى المعاينة -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة نقل البيانات -->
+    <div class="modal-overlay" id="transferModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">تأكيد نقل البيانات</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="transferDetails">
+                    <!-- تفاصيل النقل -->
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="confirmTransfer()">
+                        <i class="fas fa-check"></i>
+                        تأكيد النقل
+                    </button>
+                    <button class="btn btn-danger" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                        إلغاء
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإشعارات -->
+    <div class="notification" id="notification">
+        <span id="notificationMessage">تمت العملية بنجاح</span>
+        <button onclick="hideNotification()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <script>
+        // تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkOHV0LJojUSdUYUPvI3FJsLJ0Vct9HvY",
+            authDomain: "taoufik-65d14.firebaseapp.com",
+            projectId: "taoufik-65d14",
+            storageBucket: "taoufik-65d14.firebasestorage.app",
+            messagingSenderId: "1045546827276",
+            appId: "1:1045546827276:web:88f426e425ac031a407829",
+            measurementId: "G-3EE6KJ1KNZ",
+            databaseURL: "https://taoufik-65d14-default-rtdb.firebaseio.com/"
+        };
+
+        // متغيرات النظام
+        let firebaseApp = null;
+        let database = null;
+        let auth = null;
+        let allUsers = [];
+        let systemData = {};
+        let currentTab = 'users';
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // تهيئة Firebase
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                auth = firebase.auth();
+
+                // تسجيل الدخول كمطور (يمكن تعديل هذه البيانات)
+                await auth.signInWithEmailAndPassword('admin@checkflow.com', 'admin123')
+                    .catch(async () => {
+                        // إذا فشل تسجيل الدخول، نستخدم مستخدم تجريبي
+                        console.log('تسجيل الدخول كضيف (وضع المطور)');
+                    });
+
+                // تحديث البيانات
+                await loadAllData();
+                
+                // تحديث البيانات تلقائياً
+                setInterval(loadAllData, 60000);
+                
+                // تحديث وقت التحديث الأخير
+                setInterval(() => {
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ar-MA');
+                }, 1000);
+
+                // إعداد مستمعي Firebase
+                setupFirebaseListeners();
+
+            } catch (error) {
+                console.error('خطأ في تهيئة النظام:', error);
+                showNotification('خطأ في الاتصال بقاعدة البيانات', 'error');
+            }
+        });
+
+        // تحميل جميع البيانات
+        async function loadAllData() {
+            try {
+                showNotification('جاري تحديث البيانات...', 'warning');
+                
+                // جلب جميع المستخدمين
+                const usersSnapshot = await database.ref('users').once('value');
+                allUsers = [];
+                systemData = {};
+                
+                if (usersSnapshot.exists()) {
+                    const usersData = usersSnapshot.val();
+                    
+                    // تحويل البيانات إلى مصفوفة
+                    for (const userId in usersData) {
+                        const userData = usersData[userId];
+                        
+                        // حساب الإحصائيات
+                        let totalChecks = 0;
+                        let totalAmount = 0;
+                        let lastActivity = null;
+                        
+                        if (userData.checks) {
+                            const checks = Object.values(userData.checks);
+                            totalChecks = checks.length;
+                            totalAmount = checks.reduce((sum, check) => sum + (parseFloat(check.amount) || 0), 0);
+                            
+                            // آخر نشاط
+                            if (checks.length > 0) {
+                                lastActivity = Math.max(...checks.map(c => new Date(c.createdAt || c.updatedAt || 0).getTime()));
+                            }
+                        }
+                        
+                        // جلب معلومات المستخدم من Authentication (إن أمكن)
+                        let userEmail = 'غير متوفر';
+                        try {
+                            // هنا يمكن محاولة جلب البريد من Firebase Auth
+                            // في الواقع، نحتاج إلى Admin SDK لهذا
+                            userEmail = userData.email || 'غير معروف';
+                        } catch (e) {
+                            userEmail = 'مستخدم نظام';
+                        }
+                        
+                        const userInfo = {
+                            id: userId,
+                            email: userEmail,
+                            totalChecks: totalChecks,
+                            totalAmount: totalAmount,
+                            lastActivity: lastActivity ? new Date(lastActivity).toLocaleString('ar-MA') : 'لا يوجد',
+                            createdAt: userData.createdAt || 'غير معروف',
+                            checks: userData.checks || {}
+                        };
+                        
+                        allUsers.push(userInfo);
+                        systemData[userId] = userInfo;
+                    }
+                    
+                    // تحديث الإحصائيات
+                    updateStatistics();
+                    
+                    // تحديث واجهة المستخدم
+                    updateUsersList();
+                    updateSystemTable();
+                    updateUserDropdowns();
+                    
+                    showNotification('تم تحديث البيانات بنجاح', 'success');
+                } else {
+                    showNotification('لا توجد بيانات حالياً', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات:', error);
+                showNotification('خطأ في تحميل البيانات', 'error');
+            }
+        }
+
+        // تحديث الإحصائيات
+        function updateStatistics() {
+            const totalUsers = allUsers.length;
+            const totalChecks = allUsers.reduce((sum, user) => sum + user.totalChecks, 0);
+            const totalAmount = allUsers.reduce((sum, user) => sum + user.totalAmount, 0);
+            
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('totalChecks').textContent = totalChecks;
+            document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
+        }
+
+        // تحديث قائمة المستخدمين
+        function updateUsersList() {
+            const container = document.getElementById('usersList');
+            const searchTerm = document.getElementById('searchUsers')?.value?.toLowerCase() || '';
+            
+            let filteredUsers = allUsers;
+            if (searchTerm) {
+                filteredUsers = allUsers.filter(user => 
+                    user.email.toLowerCase().includes(searchTerm) ||
+                    user.id.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (filteredUsers.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: var(--surface-color); border-radius: var(--radius-md);">
+                        <i class="fas fa-users" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">لا توجد مستخدمين</div>
+                        <div style="color: var(--text-secondary);">${searchTerm ? 'جرب بحثاً آخر' : 'لا توجد بيانات مستخدمين حالياً'}</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredUsers.map(user => `
+                <div class="user-card">
+                    <div class="user-header">
+                        <div>
+                            <div class="user-email">${user.email}</div>
+                            <div class="user-id">${user.id.substring(0, 8)}...</div>
+                        </div>
+                        <div class="badge ${user.totalChecks > 0 ? 'badge-success' : 'badge-warning'}">
+                            ${user.totalChecks} شيك
+                        </div>
+                    </div>
+                    
+                    <div class="user-stats">
+                        <div class="user-stat-item">
+                            <div class="user-stat-value">${user.totalChecks}</div>
+                            <div class="user-stat-label">عدد الشيكات</div>
+                        </div>
+                        <div class="user-stat-item">
+                            <div class="user-stat-value">${formatCurrency(user.totalAmount)}</div>
+                            <div class="user-stat-label">إجمالي المبلغ</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px; font-size: 12px; color: var(--text-secondary);">
+                        <i class="far fa-clock"></i>
+                        آخر نشاط: ${user.lastActivity}
+                    </div>
+                    
+                    <div class="user-actions">
+                        <button class="btn btn-secondary user-btn" onclick="viewUserChecks('${user.id}')">
+                            <i class="fas fa-eye"></i>
+                            عرض الشيكات
+                        </button>
+                        <button class="btn btn-primary user-btn" onclick="selectAsSource('${user.id}')">
+                            <i class="fas fa-arrow-right"></i>
+                            مصدر
+                        </button>
+                        <button class="btn btn-success user-btn" onclick="selectAsTarget('${user.id}')">
+                            <i class="fas fa-arrow-left"></i>
+                            هدف
+                        </button>
+                        <button class="btn btn-danger user-btn" onclick="deleteUserData('${user.id}')">
+                            <i class="fas fa-trash"></i>
+                            حذف
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // تحديث جدول النظام
+        function updateSystemTable() {
+            const tableBody = document.getElementById('systemDataTable');
+            
+            if (allUsers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-database" style="font-size: 32px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+                            <div>لا توجد بيانات حالياً</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tableBody.innerHTML = allUsers.map(user => `
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">${user.email}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${user.id.substring(0, 12)}...</div>
+                    </td>
+                    <td>${user.email}</td>
+                    <td>
+                        <span class="badge ${user.totalChecks > 0 ? 'badge-success' : 'badge-warning'}">
+                            ${user.totalChecks}
+                        </span>
+                    </td>
+                    <td>${formatCurrency(user.totalAmount)}</td>
+                    <td>${user.lastActivity}</td>
+                    <td>
+                        <span class="badge ${user.totalChecks > 0 ? 'badge-success' : 'badge-warning'}">
+                            ${user.totalChecks > 0 ? 'نشط' : 'غير نشط'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="exportUserData('${user.id}')">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="viewUserDetails('${user.id}')">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // تحديث القوائم المنسدلة للمستخدمين
+        function updateUserDropdowns() {
+            const sourceSelect = document.getElementById('sourceUser');
+            const targetSelect = document.getElementById('targetUser');
+            
+            // مسح الخيارات القديمة
+            sourceSelect.innerHTML = '<option value="">-- اختر المستخدم المصدر --</option>';
+            targetSelect.innerHTML = '<option value="">-- اختر المستخدم الهدف --</option>';
+            
+            // إضافة المستخدمين
+            allUsers.forEach(user => {
+                const option1 = document.createElement('option');
+                option1.value = user.id;
+                option1.textContent = `${user.email} (${user.totalChecks} شيك)`;
+                sourceSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = user.id;
+                option2.textContent = `${user.email} (${user.totalChecks} شيك)`;
+                targetSelect.appendChild(option2);
+            });
+        }
+
+        // تبديل علامات التبويب
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // إزالة النشاط من جميع العلامات
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // إخفاء جميع المحتويات
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // تفعيل العلامة المحددة
+            document.querySelectorAll('.tab').forEach(tab => {
+                if (tab.onclick.toString().includes(tabName)) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // إظهار المحتوى المحدد
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // البحث عن المستخدمين
+        function searchUsers() {
+            updateUsersList();
+        }
+
+        // تحديث البيانات
+        function refreshData() {
+            loadAllData();
+        }
+
+        // تصدير جميع المستخدمين
+        function exportAllUsers() {
+            try {
+                const data = {
+                    exportedAt: new Date().toISOString(),
+                    totalUsers: allUsers.length,
+                    users: allUsers.map(user => ({
+                        userId: user.id,
+                        email: user.email,
+                        totalChecks: user.totalChecks,
+                        totalAmount: user.totalAmount,
+                        lastActivity: user.lastActivity,
+                        createdAt: user.createdAt
+                    }))
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const link = document.createElement('a');
+                link.href = dataUri;
+                link.download = `CheckFlow_Users_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                showNotification('تم تصدير بيانات المستخدمين', 'success');
+            } catch (error) {
+                console.error('خطأ في التصدير:', error);
+                showNotification('خطأ في تصدير البيانات', 'error');
+            }
+        }
+
+        // عرض شيكات مستخدم
+        function viewUserChecks(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            const checks = Object.values(user.checks || {});
+            
+            let modalContent = `
+                <div class="modal" style="max-width: 900px;">
+                    <div class="modal-header">
+                        <div class="modal-title">شيكات المستخدم: ${user.email}</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <div class="badge badge-success" style="font-size: 14px; padding: 8px 16px;">
+                                إجمالي الشيكات: ${checks.length} | إجمالي المبلغ: ${formatCurrency(user.totalAmount)}
+                            </div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الشيك</th>
+                                        <th>الاسم</th>
+                                        <th>المبلغ</th>
+                                        <th>البنك</th>
+                                        <th>المستلم</th>
+                                        <th>المعطي</th>
+                                        <th>الحالة</th>
+                                        <th>تاريخ الإصدار</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+            
+            checks.slice(0, 50).forEach(check => {
+                const statusBadge = check.status === 'pending' ? 'badge-warning' :
+                                  check.status === 'cleared' ? 'badge-success' : 'badge-danger';
+                const statusText = check.status === 'pending' ? 'قيد الانتظار' :
+                                 check.status === 'cleared' ? 'تم الصرف' : 'مرتجع';
+                
+                modalContent += `
+                    <tr>
+                        <td>${check.number || 'غير محدد'}</td>
+                        <td>${check.name || 'غير محدد'}</td>
+                        <td>${formatCurrency(check.amount)}</td>
+                        <td>${check.bank || 'غير محدد'}</td>
+                        <td>${check.recipient || 'غير محدد'}</td>
+                        <td>${check.issuer || 'غير محدد'}</td>
+                        <td><span class="badge ${statusBadge}">${statusText}</span></td>
+                        <td>${formatDate(check.issueDate)}</td>
+                    </tr>
+                `;
+            });
+            
+            modalContent += `
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        ${checks.length > 50 ? 
+                            `<div style="margin-top: var(--spacing-md); text-align: center; color: var(--text-secondary);">
+                                عرض ${50} من أصل ${checks.length} شيك
+                            </div>` : ''
+                        }
+                        
+                        <div style="margin-top: var(--spacing-md);">
+                            <button class="btn btn-primary" onclick="exportUserChecks('${userId}')">
+                                <i class="fas fa-download"></i>
+                                تصدير شيكات هذا المستخدم
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showModal(modalContent);
+        }
+
+        // تصدير شيكات مستخدم
+        async function exportUserChecks(userId) {
+            try {
+                const user = allUsers.find(u => u.id === userId);
+                if (!user) return;
+                
+                const checks = Object.values(user.checks || {});
+                
+                const data = {
+                    exportedAt: new Date().toISOString(),
+                    userId: user.id,
+                    userEmail: user.email,
+                    totalChecks: checks.length,
+                    checks: checks.map(check => ({
+                        number: check.number,
+                        name: check.name,
+                        amount: check.amount,
+                        bank: check.bank,
+                        recipient: check.recipient,
+                        issuer: check.issuer,
+                        status: check.status,
+                        issueDate: check.issueDate,
+                        dueDate: check.dueDate,
+                        notes: check.notes
+                    }))
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const link = document.createElement('a');
+                link.href = dataUri;
+                link.download = `CheckFlow_Checks_${user.email}_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                showNotification('تم تصدير شيكات المستخدم', 'success');
+            } catch (error) {
+                console.error('خطأ في تصدير الشيكات:', error);
+                showNotification('خطأ في التصدير', 'error');
+            }
+        }
+
+        // اختيار كمصدر
+        function selectAsSource(userId) {
+            document.getElementById('sourceUser').value = userId;
+            switchTab('transfer');
+        }
+
+        // اختيار كهدف
+        function selectAsTarget(userId) {
+            document.getElementById('targetUser').value = userId;
+            switchTab('transfer');
+        }
+
+        // معاينة نقل البيانات
+        function previewTransfer() {
+            const sourceId = document.getElementById('sourceUser').value;
+            const targetId = document.getElementById('targetUser').value;
+            
+            if (!sourceId || !targetId) {
+                showNotification('الرجاء اختيار المستخدم المصدر والهدف', 'warning');
+                return;
+            }
+            
+            if (sourceId === targetId) {
+                showNotification('لا يمكن نقل البيانات لنفس المستخدم', 'error');
+                return;
+            }
+            
+            const sourceUser = allUsers.find(u => u.id === sourceId);
+            const targetUser = allUsers.find(u => u.id === targetId);
+            
+            if (!sourceUser || !targetUser) {
+                showNotification('المستخدم غير موجود', 'error');
+                return;
+            }
+            
+            const deleteSource = document.getElementById('deleteSource').checked;
+            const mergeData = document.getElementById('mergeData').checked;
+            
+            let modalContent = `
+                <div class="modal" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <div class="modal-title">معاينة نقل البيانات</div>
+                        <button class="modal-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span><strong>تنبيه:</strong> تأكد من صحة البيانات قبل المتابعة</span>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--spacing-md); align-items: center; margin: var(--spacing-lg) 0;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">المستخدم المصدر</div>
+                                <div style="font-weight: 700; font-size: 18px;">${sourceUser.email}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                    ${sourceUser.totalChecks} شيك | ${formatCurrency(sourceUser.totalAmount)}
+                                </div>
+                            </div>
+                            
+                            <div style="font-size: 24px; color: var(--primary-color);">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">المستخدم الهدف</div>
+                                <div style="font-weight: 700; font-size: 18px;">${targetUser.email}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                    ${targetUser.totalChecks} شيك | ${formatCurrency(targetUser.totalAmount)}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: var(--background-color); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                            <div style="font-weight: 600; margin-bottom: 8px;">تفاصيل النقل:</div>
+                            <ul style="padding-right: 20px;">
+                                <li>عدد الشيكات المنقولة: <strong>${sourceUser.totalChecks}</strong></li>
+                                <li>المبلغ الإجمالي: <strong>${formatCurrency(sourceUser.totalAmount)}</strong></li>
+                                <li>حذف البيانات من المصدر: <strong>${deleteSource ? 'نعم' : 'لا'}</strong></li>
+                                <li>دمج البيانات مع الهدف: <strong>${mergeData ? 'نعم' : 'لا'}</strong></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="confirmTransferData('${sourceId}', '${targetId}', ${deleteSource}, ${mergeData})">
+                                <i class="fas fa-check"></i>
+                                تأكيد ونقل البيانات
+                            </button>
+                            <button class="btn btn-danger" onclick="closeModal()">
+                                <i class="fas fa-times"></i>
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showModal(modalContent);
+        }
+
+        // تأكيد ونقل البيانات
+        async function confirmTransferData(sourceId, targetId, deleteSource, mergeData) {
+            try {
+                showNotification('جاري نقل البيانات...', 'warning');
+                
+                // جلب بيانات المصدر
+                const sourceRef = database.ref(`users/${sourceId}/checks`);
+                const sourceSnapshot = await sourceRef.once('value');
+                
+                if (!sourceSnapshot.exists()) {
+                    showNotification('لا توجد بيانات للمصدر', 'error');
+                    return;
+                }
+                
+                const sourceData = sourceSnapshot.val();
+                
+                // إذا كان الدمج، نجلب بيانات الهدف أولاً
+                let targetData = {};
+                if (mergeData) {
+                    const targetRef = database.ref(`users/${targetId}/checks`);
+                    const targetSnapshot = await targetRef.once('value');
+                    if (targetSnapshot.exists()) {
+                        targetData = targetSnapshot.val();
+                    }
+                }
+                
+                // دمج البيانات
+                const mergedData = { ...targetData, ...sourceData };
+                
+                // حفظ البيانات في الهدف
+                await database.ref(`users/${targetId}/checks`).set(mergedData);
+                
+                // حذف البيانات من المصدر إذا طلب ذلك
+                if (deleteSource) {
+                    await sourceRef.remove();
+                }
+                
+                // إرسال إشعارات للمستخدمين (لوظيفة مستقبلية)
+                if (document.getElementById('notifyUsers').checked) {
+                    // يمكن إضافة إشعارات هنا
+                }
+                
+                // تحديث البيانات المحلية
+                await loadAllData();
+                
+                showNotification('تم نقل البيانات بنجاح', 'success');
+                closeModal();
+                
+            } catch (error) {
+                console.error('خطأ في نقل البيانات:', error);
+                showNotification('خطأ في نقل البيانات', 'error');
+            }
+        }
+
+        // حذف بيانات مستخدم
+        async function deleteUserData(userId) {
+            if (!confirm('هل تريد حذف جميع بيانات هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                return;
+            }
+            
+            try {
+                showNotification('جاري حذف البيانات...', 'warning');
+                
+                await database.ref(`users/${userId}`).remove();
+                await loadAllData();
+                
+                showNotification('تم حذف بيانات المستخدم', 'success');
+            } catch (error) {
+                console.error('خطأ في حذف البيانات:', error);
+                showNotification('خطأ في حذف البيانات', 'error');
+            }
+        }
+
+        // إنشاء نسخة احتياطية كاملة
+        async function createFullBackup() {
+            try {
+                showNotification('جاري إنشاء نسخة احتياطية...', 'warning');
+                
+                const backupData = {
+                    metadata: {
+                        version: '2.0',
+                        backupDate: new Date().toISOString(),
+                        system: 'CheckFlow Pro',
+                        totalUsers: allUsers.length,
+                        totalChecks: allUsers.reduce((sum, user) => sum + user.totalChecks, 0)
+                    },
+                    users: allUsers.map(user => ({
+                        id: user.id,
+                        email: user.email,
+                        totalChecks: user.totalChecks,
+                        totalAmount: user.totalAmount,
+                        lastActivity: user.lastActivity,
+                        createdAt: user.createdAt,
+                        checks: user.checks
+                    }))
+                };
+                
+                const dataStr = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `CheckFlow_Full_Backup_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                
+                showNotification('تم إنشاء النسخة الاحتياطية بنجاح', 'success');
+            } catch (error) {
+                console.error('خطأ في إنشاء النسخة الاحتياطية:', error);
+                showNotification('خطأ في إنشاء النسخة', 'error');
+            }
+        }
+
+        // استعادة النسخة الاحتياطية
+        async function restoreBackup() {
+            const fileInput = document.getElementById('backupFile');
+            
+            if (!fileInput.files.length) {
+                showNotification('الرجاء اختيار ملف النسخ الاحتياطي', 'warning');
+                return;
+            }
+            
+            if (!confirm('سيتم استبدال جميع البيانات الحالية. هل تريد المتابعة؟')) {
+                return;
+            }
+            
+            try {
+                showNotification('جاري استعادة النسخة الاحتياطية...', 'warning');
+                
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = async function(e) {
+                    try {
+                        const backupData = JSON.parse(e.target.result);
+                        
+                        // التحقق من صحة البيانات
+                        if (!backupData.users || !Array.isArray(backupData.users)) {
+                            throw new Error('ملف النسخ الاحتياطي غير صالح');
+                        }
+                        
+                        // استعادة كل مستخدم
+                        for (const user of backupData.users) {
+                            if (user.id && user.checks) {
+                                await database.ref(`users/${user.id}/checks`).set(user.checks);
+                            }
+                        }
+                        
+                        await loadAllData();
+                        
+                        showNotification('تم استعادة النسخة الاحتياطية بنجاح', 'success');
+                    } catch (error) {
+                        console.error('خطأ في قراءة الملف:', error);
+                        showNotification('ملف النسخ الاحتياطي غير صالح', 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+                
+            } catch (error) {
+                console.error('خطأ في استعادة النسخة:', error);
+                showNotification('خطأ في الاستعادة', 'error');
+            }
+        }
+
+        // أدوات المطور
+        async function optimizeDatabase() {
+            try {
+                showNotification('جاري تحسين قاعدة البيانات...', 'warning');
+                
+                // هنا يمكن إضافة عمليات التحسين
+                // مثل حذف البيانات المؤقتة، إعادة بناء الفهارس، إلخ.
+                
+                // لمثال، نعرض تقرير تحسين
+                const report = {
+                    optimizedAt: new Date().toISOString(),
+                    totalUsers: allUsers.length,
+                    totalChecks: allUsers.reduce((sum, user) => sum + user.totalChecks, 0),
+                    suggestions: []
+                };
+                
+                // تحليل البيانات
+                allUsers.forEach(user => {
+                    if (user.totalChecks === 0) {
+                        report.suggestions.push({
+                            userId: user.id,
+                            suggestion: 'حذف مستخدم بدون شيكات'
+                        });
+                    }
+                });
+                
+                // عرض التقرير
+                let modalContent = `
+                    <div class="modal" style="max-width: 700px;">
+                        <div class="modal-header">
+                            <div class="modal-title">تقرير تحسين قاعدة البيانات</div>
+                            <button class="modal-close" onclick="closeModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i>
+                                <span>تم تحليل قاعدة البيانات بنجاح</span>
+                            </div>
+                            
+                            <div style="background: var(--background-color); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 12px; color: var(--text-secondary);">إجمالي المستخدمين</div>
+                                        <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);">${report.totalUsers}</div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 12px; color: var(--text-secondary);">إجمالي الشيكات</div>
+                                        <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);">${report.totalChecks}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${report.suggestions.length > 0 ? `
+                                <div style="margin-bottom: var(--spacing-md);">
+                                    <div style="font-weight: 600; margin-bottom: 8px;">اقتراحات التحسين:</div>
+                                    <ul style="padding-right: 20px;">
+                                        ${report.suggestions.map(s => `<li>${s.suggestion} (${s.userId.substring(0, 8)}...)</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : `
+                                <div style="text-align: center; padding: var(--spacing-md); color: var(--success-color);">
+                                    <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                                    <div>قاعدة البيانات في حالة ممتازة!</div>
+                                </div>
+                            `}
+                            
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="applyOptimizations()">
+                                    <i class="fas fa-bolt"></i>
+                                    تطبيق التحسينات المقترحة
+                                </button>
+                                <button class="btn btn-secondary" onclick="closeModal()">
+                                    <i class="fas fa-times"></i>
+                                    إغلاق
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                showModal(modalContent);
+                
+            } catch (error) {
+                console.error('خطأ في التحسين:', error);
+                showNotification('خطأ في عملية التحسين', 'error');
+            }
+        }
+
+        // توليد بيانات تجريبية
+        async function generateTestData() {
+            if (!confirm('سيتم توليد بيانات تجريبية. هل تريد المتابعة؟')) {
+                return;
+            }
+            
+            try {
+                showNotification('جاري توليد البيانات التجريبية...', 'warning');
+                
+                const testUserId = 'test_user_' + Date.now();
+                const testChecks = {};
+                
+                // توليد 50 شيك تجريبي
+                for (let i = 1; i <= 50; i++) {
+                    const checkId = 'check_' + Date.now() + '_' + i;
+                    const amount = Math.floor(Math.random() * 10000) + 100;
+                    const status = ['pending', 'cleared', 'bounced'][Math.floor(Math.random() * 3)];
+                    
+                    testChecks[checkId] = {
+                        id: checkId,
+                        name: `شيك تجريبي ${i}`,
+                        amount: amount,
+                        number: `TEST-${Date.now()}-${i}`,
+                        bank: ['البنك المغربي', 'البنك الشعبي', 'البنك التجاري'][Math.floor(Math.random() * 3)],
+                        recipient: `المستلم التجريبي ${i}`,
+                        issuer: `المعطي التجريبي ${i}`,
+                        status: status,
+                        issueDate: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        dueDate: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        notes: `شيك تجريبي رقم ${i}`,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                }
+                
+                // حفظ البيانات
+                await database.ref(`users/${testUserId}/checks`).set(testChecks);
+                await database.ref(`users/${testUserId}`).update({
+                    email: 'test@checkflow.com',
+                    createdAt: new Date().toISOString(),
+                    testData: true
+                });
+                
+                await loadAllData();
+                
+                showNotification('تم توليد 50 شيك تجريبي بنجاح', 'success');
+                
+            } catch (error) {
+                console.error('خطأ في توليد البيانات:', error);
+                showNotification('خطأ في توليد البيانات', 'error');
+            }
+        }
+
+        // إعداد مستمعي Firebase
+        function setupFirebaseListeners() {
+            // الاستماع للتغيرات في بيانات المستخدمين
+            database.ref('users').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    // تحديث البيانات عند التغيير
+                    loadAllData();
+                }
+            });
+        }
+
+        // وظائف المساعدة
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-MA', {
+                style: 'currency',
+                currency: 'MAD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount || 0);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'غير محدد';
+            try {
+                return new Date(dateString).toLocaleDateString('ar-MA');
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        function showModal(content) {
+            const modalContainer = document.createElement('div');
+            modalContainer.className = 'modal-overlay active';
+            modalContainer.innerHTML = content;
+            modalContainer.onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.body.appendChild(modalContainer);
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.remove();
+            });
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            messageEl.textContent = message;
+            notification.className = 'notification ' + (type || '');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                hideNotification();
+            }, 5000);
+        }
+
+        function hideNotification() {
+            document.getElementById('notification').classList.remove('show');
+        }
+
+        // إعادة تعيين نموذج النقل
+        function resetTransferForm() {
+            document.getElementById('sourceUser').value = '';
+            document.getElementById('targetUser').value = '';
+            document.getElementById('deleteSource').checked = true;
+            document.getElementById('mergeData').checked = true;
+            document.getElementById('notifyUsers').checked = false;
+        }
+
+        // حفظ إعدادات النظام
+        function saveSystemSettings() {
+            const logLevel = document.getElementById('logLevel').value;
+            const refreshRate = document.getElementById('refreshRate').value;
+            
+            localStorage.setItem('developer_logLevel', logLevel);
+            localStorage.setItem('developer_refreshRate', refreshRate);
+            
+            // إعادة جدولة التحديث التلقائي
+            clearInterval(window.autoRefreshInterval);
+            window.autoRefreshInterval = setInterval(loadAllData, parseInt(refreshRate));
+            
+            showNotification('تم حفظ الإعدادات', 'success');
+        }
+
+        // تحميل إعدادات النظام
+        function loadSystemSettings() {
+            const logLevel = localStorage.getItem('developer_logLevel') || 'info';
+            const refreshRate = localStorage.getItem('developer_refreshRate') || '60000';
+            
+            document.getElementById('logLevel').value = logLevel;
+            document.getElementById('refreshRate').value = refreshRate;
+            
+            // جدولة التحديث التلقائي
+            window.autoRefreshInterval = setInterval(loadAllData, parseInt(refreshRate));
+        }
+
+        // تحميل الإعدادات عند البدء
+        loadSystemSettings();
+    </script>
+</body>
+</html>
