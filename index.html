@@ -257,54 +257,7 @@
             font-weight: 700;
         }
         
-        /* نافذة تأكيد الدفع */
-        .payment-confirmation-modal {
-            text-align: center;
-            padding: 24px 20px;
-        }
-        
-        .confirmation-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: rgba(15, 123, 108, 0.1);
-            color: var(--success-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 16px;
-        }
-        
-        .confirmation-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .confirmation-details {
-            background: var(--surface-color);
-            border-radius: 16px;
-            padding: 16px;
-            margin: 16px 0;
-            text-align: right;
-        }
-        
-        .confirmation-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .confirmation-label {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .confirmation-value {
-            font-weight: 700;
-            font-size: 14px;
-        }
+        /* نافذة تأكيد الدفع - تم إزالتها */
         
         /* فلتر الإشعارات */
         .notification-filters {
@@ -1677,7 +1630,7 @@
         <span id="syncMessage">جاري المزامنة...</span>
     </div>
 
-    <!-- مركز الإشعارات المتقدم -->
+    <!-- مركز الإشعارات المتقدم - تم إزالة زر عرض الشيك واستبداله ب تم الدفع -->
     <div class="notification-center" id="notificationCenter"></div>
 
     <!-- إشعار موضعي للشيكات المستحقة -->
@@ -2226,46 +2179,7 @@
         </div>
     </div>
 
-    <!-- نافذة تأكيد دفع الشيك -->
-    <div class="modal-overlay" id="paymentConfirmationModal">
-        <div class="modal" style="max-width: 500px;">
-            <div class="modal-header">
-                <div class="modal-title">تأكيد دفع الشيك</div>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="payment-confirmation-modal">
-                    <div class="confirmation-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="confirmation-title" id="confirmationTitle">تأكيد دفع الشيك</div>
-                    <div style="color: var(--text-secondary); margin-bottom: 16px;" id="confirmationSubtitle">
-                        هل تم دفع هذا الشيك فعلاً؟
-                    </div>
-                    
-                    <div class="confirmation-details" id="confirmationDetails"></div>
-                    
-                    <div class="notification-actions" style="padding-right: 0; margin-top: 8px;">
-                        <button class="notification-btn btn-yes" onclick="confirmPayment(true)">
-                            <i class="fas fa-check-circle"></i>
-                            نعم، تم الدفع
-                        </button>
-                        <button class="notification-btn btn-no" onclick="confirmPayment(false)">
-                            <i class="fas fa-times-circle"></i>
-                            لا، لم يتم الدفع
-                        </button>
-                    </div>
-                    
-                    <button class="btn btn-secondary" onclick="closeModal()" style="margin-top: 16px;">
-                        <i class="fas fa-clock"></i>
-                        تذكير لاحقاً (بعد 5 أيام)
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- تم إزالة نافذة تأكيد دفع الشيك بالكامل واستبدالها بزر تم الدفع مباشرة في الإشعارات -->
 
     <!-- نافذة خيارات الإشعارات -->
     <div class="modal-overlay" id="notificationSettingsModal">
@@ -2935,7 +2849,7 @@
     });
 
     // ============================================
-    // نظام الإشعارات المتقدم
+    // نظام الإشعارات المتقدم - تم إزالة زر عرض الشيك واستبداله بتم الدفع
     // ============================================
     function initNotificationSystem() {
         loadNotificationSettings();
@@ -3215,9 +3129,10 @@
                             </div>
                         ` : ''}
                         <div class="notification-actions">
-                            <button class="notification-btn btn-yes" onclick="handleNotificationAction('${notif.id}', 'view')">
-                                <i class="fas fa-eye"></i>
-                                عرض الشيك
+                            <!-- تم إزالة زر عرض الشيك واستبداله بزر تم الدفع -->
+                            <button class="notification-btn btn-yes" onclick="markAsPaidFromNotification('${notif.id}', '${notif.checkId}')">
+                                <i class="fas fa-check-circle"></i>
+                                تم الدفع
                             </button>
                             <button class="notification-btn btn-no" onclick="dismissNotification('${notif.id}', event)">
                                 <i class="fas fa-times"></i>
@@ -3261,6 +3176,52 @@
         };
         
         document.body.appendChild(modalContainer);
+    }
+
+    // دالة جديدة لمعالجة الدفع المباشر من الإشعار
+    function markAsPaidFromNotification(notificationId, checkId) {
+        const check = checks.find(c => c.id === checkId);
+        if (!check) {
+            showNotification('لم يتم العثور على الشيك');
+            return;
+        }
+        
+        // تحديث حالة الشيك إلى تم الصرف
+        check.status = 'cleared';
+        check.clearedDate = new Date().toISOString();
+        
+        // حفظ التغييرات
+        saveChecksLocally();
+        
+        if (isOnline && database) {
+            saveCheckToDatabase(check);
+        }
+        
+        // حذف الإشعار الحالي
+        dismissNotification(notificationId);
+        
+        // إضافة إشعار تأكيد الدفع
+        const details = `
+            <strong>رقم الشيك:</strong> ${check.number}<br>
+            <strong>المبلغ:</strong> ${formatCurrency(check.amount)}<br>
+            <strong>تاريخ الدفع:</strong> ${formatDate(new Date().toISOString())}
+        `;
+        
+        addNotification(
+            '✅ تم تأكيد دفع الشيك',
+            `تم دفع الشيك "${check.name}" بنجاح`,
+            'payment_confirmed',
+            check.id,
+            details
+        );
+        
+        // تحديث الواجهة
+        updateUI();
+        
+        showNotification(`تم دفع الشيك ${check.number} بنجاح`);
+        
+        // إغلاق النافذة إذا كانت مفتوحة
+        closeModal();
     }
 
     function filterNotifications(filterType) {
@@ -3441,9 +3402,10 @@
                 </div>
             ` : ''}
             <div class="notification-actions">
-                <button class="notification-btn btn-yes" onclick="handleNotificationAction('${notification.id}', 'view')">
-                    <i class="fas fa-eye"></i>
-                    عرض الشيك
+                <!-- تم إزالة زر عرض الشيك واستبداله بزر تم الدفع -->
+                <button class="notification-btn btn-yes" onclick="markAsPaidFromNotification('${notification.id}', '${notification.checkId}')">
+                    <i class="fas fa-check-circle"></i>
+                    تم الدفع
                 </button>
                 <button class="notification-btn btn-no" onclick="dismissNotification('${notification.id}', event)">
                     <i class="fas fa-times"></i>
@@ -3532,7 +3494,7 @@
                     notificationChecks.push(check);
                     
                     if (notificationSettings.inPlace) {
-                        showInPlaceNotification(check, 'هذا الشيك مستحق اليوم!');
+                        showInPlaceNotification(check, 'هذا الشيك مستحق اليوم! اضغط لتأكيد الدفع');
                     }
                 }
             }
@@ -3636,7 +3598,7 @@
                             details
                         );
                         
-                        showInPlaceNotification(check, 'لم يتم تأكيد دفع هذا الشيك؟ اضغط للتأكيد');
+                        showInPlaceNotification(check, 'لم يتم تأكيد دفع هذا الشيك؟ اضغط لتأكيد الدفع');
                     }
                 }
             }
@@ -3662,7 +3624,7 @@
         if (todayDue.length > 0) {
             container.innerHTML = todayDue.map(check => {
                 return `
-                    <div class="check-item bounced" onclick="openPaymentConfirmationModal('${check.id}')">
+                    <div class="check-item bounced" onclick="markAsPaidFromNotification('', '${check.id}')">
                         <div class="check-icon" style="background: var(--danger-color);">
                             <i class="fas fa-exclamation-circle"></i>
                         </div>
@@ -3674,7 +3636,7 @@
                                 <span>${check.recipient}</span>
                             </div>
                         </div>
-                        <button class="icon-button" onclick="event.stopPropagation(); openPaymentConfirmationModal('${check.id}')" 
+                        <button class="icon-button" onclick="event.stopPropagation(); markAsPaidFromNotification('', '${check.id}')" 
                                 style="background: var(--success-color); color: white; width: 36px; height: 36px;">
                             <i class="fas fa-check"></i>
                         </button>
@@ -3699,7 +3661,7 @@
                 const notificationDiv = document.createElement('div');
                 notificationDiv.className = 'in-place-notification';
                 notificationDiv.innerHTML = `
-                    <span onclick="openPaymentConfirmationModal('${check.id}')" style="cursor: pointer; flex: 1;">
+                    <span onclick="markAsPaidFromNotification('', '${check.id}')" style="cursor: pointer; flex: 1;">
                         <i class="fas fa-bell"></i>
                         ${message}
                     </span>
@@ -3719,93 +3681,9 @@
         });
     }
 
-    function openPaymentConfirmationModal(checkId) {
-        const check = checks.find(c => c.id === checkId);
-        if (!check) return;
-        
-        window.currentPaymentCheckId = checkId;
-        
-        const details = document.getElementById('confirmationDetails');
-        const title = document.getElementById('confirmationTitle');
-        const subtitle = document.getElementById('confirmationSubtitle');
-        
-        if (title) title.textContent = 'تأكيد دفع الشيك';
-        if (subtitle) subtitle.textContent = `هل تم دفع الشيك رقم ${check.number} فعلاً؟`;
-        
-        if (details) {
-            details.innerHTML = `
-                <div class="confirmation-row">
-                    <span class="confirmation-label">اسم الشيك:</span>
-                    <span class="confirmation-value">${check.name}</span>
-                </div>
-                <div class="confirmation-row">
-                    <span class="confirmation-label">رقم الشيك:</span>
-                    <span class="confirmation-value">${check.number}</span>
-                </div>
-                <div class="confirmation-row">
-                    <span class="confirmation-label">المبلغ:</span>
-                    <span class="confirmation-value" style="color: var(--primary-color);">${formatCurrency(check.amount)}</span>
-                </div>
-                <div class="confirmation-row">
-                    <span class="confirmation-label">المستلم:</span>
-                    <span class="confirmation-value">${check.recipient}</span>
-                </div>
-                <div class="confirmation-row">
-                    <span class="confirmation-label">تاريخ الاستحقاق:</span>
-                    <span class="confirmation-value">${formatDate(check.dueDate)}</span>
-                </div>
-            `;
-        }
-        
-        openModal('paymentConfirmationModal');
-    }
-
-    function confirmPayment(isPaid) {
-        const checkId = window.currentPaymentCheckId;
-        if (!checkId) return;
-        
-        const check = checks.find(c => c.id === checkId);
-        if (!check) return;
-        
-        if (isPaid) {
-            check.status = 'cleared';
-            check.clearedDate = new Date().toISOString();
-            
-            saveChecksLocally();
-            
-            const details = `
-                <strong>رقم الشيك:</strong> ${check.number}<br>
-                <strong>المبلغ:</strong> ${formatCurrency(check.amount)}<br>
-                <strong>تاريخ الدفع:</strong> ${formatDate(new Date().toISOString())}
-            `;
-            
-            addNotification(
-                '✅ تم تأكيد دفع الشيك',
-                `تم دفع الشيك "${check.name}" بنجاح`,
-                'payment_confirmed',
-                check.id,
-                details
-            );
-            
-            showNotification('تم تحديث حالة الشيك إلى "تم الصرف"');
-        } else {
-            addNotification(
-                '❓ لم يتم تأكيد دفع الشيك',
-                `لم يتم تأكيد دفع الشيك "${check.name}". سيتم تذكيرك بعد 5 أيام`,
-                'payment_reminder',
-                check.id
-            );
-            
-            showNotification('سيتم تذكيرك بعد 5 أيام');
-        }
-        
-        updateUI();
-        closeModal();
-        
-        if (isOnline && database) {
-            saveCheckToDatabase(check);
-        }
-    }
+    // تم إزالة دالة openPaymentConfirmationModal بالكامل
+    
+    // تم إزالة دالة confirmPayment بالكامل
 
     // ============================================
     // دوال تسجيل الدخول
@@ -7330,7 +7208,7 @@
     }
 
     function showAbout() {
-        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- نظام إشعارات متقدم بالعربية\n- تذكير بالشيكات المستحقة\n- تأكيد دفع الشيكات\n- إشعار بعد 5 أيام من عدم التأكيد\n- إشعارات موضعية في المكان\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
+        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- نظام إشعارات متقدم بالعربية\n- تذكير بالشيكات المستحقة\n- تأكيد دفع الشيكات بنقرة واحدة\n- إشعار بعد 5 أيام من عدم التأكيد\n- إشعارات موضعية في المكان\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
     }
 
     function openDeleteAllModal() {
