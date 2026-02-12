@@ -57,6 +57,8 @@
             --status-cleared: #0f7b6c;
             --status-bounced: #d1453b;
             
+            --risk-issuer-badge: #8e44ad; /* لون مميز للمخاطر */
+            
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
@@ -473,6 +475,22 @@
             padding: 2px 6px;
             border-radius: 4px;
             z-index: 1;
+        }
+        
+        /* شارة المخاطر الخاصة بالمعطيين الذين لديهم 5 شيكات مستقبلية */
+        .risk-issuer-badge {
+            position: absolute;
+            top: 6px;
+            left: 70px;
+            background: var(--risk-issuer-badge);
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .checks-view, .analytics-view, .recipients-view, .issuers-view {
@@ -2150,6 +2168,10 @@
             background: rgba(51, 126, 169, 0.1);
             color: var(--primary-color);
         }
+        .notification-icon.risk {
+            background: rgba(142, 68, 173, 0.1);
+            color: #8e44ad;
+        }
 
         .notification-content {
             flex: 1;
@@ -3365,13 +3387,95 @@
                     this.checkOverdueChecks();
                     this.checkUpcomingChecks();
                     this.checkDuplicateChecks();
+                    this.checkIssuersWithFiveOrMoreFutureChecks(); // <-- الوظيفة الجديدة
                 }, 30 * 60 * 1000);
 
                 setTimeout(() => {
                     this.checkOverdueChecks();
                     this.checkUpcomingChecks();
                     this.checkDuplicateChecks();
+                    this.checkIssuersWithFiveOrMoreFutureChecks(); // <-- الوظيفة الجديدة
                 }, 5000);
+            }
+
+            // ========== الوظيفة الجديدة: المعطيون الذين لديهم 5 شيكات مستقبلية أو أكثر ==========
+            checkIssuersWithFiveOrMoreFutureChecks() {
+                if (!checks || checks.length === 0) return;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // تجميع الشيكات المستقبلية (قيد الانتظار وتاريخ الاستحقاق في المستقبل) حسب المعطي
+                const issuerFutureChecks = {};
+                
+                checks.forEach(check => {
+                    // فقط الحالة قيد الانتظار ولها تاريخ استحقاق في المستقبل
+                    if (check.status === 'pending' && check.dueDate) {
+                        const dueDate = new Date(check.dueDate);
+                        dueDate.setHours(0, 0, 0, 0);
+                        if (dueDate >= today) {
+                            const issuer = check.issuer || 'غير محدد';
+                            if (!issuerFutureChecks[issuer]) {
+                                issuerFutureChecks[issuer] = [];
+                            }
+                            issuerFutureChecks[issuer].push(check);
+                        }
+                    }
+                });
+                
+                // التحقق من المعطيين الذين لديهم 5 شيكات مستقبلية أو أكثر
+                Object.entries(issuerFutureChecks).forEach(([issuer, futureChecksArray]) => {
+                    if (futureChecksArray.length >= 5) {
+                        // نتأكد أننا لم نضف هذا الإشعار مسبقاً خلال الـ 24 ساعة الماضية
+                        const lastNotifKey = `risk_issuer_${issuer}_last_notification`;
+                        const lastNotifTime = localStorage.getItem(lastNotifKey);
+                        const now = new Date().getTime();
+                        
+                        if (lastNotifTime && (now - parseInt(lastNotifTime)) < 86400000) {
+                            // أقل من 24 ساعة من آخر إشعار، نتجاوز
+                            return;
+                        }
+                        
+                        // حفظ وقت هذا الإشعار
+                        localStorage.setItem(lastNotifKey, now.toString());
+                        
+                        // حساب إجمالي المبلغ المستقبلي لهذا المعطي
+                        const totalFutureAmount = futureChecksArray.reduce((sum, c) => sum + (c.amount || 0), 0);
+                        
+                        // إضافة إشعار خطر
+                        this.addNotification(
+                            'risk', // نوع خاص للمخاطر
+                            'fa-exclamation-triangle',
+                            `⚠️ مخاطر: المعطي ${issuer}`,
+                            `لديه ${futureChecksArray.length} شيكات مستقبلية (إجمالي ${formatCurrency(totalFutureAmount)})`,
+                            {
+                                id: futureChecksArray[0]?.id,
+                                number: futureChecksArray[0]?.number,
+                                name: issuer,
+                                amount: totalFutureAmount
+                            }
+                        );
+                        
+                        // إضافة إشعار لكل شيك من الخمسة (اختياري: نضيف فقط ملخصاً)
+                        // يمكن إلغاء التعليق أدناه لإضافة إشعارات مفصلة
+                        /*
+                        futureChecksArray.slice(0, 3).forEach(check => {
+                            this.addNotification(
+                                'warning',
+                                'fa-clock',
+                                `شيك مستقبلي للمعطي ${issuer}`,
+                                `رقم: ${check.number} - ${formatCurrency(check.amount)}`,
+                                {
+                                    id: check.id,
+                                    number: check.number,
+                                    name: check.name,
+                                    amount: check.amount
+                                }
+                            );
+                        });
+                        */
+                    }
+                });
             }
 
             checkOverdueChecks() {
@@ -6352,6 +6456,21 @@
                 duplicateCounts[check.number] = (duplicateCounts[check.number] || 0) + 1;
             });
             
+            // إحصاءات المعطيين الذين لديهم 5 شيكات مستقبلية أو أكثر
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const issuerFutureChecksCount = {};
+            checks.forEach(check => {
+                if (check.status === 'pending' && check.dueDate) {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate >= today) {
+                        const issuer = check.issuer || 'غير محدد';
+                        issuerFutureChecksCount[issuer] = (issuerFutureChecksCount[issuer] || 0) + 1;
+                    }
+                }
+            });
+            
             if (filteredChecks.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -6383,9 +6502,13 @@
                 
                 const dueDateAlert = showDueDateAlert(check);
                 
+                // إضافة شارة المخاطر للمعطي إذا كان لديه 5 شيكات مستقبلية أو أكثر
+                const issuerRisk = (check.issuer && issuerFutureChecksCount[check.issuer] >= 5) ? true : false;
+                
                 return `
                     <div class="check-item ${statusClass} fade-in" onclick="editCheck('${check.id}')">
                         ${isDuplicate ? '<div class="duplicate-badge">مكرر</div>' : ''}
+                        ${issuerRisk ? '<div class="risk-issuer-badge"><i class="fas fa-exclamation-triangle"></i> خطر: 5+ شيكات</div>' : ''}
                         ${dueDateAlert ? 
                             (dueDateAlert.type === 'overdue' ? 
                                 `<div class="overdue-badge">متأخر ${dueDateAlert.days} يوم</div>` : 
@@ -6402,6 +6525,7 @@
                                 <span class="check-amount">${formatCurrency(check.amount)}</span>
                                 ${statusBadge}
                                 ${check.dueDate ? `<span>استحقاق: ${formatDate(check.dueDate)}</span>` : ''}
+                                ${issuerRisk ? `<span style="color: #8e44ad; font-weight: bold;">معطي خطر</span>` : ''}
                             </div>
                         </div>
                         <button class="icon-button" onclick="event.stopPropagation(); deleteCheck('${check.id}')" 
@@ -6520,7 +6644,7 @@
         }
 
         function showAbout() {
-            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- نظام الاقتراحات الذكي أثناء الكتابة\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل مع عرض رقم الشيك واسم الشيك\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
+            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- نظام الاقتراحات الذكي أثناء الكتابة\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل مع عرض رقم الشيك واسم الشيك\n- مخاطر المعطيين: تنبيه للمعطي الذي لديه 5 شيكات مستقبلية أو أكثر\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
         }
 
         // Export functions
@@ -8845,7 +8969,7 @@
             const manifest = {
                 "name": "CheckFlow Pro",
                 "short_name": "CheckFlow",
-                "description": "إدارة الشيكات الاحترافية مع الاقتراحات الذكية",
+                "description": "إدارة الشيكات الاحترافية مع الاقتراحات الذكية وتنبيهات المخاطر للمعطيين",
                 "start_url": "/",
                 "display": "standalone",
                 "background_color": "#337ea9",
