@@ -462,6 +462,30 @@
             z-index: 1;
         }
 
+        .overdue-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .soon-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: var(--warning-color);
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 1;
+        }
+
         /* عرض جميع الشيكات */
         .checks-view, .analytics-view, .recipients-view, .issuers-view {
             display: grid;
@@ -800,114 +824,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* مطالبة التثبيت */
-        .install-prompt {
-            position: fixed;
-            bottom: 80px;
-            right: var(--spacing-md);
-            left: var(--spacing-md);
-            background: var(--card-color);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-sm);
-            box-shadow: 0 10px 40px var(--shadow-color);
-            display: none;
-            z-index: 1500;
-            animation: slideUp var(--transition-normal);
-            text-align: right;
-        }
-
-        .install-prompt.show {
-            display: block;
-        }
-
-        .install-content {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-
-        .install-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-md);
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .install-text {
-            flex: 1;
-        }
-
-        .install-title {
-            font-size: var(--font-size-md);
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .install-description {
-            font-size: var(--font-size-sm);
-            color: var(--text-secondary);
-        }
-
-        .install-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        /* شاشة البداية */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            bottom: 0;
-            background: var(--primary-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            transition: opacity var(--transition-normal);
-        }
-
-        .splash-logo {
-            width: 70px;
-            height: 70px;
-            background: white;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: var(--spacing-md);
-            animation: bounce 1s infinite alternate;
-        }
-
-        .splash-logo i {
-            font-size: 32px;
-            color: var(--primary-color);
-        }
-
-        .splash-title {
-            color: white;
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .splash-subtitle {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: var(--font-size-sm);
-        }
-
-        @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-8px); }
-        }
-
         /* إخفاء شريط التمرير */
         .modal-body::-webkit-scrollbar {
             display: none;
@@ -1244,38 +1160,6 @@
         canvas {
             max-height: 250px;
             width: 100% !important;
-        }
-
-        /* إشعارات داخل التطبيق */
-        .in-app-notification {
-            position: fixed;
-            top: 70px;
-            left: 16px;
-            right: 16px;
-            background: var(--warning-color);
-            color: white;
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            box-shadow: 0 4px 12px var(--shadow-color);
-            z-index: 1001;
-            animation: slideIn 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: var(--font-size-sm);
-        }
-
-        .in-app-notification i {
-            margin-left: 8px;
-        }
-
-        .in-app-notification button {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            padding: 0;
-            font-size: 16px;
         }
 
         /* تحسينات للشاشات الصغيرة جداً */
@@ -1903,6 +1787,25 @@
         .password-status.invalid {
             color: var(--danger-color);
         }
+
+        /* تنبيه تاريخ الاستحقاق */
+        .due-date-warning {
+            color: var(--warning-color);
+            font-size: var(--font-size-xs);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .due-date-danger {
+            color: var(--danger-color);
+            font-size: var(--font-size-xs);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 </head>
 <body>
@@ -1919,27 +1822,6 @@
     <div class="sync-status" id="syncStatus">
         <i class="fas fa-sync-alt"></i>
         <span id="syncMessage">جاري المزامنة...</span>
-    </div>
-
-    <!-- مطالبة التثبيت -->
-    <div class="install-prompt" id="installPrompt">
-        <div class="install-content">
-            <div class="install-icon">
-                <i class="fas fa-download"></i>
-            </div>
-            <div class="install-text">
-                <div class="install-title">تثبيت CheckFlow</div>
-                <div class="install-description">أضف إلى الشاشة الرئيسية لتجربة أفضل</div>
-            </div>
-            <div class="install-actions">
-                <button class="btn btn-secondary" onclick="hideInstallPrompt()">
-                    لاحقاً
-                </button>
-                <button class="btn btn-primary" onclick="installApp()">
-                    تثبيت
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- رأس التطبيق -->
@@ -2264,7 +2146,7 @@
                     </div>
                 </div>
 
-                <!-- تقرير المخاطر -->
+                <!-- تقرير المخاطر - الشيكات المتأخرة -->
                 <div class="table-card">
                     <div class="chart-header">
                         <div class="chart-title">تقرير المخاطر - الشيكات المتأخرة</div>
@@ -2446,6 +2328,11 @@
                     <div id="duplicateAlert" style="display: none;" class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>رقم الشيك مُسجل مسبقاً!</span>
+                    </div>
+
+                    <div id="dueDateAlert" style="display: none;" class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="dueDateAlertMessage">تنبيه: تاريخ الاستحقاق</span>
                     </div>
 
                     <button type="submit" class="btn btn-primary">
@@ -2788,7 +2675,6 @@
     let checks = [];
     let currentView = 'dashboard';
     let currentMuslimDetails = null;
-    let deferredPrompt = null;
     let isInstalled = false;
     let currentUserId = null;
     let isOnline = navigator.onLine;
@@ -2799,7 +2685,6 @@
     let excelData = [];
     let activeFilters = {};
     let duplicateReport = null;
-    let notificationsEnabled = true;
     
     // متغيرات المخططات
     let statusChart = null;
@@ -2831,13 +2716,11 @@
     function formatNumberForPDF(num) {
         if (!num && num !== 0) return '0.00';
         const number = parseFloat(num);
-        
-        // استخدام تنسيق فرنسي صحيح
         return new Intl.NumberFormat('fr-FR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
             useGrouping: true
-        }).format(number).replace(/\s/g, ' '); // استبدال المسافات غير المنقطعة بمسافات عادية
+        }).format(number).replace(/\s/g, ' ');
     }
 
     // دالة تنسيق المبالغ بالفرنسية - محسنة لـ PDF
@@ -2887,15 +2770,11 @@
     function convertToFrenchForExport(text) {
         if (!text) return '';
         
-        // قائمة شاملة بالكلمات العربية وتحويلها للفرنسية
         const translations = {
-            // الحالات
             'قيد الانتظار': 'En attente',
             'تم الصرف': 'Compensé',
             'مرتجع': 'Retourné',
             'مرتجعة': 'Retournée',
-            
-            // الكلمات الأساسية
             'شيك': 'Chèque',
             'شيكات': 'Chèques',
             'بنك': 'Banque',
@@ -2908,60 +2787,37 @@
             'ملاحظات': 'Remarques',
             'قيد': 'En cours',
             'صرف': 'Compensé',
-            
-            // الأيام والشهور
-            'الأحد': 'Dimanche',
-            'الإثنين': 'Lundi',
-            'الثلاثاء': 'Mardi',
-            'الأربعاء': 'Mercredi',
-            'الخميس': 'Jeudi',
-            'الجمعة': 'Vendredi',
-            'السبت': 'Samedi',
-            
-            // البنوك الشائعة
             'البنك المغربي للتجارة الخارجية': 'BMCE Bank',
             'البنك الشعبي': 'Banque Populaire',
             'البنك التجاري المغربي': 'Attijariwafa Bank',
             'البنك المغربي للتجارة والصناعة': 'BMCI',
-            
-            // حالات خاصة
             'غير محدد': 'Non spécifié',
             'غير معروف': 'Inconnu',
             'غير مدفوع': 'Non payé',
             'غير مستحق': 'Non échu',
-            
-            // التنبيهات
             'تحذير': 'Avertissement',
             'تنبيه': 'Notification',
             'إشعار': 'Avis',
-            
-            // الإجراءات
             'إضافة': 'Ajouter',
             'تعديل': 'Modifier',
             'حذف': 'Supprimer',
             'بحث': 'Rechercher',
             'تصدير': 'Exporter',
             'استيراد': 'Importer',
-            
-            // الزمن
             'اليوم': "Aujourd'hui",
             'غداً': 'Demain',
             'أمس': 'Hier',
             'شهر': 'Mois',
             'عام': 'Année',
             'ربع': 'Trimestre',
-            
-            // الأرقام العربية (اختياري)
             '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
             '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
         };
         
         let result = text.toString();
         
-        // استبدال الكلمات العربية بترجمتها الفرنسية
         Object.keys(translations).forEach(arabic => {
             const french = translations[arabic];
-            // استخدام تعبير منتظم للاستبدال مع تجاهل حالة الأحرف
             const regex = new RegExp(arabic, 'gi');
             result = result.replace(regex, french);
         });
@@ -2988,6 +2844,57 @@
         });
     }
 
+    // دالة التحقق من تاريخ الاستحقاق
+    function checkDueDate(dueDate, issueDate) {
+        if (!dueDate || !issueDate) return { isValid: true, message: '' };
+        
+        const due = new Date(dueDate);
+        const issue = new Date(issueDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // التحقق من أن تاريخ الاستحقاق بعد تاريخ الإصدار
+        if (due < issue) {
+            return { 
+                isValid: false, 
+                message: 'تاريخ الاستحقاق يجب أن يكون بعد تاريخ الإصدار' 
+            };
+        }
+        
+        // التحقق من أن تاريخ الاستحقاق ليس في الماضي (للشيكات الجديدة)
+        const isNewCheck = !document.getElementById('checkId').value;
+        if (isNewCheck && due < today) {
+            return { 
+                isValid: false, 
+                message: 'لا يمكن إضافة شيك بتاريخ استحقاق في الماضي' 
+            };
+        }
+        
+        return { isValid: true, message: '' };
+    }
+
+    // دالة عرض تنبيه تاريخ الاستحقاق
+    function showDueDateAlert(check) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (check.status !== 'pending' || !check.dueDate) return;
+        
+        const dueDate = new Date(check.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        
+        if (dueDate < today) {
+            return { type: 'overdue', days: Math.floor((today - dueDate) / (1000 * 60 * 60 * 24)) };
+        }
+        
+        const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+        if (daysRemaining <= 3 && daysRemaining >= 0) {
+            return { type: 'soon', days: daysRemaining };
+        }
+        
+        return null;
+    }
+
     // تهيئة التطبيق
     document.addEventListener('DOMContentLoaded', async function() {
         // إخفاء شاشة البداية بعد 1.5 ثانية
@@ -3012,8 +2919,6 @@
                             loadData();
                             updateUI();
                             setupEventListeners();
-                            setupNotifications();
-                            checkPWAInstallation();
                             setupPasswordValidation();
                         } else {
                             // لا يوجد مستخدم مسجل الدخول
@@ -3028,11 +2933,6 @@
                 }
             }, 300);
         }, 1500);
-
-        // طلب إذن الإشعارات
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
 
         // مراقبة حالة الاتصال
         window.addEventListener('online', () => {
@@ -3071,7 +2971,6 @@
                 newPasswordStatus.className = 'password-status valid';
             }
             
-            // التحقق من تطابق كلمتي المرور
             if (confirmPassword.value) {
                 if (this.value !== confirmPassword.value) {
                     confirmPasswordStatus.textContent = 'كلمتا المرور غير متطابقتين';
@@ -3094,6 +2993,59 @@
         });
     }
 
+    // إعداد التحقق من تاريخ الاستحقاق
+    function setupDueDateValidation() {
+        const issueDate = document.getElementById('issueDate');
+        const dueDate = document.getElementById('dueDate');
+        const dueDateAlert = document.getElementById('dueDateAlert');
+        const dueDateAlertMessage = document.getElementById('dueDateAlertMessage');
+        
+        function validateDates() {
+            if (!dueDate.value || !issueDate.value) {
+                dueDateAlert.style.display = 'none';
+                return;
+            }
+            
+            const due = new Date(dueDate.value);
+            const issue = new Date(issueDate.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // التحقق من أن تاريخ الاستحقاق بعد تاريخ الإصدار
+            if (due < issue) {
+                dueDateAlertMessage.textContent = 'تنبيه: تاريخ الاستحقاق يجب أن يكون بعد تاريخ الإصدار';
+                dueDateAlert.className = 'alert alert-danger';
+                dueDateAlert.style.display = 'flex';
+                return;
+            }
+            
+            // التحقق من أن تاريخ الاستحقاق ليس في الماضي (للشيكات الجديدة)
+            const isNewCheck = !document.getElementById('checkId').value;
+            if (isNewCheck && due < today) {
+                dueDateAlertMessage.textContent = 'تنبيه: لا يمكن إضافة شيك بتاريخ استحقاق في الماضي';
+                dueDateAlert.className = 'alert alert-danger';
+                dueDateAlert.style.display = 'flex';
+                return;
+            }
+            
+            // عرض تنبيه للشيكات القريبة من الاستحقاق
+            if (due >= today) {
+                const daysRemaining = Math.floor((due - today) / (1000 * 60 * 60 * 24));
+                if (daysRemaining <= 3) {
+                    dueDateAlertMessage.textContent = `تنبيه: تاريخ الاستحقاق بعد ${daysRemaining} يوم`;
+                    dueDateAlert.className = 'alert alert-warning';
+                    dueDateAlert.style.display = 'flex';
+                    return;
+                }
+            }
+            
+            dueDateAlert.style.display = 'none';
+        }
+        
+        issueDate.addEventListener('change', validateDates);
+        dueDate.addEventListener('change', validateDates);
+    }
+
     // دوال تسجيل الدخول
     function loginWithEmail() {
         const email = document.getElementById('loginEmail').value.trim();
@@ -3101,7 +3053,6 @@
         const loginError = document.getElementById('loginError');
         const errorMessage = document.getElementById('errorMessage');
         
-        // إخفاء رسالة الخطأ
         loginError.style.display = 'none';
         
         if (!email || !password) {
@@ -3115,28 +3066,20 @@
                 currentUserId = userCredential.user.uid;
                 updateUserAvatar();
                 
-                // إخفاء شاشة تسجيل الدخول
                 document.getElementById('loginModal').style.display = 'none';
-                
-                // إظهار التطبيق
                 document.getElementById('appHeader').style.display = 'flex';
                 document.getElementById('mainContent').style.display = 'block';
                 document.getElementById('bottomNav').style.display = 'flex';
                 
-                // تهيئة التطبيق
                 initApp();
                 loadData();
                 updateUI();
                 setupEventListeners();
-                setupNotifications();
-                checkPWAInstallation();
+                setupDueDateValidation();
                 setupPasswordValidation();
-                
-                showNotification('تم تسجيل الدخول بنجاح');
             })
             .catch((error) => {
                 const errorCode = error.code;
-                const errorMessageText = error.message;
                 
                 let userMessage = '';
                 if (errorCode === 'auth/user-not-found') {
@@ -3150,7 +3093,7 @@
                 } else if (errorCode === 'auth/user-disabled') {
                     userMessage = 'تم تعطيل هذا الحساب.';
                 } else {
-                    userMessage = 'خطأ في تسجيل الدخول: ' + errorMessageText;
+                    userMessage = 'خطأ في تسجيل الدخول: ' + error.message;
                 }
                 
                 errorMessage.textContent = userMessage;
@@ -3193,16 +3136,11 @@
             })
             .then(() => {
                 alert('تم تغيير كلمة المرور بنجاح');
-                // مسح الحقول
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
-                
-                // إعادة تعيين رسائل الحالة
                 document.getElementById('newPasswordStatus').textContent = '';
                 document.getElementById('confirmPasswordStatus').textContent = '';
-                
-                showNotification('تم تغيير كلمة المرور بنجاح');
             })
             .catch((error) => {
                 console.error('Error changing password:', error);
@@ -3224,15 +3162,11 @@
                 checks = [];
                 pendingSync = [];
                 
-                // إخفاء التطبيق
                 document.getElementById('appHeader').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'none';
                 document.getElementById('bottomNav').style.display = 'none';
                 
-                // إظهار شاشة تسجيل الدخول
                 document.getElementById('loginModal').style.display = 'flex';
-                
-                showNotification('تم تسجيل الخروج');
             }).catch((error) => {
                 alert('خطأ في تسجيل الخروج: ' + error.message);
             });
@@ -3269,10 +3203,8 @@
         // التحقق إذا كان التطبيق مثبتاً
         if (window.matchMedia('(display-mode: standalone)').matches) {
             isInstalled = true;
-            console.log('التطبيق مثبت كـ PWA');
         }
         
-        // إضافة مستمع لحدث تغيير البيانات لتحديث الإحصائيات
         if (currentView === 'analytics') {
             updateAnalytics();
         }
@@ -3295,7 +3227,6 @@
                 const data = snapshot.val();
                 checks = Object.values(data || {});
                 
-                // حفظ محلياً للعمل بدون اتصال
                 localStorage.setItem('checkflow_checks_' + currentUserId, JSON.stringify(checks));
                 
                 showSyncStatus('تم تحميل البيانات من السحابة', 'success');
@@ -3304,13 +3235,11 @@
                 showSyncStatus('تم تحميل البيانات المحلية', 'success');
             }
             
-            // مراقبة التغييرات في الوقت الحقيقي
             userRef.on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const newChecks = Object.values(data || {});
                     
-                    // تحديث فقط إذا كان هناك تغيير
                     if (JSON.stringify(checks) !== JSON.stringify(newChecks)) {
                         checks = newChecks;
                         updateUI();
@@ -3404,13 +3333,11 @@
             return;
         }
         
-        // مزامنة جميع البيانات المحلية
         const localChecks = JSON.parse(localStorage.getItem('checkflow_checks_' + currentUserId) || '[]');
         
         if (database && currentUserId) {
             showSyncStatus('جاري مزامنة جميع البيانات...', 'syncing');
             
-            // حفظ جميع الشيكات إلى Firebase
             const updates = {};
             localChecks.forEach(check => {
                 updates[check.id] = check;
@@ -3419,7 +3346,6 @@
             database.ref('users/' + currentUserId + '/checks').update(updates)
                 .then(() => {
                     showSyncStatus('تمت المزامنة بنجاح', 'success');
-                    showNotification('تم مزامنة جميع البيانات مع السحابة');
                 })
                 .catch(error => {
                     console.error('Sync error:', error);
@@ -3436,7 +3362,6 @@
         syncStatus.className = 'sync-status ' + type;
         syncStatus.style.display = 'flex';
         
-        // إخفاء الرسالة بعد 3 ثواني
         setTimeout(() => {
             syncStatus.style.display = 'none';
         }, 3000);
@@ -3445,7 +3370,6 @@
     // دوال التحقق من التكرار
     function isCheckDuplicate(checkNumber, currentCheckId = null) {
         return checks.some(check => {
-            // تجاهل الشيك الحالي عند التعديل
             if (currentCheckId && check.id === currentCheckId) {
                 return false;
             }
@@ -3481,7 +3405,6 @@
             message += `\nهل تريد معالجة هذه المكررات؟`;
             
             if (confirm(message)) {
-                // إنشاء تقرير التكرار
                 duplicateReport = duplicateNumbers.map(number => {
                     const duplicateChecks = checks.filter(c => c.number === number);
                     return {
@@ -3498,11 +3421,10 @@
                     };
                 });
                 
-                // فتح خيارات المعالجة
                 openDuplicateResolutionModal();
             }
         } else {
-            showNotification('لا توجد شيكات مكررة!');
+            alert('لا توجد شيكات مكررة!');
         }
     }
 
@@ -3514,20 +3436,14 @@
         document.getElementById('pageTitle').textContent = 'الإحصائيات';
         updateNav('stats');
         
-        // تحديث الإحصائيات
         updateAnalytics();
     }
 
     function updateAnalytics() {
-        // تحديث البطاقات الإحصائية
         updateAnalyticsCards();
-        
-        // تحديث المخططات
         updateStatusChart();
         updateBankChart();
         updateMonthlyChart();
-        
-        // تحديث الجداول
         updateTopBanksTable();
         updateRiskReportTable();
         updateDuplicatesSummary();
@@ -3539,7 +3455,6 @@
         const pendingChecks = checks.filter(c => c.status === 'pending').length;
         const clearedChecks = checks.filter(c => c.status === 'cleared').length;
         
-        // حساب التغيرات (بسيط - يمكن تطويره)
         const checksChange = 0;
         const amountChange = 0;
         const pendingChange = 0;
@@ -3574,7 +3489,6 @@
     function updateStatusChart() {
         const ctx = document.getElementById('statusChart').getContext('2d');
         
-        // تجميع البيانات حسب الحالة
         const statusData = {
             pending: checks.filter(c => c.status === 'pending').length,
             cleared: checks.filter(c => c.status === 'cleared').length,
@@ -3639,7 +3553,6 @@
         const ctx = document.getElementById('bankChart').getContext('2d');
         const chartType = document.getElementById('bankChartType').value;
         
-        // تجميع البيانات حسب البنك
         const bankData = {};
         checks.forEach(check => {
             const bank = check.bank || 'غير محدد';
@@ -3650,7 +3563,6 @@
             bankData[bank].amount += check.amount || 0;
         });
         
-        // ترتيب البنوك حسب المبلغ (تنازلياً)
         const sortedBanks = Object.entries(bankData)
             .sort((a, b) => b[1].amount - a[1].amount)
             .slice(0, 8);
@@ -3717,7 +3629,6 @@
         const chartType = document.getElementById('monthlyChartType').value;
         const period = document.getElementById('analyticsPeriod').value;
         
-        // تحديد نطاق التاريخ
         const now = new Date();
         let startDate = new Date(2000, 0, 1);
         
@@ -3730,7 +3641,6 @@
             startDate = new Date(now.getFullYear(), 0, 1);
         }
         
-        // تجميع البيانات الشهرية
         const monthlyData = {};
         
         checks.forEach(check => {
@@ -3748,7 +3658,6 @@
             monthlyData[monthKey].amount += check.amount || 0;
         });
         
-        // إنشاء مصفوفة من الأشهر (آخر 12 شهراً)
         const months = [];
         const data = [];
         
@@ -3819,7 +3728,6 @@
     function updateTopBanksTable() {
         const tableBody = document.getElementById('topBanksTable');
         
-        // تجميع بيانات البنوك
         const bankData = {};
         checks.forEach(check => {
             const bank = check.bank || 'غير محدد';
@@ -3830,7 +3738,6 @@
             bankData[bank].amount += check.amount || 0;
         });
         
-        // ترتيب حسب المبلغ (تنازلياً)
         const sortedBanks = Object.entries(bankData)
             .sort((a, b) => b[1].amount - a[1].amount)
             .slice(0, 10);
@@ -3867,11 +3774,13 @@
     function updateRiskReportTable() {
         const tableBody = document.getElementById('riskReportTable');
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
         const overdueChecks = checks.filter(check => {
             if (check.status !== 'pending') return false;
             if (!check.dueDate) return false;
             const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
             return dueDate < today;
         }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
         
@@ -3879,6 +3788,7 @@
         
         overdueChecks.forEach(check => {
             const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
             const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
             
             tableHTML += `
@@ -3913,16 +3823,21 @@
         const uniqueDuplicates = [...new Set(duplicates)];
         
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         const overdueChecks = checks.filter(check => {
             if (check.status !== 'pending') return false;
             if (!check.dueDate) return false;
-            return new Date(check.dueDate) < today;
+            const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return dueDate < today;
         });
         
         const upcomingChecks = checks.filter(check => {
             if (check.status !== 'pending') return false;
             if (!check.dueDate) return false;
             const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
             const daysUntilDue = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
             return daysUntilDue >= 0 && daysUntilDue <= 7;
         });
@@ -3966,10 +3881,14 @@
     // تصدير تقرير المخاطر (بالفرنسية)
     function exportRiskReport() {
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         const overdueChecks = checks.filter(check => {
             if (check.status !== 'pending') return false;
             if (!check.dueDate) return false;
-            return new Date(check.dueDate) < today;
+            const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return dueDate < today;
         });
         
         const report = {
@@ -3979,6 +3898,7 @@
             montantTotalEnRetard: overdueChecks.reduce((sum, c) => sum + (c.amount || 0), 0),
             chèques: overdueChecks.map(check => {
                 const dueDate = new Date(check.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
                 const joursEnRetard = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
                 
                 return {
@@ -4004,8 +3924,6 @@
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
-        
-        showNotification('تم تصدير تقرير المخاطر بالفرنسية');
     }
 
     // دوال المستلمين والمعطيين
@@ -4031,7 +3949,8 @@
                     checks: [],
                     totalAmount: 0,
                     pendingCount: 0,
-                    clearedCount: 0
+                    clearedCount: 0,
+                    overdueCount: 0
                 };
             }
             
@@ -4040,6 +3959,16 @@
             
             if (check.status === 'pending') {
                 recipientsData[recipient].pendingCount++;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (check.dueDate) {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate < today) {
+                        recipientsData[recipient].overdueCount++;
+                    }
+                }
             } else if (check.status === 'cleared') {
                 recipientsData[recipient].clearedCount++;
             }
@@ -4069,22 +3998,27 @@
             return;
         }
         
-        container.innerHTML = recipientsArray.map(recipient => `
-            <div class="check-item fade-in" onclick="showMuslimDetails('${recipient.name.replace(/'/g, "\\'")}')">
-                <div class="check-icon" style="background: var(--secondary-color);">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-                <div class="check-info">
-                    <div class="check-name">${recipient.name}</div>
-                    <div class="check-details">
-                        <span><i class="fas fa-receipt"></i> ${recipient.checks.length} شيك</span>
-                        <span class="check-amount">${formatCurrency(recipient.totalAmount)}</span>
-                        <span class="status-badge status-pending-badge">${recipient.pendingCount} معلق</span>
-                        <span class="status-badge status-cleared-badge">${recipient.clearedCount} منفذ</span>
+        container.innerHTML = recipientsArray.map(recipient => {
+            const hasOverdue = recipient.overdueCount > 0;
+            
+            return `
+                <div class="check-item fade-in" onclick="showMuslimDetails('${recipient.name.replace(/'/g, "\\'")}')">
+                    <div class="check-icon" style="background: var(--secondary-color);">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="check-info">
+                        <div class="check-name">${recipient.name}</div>
+                        <div class="check-details">
+                            <span><i class="fas fa-receipt"></i> ${recipient.checks.length} شيك</span>
+                            <span class="check-amount">${formatCurrency(recipient.totalAmount)}</span>
+                            <span class="status-badge status-pending-badge">${recipient.pendingCount} معلق</span>
+                            <span class="status-badge status-cleared-badge">${recipient.clearedCount} منفذ</span>
+                            ${hasOverdue ? `<span class="status-badge status-bounced-badge">${recipient.overdueCount} متأخر</span>` : ''}
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function showIssuers() {
@@ -4111,25 +4045,33 @@
                     pendingCount: 0,
                     clearedCount: 0,
                     bouncedCount: 0,
-                    recipientCount: 0
+                    overdueCount: 0,
+                    recipientCount: 0,
+                    uniqueRecipients: new Set()
                 };
             }
             
             issuersData[issuer].checks.push(check);
             issuersData[issuer].totalAmount += check.amount || 0;
+            issuersData[issuer].uniqueRecipients.add(check.recipient);
             
             if (check.status === 'pending') {
                 issuersData[issuer].pendingCount++;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (check.dueDate) {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate < today) {
+                        issuersData[issuer].overdueCount++;
+                    }
+                }
             } else if (check.status === 'cleared') {
                 issuersData[issuer].clearedCount++;
             } else if (check.status === 'bounced') {
                 issuersData[issuer].bouncedCount++;
             }
-            
-            if (!issuersData[issuer].uniqueRecipients) {
-                issuersData[issuer].uniqueRecipients = new Set();
-            }
-            issuersData[issuer].uniqueRecipients.add(check.recipient);
         });
         
         let issuersArray = Object.entries(issuersData).map(([name, data]) => ({
@@ -4139,7 +4081,8 @@
             pendingCount: data.pendingCount,
             clearedCount: data.clearedCount,
             bouncedCount: data.bouncedCount,
-            recipientCount: data.uniqueRecipients ? data.uniqueRecipients.size : 0
+            overdueCount: data.overdueCount,
+            recipientCount: data.uniqueRecipients.size
         })).sort((a, b) => b.totalAmount - a.totalAmount);
         
         if (searchTerm) {
@@ -4161,37 +4104,33 @@
             return;
         }
         
-        container.innerHTML = issuersArray.map(issuer => `
-            <div class="check-item fade-in" onclick="showIssuerDetails('${issuer.name.replace(/'/g, "\\'")}')">
-                <div class="check-icon" style="background: var(--primary-color);">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-                <div class="check-info">
-                    <div class="check-name">${issuer.name}</div>
-                    <div class="check-details">
-                        <span><i class="fas fa-receipt"></i> ${issuer.checks.length} شيك</span>
-                        <span class="check-amount">${formatCurrency(issuer.totalAmount)}</span>
-                        <span><i class="fas fa-users"></i> ${issuer.recipientCount} مستلم</span>
-                        <span class="status-badge status-pending-badge">${issuer.pendingCount} معلق</span>
-                        <span class="status-badge status-cleared-badge">${issuer.clearedCount} منفذ</span>
-                        ${issuer.bouncedCount > 0 ? 
-                            `<span class="status-badge status-bounced-badge">${issuer.bouncedCount} مرتجع</span>` : 
-                            ''}
+        container.innerHTML = issuersArray.map(issuer => {
+            const hasOverdue = issuer.overdueCount > 0;
+            
+            return `
+                <div class="check-item fade-in" onclick="showIssuerDetails('${issuer.name.replace(/'/g, "\\'")}')">
+                    <div class="check-icon" style="background: var(--primary-color);">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="check-info">
+                        <div class="check-name">${issuer.name}</div>
+                        <div class="check-details">
+                            <span><i class="fas fa-receipt"></i> ${issuer.checks.length} شيك</span>
+                            <span class="check-amount">${formatCurrency(issuer.totalAmount)}</span>
+                            <span><i class="fas fa-users"></i> ${issuer.recipientCount} مستلم</span>
+                            <span class="status-badge status-pending-badge">${issuer.pendingCount} معلق</span>
+                            <span class="status-badge status-cleared-badge">${issuer.clearedCount} منفذ</span>
+                            ${issuer.bouncedCount > 0 ? 
+                                `<span class="status-badge status-bounced-badge">${issuer.bouncedCount} مرتجع</span>` : 
+                                ''}
+                            ${hasOverdue ? 
+                                `<span class="status-badge status-bounced-badge">${issuer.overdueCount} متأخر</span>` : 
+                                ''}
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
-    }
-
-    // نظام الإشعارات
-    function setupNotifications() {
-        setInterval(checkDueDateNotifications, 60 * 60 * 1000);
-        setTimeout(checkDueDateNotifications, 5000);
-        loadNotificationSettings();
-    }
-
-    function loadNotificationSettings() {
-        // يمكن إضافة إعدادات الإشعارات هنا
+            `;
+        }).join('');
     }
 
     // دوال العرض الرئيسية
@@ -4249,6 +4188,7 @@
         document.getElementById('checkForm').reset();
         document.getElementById('checkId').value = '';
         document.getElementById('duplicateAlert').style.display = 'none';
+        document.getElementById('dueDateAlert').style.display = 'none';
         
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('issueDate').value = today;
@@ -4258,6 +4198,7 @@
         document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
         
         openModal('addCheckModal');
+        setupDueDateValidation();
     }
 
     function editCheck(checkId) {
@@ -4277,6 +4218,32 @@
         document.getElementById('notes').value = check.notes || '';
         
         openModal('addCheckModal');
+        setupDueDateValidation();
+        
+        // التحقق من تاريخ الاستحقاق للشيكات المعدلة
+        const dueDateAlert = document.getElementById('dueDateAlert');
+        const dueDateAlertMessage = document.getElementById('dueDateAlertMessage');
+        
+        if (check.dueDate && check.status === 'pending') {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            
+            if (dueDate < today) {
+                const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                dueDateAlertMessage.textContent = `تنبيه: هذا الشيك متأخر بـ ${daysOverdue} يوم`;
+                dueDateAlert.className = 'alert alert-danger';
+                dueDateAlert.style.display = 'flex';
+            } else if (dueDate >= today) {
+                const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+                if (daysRemaining <= 3) {
+                    dueDateAlertMessage.textContent = `تنبيه: تاريخ الاستحقاق بعد ${daysRemaining} يوم`;
+                    dueDateAlert.className = 'alert alert-warning';
+                    dueDateAlert.style.display = 'flex';
+                }
+            }
+        }
     }
 
     async function saveCheck(event) {
@@ -4285,6 +4252,21 @@
         const checkId = document.getElementById('checkId').value;
         const isEdit = !!checkId;
         const checkNumber = document.getElementById('checkNumber').value;
+        const issueDate = document.getElementById('issueDate').value;
+        const dueDate = document.getElementById('dueDate').value;
+        
+        // التحقق من صحة تاريخ الاستحقاق
+        if (dueDate) {
+            const dueDateValidation = checkDueDate(dueDate, issueDate);
+            if (!dueDateValidation.isValid) {
+                const dueDateAlert = document.getElementById('dueDateAlert');
+                const dueDateAlertMessage = document.getElementById('dueDateAlertMessage');
+                dueDateAlertMessage.textContent = dueDateValidation.message;
+                dueDateAlert.className = 'alert alert-danger';
+                dueDateAlert.style.display = 'flex';
+                return;
+            }
+        }
         
         if (isCheckDuplicate(checkNumber, checkId)) {
             document.getElementById('duplicateAlert').style.display = 'flex';
@@ -4304,8 +4286,8 @@
             recipient: document.getElementById('recipient').value,
             issuer: document.getElementById('issuer').value,
             status: document.getElementById('checkStatus').value,
-            issueDate: document.getElementById('issueDate').value,
-            dueDate: document.getElementById('dueDate').value,
+            issueDate: issueDate,
+            dueDate: dueDate,
             notes: document.getElementById('notes').value,
             createdAt: isEdit ? checks.find(c => c.id === checkId)?.createdAt || new Date().toISOString() : new Date().toISOString(),
             important: isEdit ? checks.find(c => c.id === checkId)?.important || false : false,
@@ -4339,9 +4321,6 @@
         
         closeModal();
         updateUI();
-        showNotification(isEdit ? 'تم تحديث الشيك' : 'تم إضافة الشيك');
-        
-        setTimeout(checkDueDateNotifications, 1000);
     }
 
     async function deleteCheck(checkId) {
@@ -4362,7 +4341,6 @@
         }
         
         updateUI();
-        showNotification('تم حذف الشيك');
     }
 
     // تحديثات الواجهة
@@ -4428,8 +4406,15 @@
             const statusColor = check.status === 'pending' ? 'var(--warning-color)' :
                                check.status === 'cleared' ? 'var(--secondary-color)' : 'var(--danger-color)';
             
+            const dueDateAlert = showDueDateAlert(check);
+            
             return `
                 <div class="check-item ${statusClass}" onclick="editCheck('${check.id}')">
+                    ${dueDateAlert ? 
+                        (dueDateAlert.type === 'overdue' ? 
+                            `<div class="overdue-badge">متأخر ${dueDateAlert.days} يوم</div>` : 
+                            `<div class="soon-badge">بعد ${dueDateAlert.days} يوم</div>`) 
+                        : ''}
                     <div class="check-icon" style="background: ${statusColor};">
                         <i class="fas fa-${statusIcon}"></i>
                     </div>
@@ -4439,6 +4424,7 @@
                             <span>${check.number}</span>
                             <span class="check-amount">${formatCurrency(check.amount)}</span>
                             <span>${formatDate(check.issueDate)}</span>
+                            ${check.dueDate ? `<span>استحقاق: ${formatDate(check.dueDate)}</span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -4531,9 +4517,16 @@
             
             const isDuplicate = duplicateCounts[check.number] > 1;
             
+            const dueDateAlert = showDueDateAlert(check);
+            
             return `
                 <div class="check-item ${statusClass} fade-in" onclick="editCheck('${check.id}')">
                     ${isDuplicate ? '<div class="duplicate-badge">مكرر</div>' : ''}
+                    ${dueDateAlert ? 
+                        (dueDateAlert.type === 'overdue' ? 
+                            `<div class="overdue-badge">متأخر ${dueDateAlert.days} يوم</div>` : 
+                            `<div class="soon-badge">بعد ${dueDateAlert.days} يوم</div>`) 
+                        : ''}
                     <div class="check-icon" style="background: ${check.important ? 'var(--warning-color)' : 'var(--primary-color)'};">
                         <i class="fas fa-${check.important ? 'star' : 'money-check'}"></i>
                     </div>
@@ -4543,6 +4536,7 @@
                             <span>${check.number}</span>
                             <span class="check-amount">${formatCurrency(check.amount)}</span>
                             ${statusBadge}
+                            ${check.dueDate ? `<span>استحقاق: ${formatDate(check.dueDate)}</span>` : ''}
                         </div>
                     </div>
                     <button class="icon-button" onclick="event.stopPropagation(); deleteCheck('${check.id}')" 
@@ -4555,11 +4549,21 @@
     }
 
     function updateBadges() {
-        const pendingCount = checks.filter(c => c.status === 'pending').length;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const overdueCount = checks.filter(check => {
+            if (check.status !== 'pending') return false;
+            if (!check.dueDate) return false;
+            const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return dueDate < today;
+        }).length;
+        
         const badge = document.getElementById('checksBadge');
         
-        if (pendingCount > 0) {
-            badge.textContent = pendingCount;
+        if (overdueCount > 0) {
+            badge.textContent = overdueCount;
             badge.style.display = 'flex';
         } else {
             badge.style.display = 'none';
@@ -4645,7 +4649,7 @@
 
     // دوال الإعدادات
     function showAbout() {
-        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- إشعارات الاستحقاق\n- تغيير كلمة المرور\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
+        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
     }
 
     // دوال التصدير (بالفرنسية فقط)
@@ -4658,29 +4662,24 @@
         setTimeout(() => openModal('pdfExportModal'), 300);
     }
 
-    // ============================================
     // دالة PDF الجديدة المحسنة
-    // ============================================
     function generateCompletePDF() {
         try {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            // استخدام خط لاتيني بسيط
             doc.setFont('helvetica');
             doc.setFontSize(16);
             doc.setTextColor(40, 40, 40);
             
-            // عنوان التقرير (بالفرنسية فقط)
             doc.text('Rapport Complet des Chèques - CheckFlow Pro', 20, 20);
             doc.setFontSize(10);
             doc.text(`Date de génération: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
             
             let yPosition = 45;
             let pageNumber = 1;
-            const itemsPerPage = 25; // عدد العناصر لكل صفحة
+            const itemsPerPage = 25;
             
-            // ========== الإحصائيات العامة ==========
             const totalChecks = checks.length;
             const totalAmount = checks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
             const stats = {
@@ -4692,7 +4691,6 @@
             doc.setFontSize(12);
             doc.setTextColor(0, 0, 0);
             
-            // عنوان قسم الإحصائيات
             doc.setFontSize(14);
             doc.setTextColor(51, 126, 169);
             doc.text('Statistiques Générales:', 20, yPosition);
@@ -4711,8 +4709,6 @@
             doc.text(`• Retournés: ${stats.bounced}`, 25, yPosition);
             yPosition += 15;
             
-            // ========== قائمة الشيكات ==========
-            // إضافة صفحة جديدة للقائمة
             if (yPosition > 200) {
                 doc.addPage();
                 pageNumber++;
@@ -4724,7 +4720,6 @@
             doc.text(`Liste des Chèques (Page ${pageNumber}):`, 20, yPosition);
             yPosition += 10;
             
-            // رؤوس الجدول
             doc.setFillColor(240, 240, 240);
             doc.rect(20, yPosition, 170, 8, 'F');
             doc.setFontSize(10);
@@ -4734,19 +4729,16 @@
             doc.text('Nom', 65, yPosition + 6);
             doc.text('Montant (MAD)', 120, yPosition + 6);
             doc.text('Statut', 150, yPosition + 6);
-            doc.text('Date', 170, yPosition + 6);
+            doc.text('Date Échéance', 170, yPosition + 6);
             
             yPosition += 12;
             
-            // عرض جميع الشيكات مع إدارة الصفحات
             checks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
                     yPosition = 20;
                     
-                    // رؤوس الجدول للصفحة الجديدة
                     doc.setFontSize(14);
                     doc.setTextColor(51, 126, 169);
                     doc.text(`Liste des Chèques - Suite (Page ${pageNumber}):`, 20, yPosition);
@@ -4761,46 +4753,39 @@
                     doc.text('Nom', 65, yPosition + 6);
                     doc.text('Montant (MAD)', 120, yPosition + 6);
                     doc.text('Statut', 150, yPosition + 6);
-                    doc.text('Date', 170, yPosition + 6);
+                    doc.text('Date Échéance', 170, yPosition + 6);
                     
                     yPosition += 12;
                 }
                 
-                // رقم التسلسل
                 doc.setFontSize(9);
                 doc.setTextColor(0, 0, 0);
                 doc.text(`${index + 1}.`, 25, yPosition);
                 
-                // رقم الشيك
                 doc.setTextColor(60, 60, 60);
                 doc.text(check.number || 'N/A', 35, yPosition);
                 
-                // اسم الشيك (مترجم للفرنسية)
                 const frenchName = convertToFrenchForExport(truncateText(check.name, 30));
                 doc.text(frenchName, 65, yPosition);
                 
-                // المبلغ (بالتنسيق الفرنسي الصحيح)
                 doc.setTextColor(30, 30, 30);
                 const formattedAmount = formatNumberForPDF(check.amount);
                 doc.text(formattedAmount, 120, yPosition);
                 
-                // الحالة (بالفرنسية)
                 if (check.status === 'pending') {
-                    doc.setTextColor(255, 184, 0); // برتقالي
+                    doc.setTextColor(255, 184, 0);
                 } else if (check.status === 'cleared') {
-                    doc.setTextColor(15, 123, 108); // أخضر
+                    doc.setTextColor(15, 123, 108);
                 } else {
-                    doc.setTextColor(209, 69, 59); // أحمر
+                    doc.setTextColor(209, 69, 59);
                 }
                 doc.text(getStatusFrench(check.status), 150, yPosition);
                 
-                // التاريخ (بالفرنسية)
                 doc.setTextColor(100, 100, 100);
-                doc.text(formatDateFrench(check.issueDate), 170, yPosition);
+                doc.text(check.dueDate ? formatDateFrench(check.dueDate) : '-', 170, yPosition);
                 
                 yPosition += 6;
                 
-                // تفاصيل إضافية (البنك والمستلم)
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
@@ -4817,7 +4802,6 @@
                 
                 yPosition += 5;
                 
-                // خط فاصل بين العناصر
                 if (index < checks.length - 1) {
                     doc.setDrawColor(230, 230, 230);
                     doc.setLineWidth(0.2);
@@ -4828,7 +4812,6 @@
                 doc.setFontSize(9);
             });
             
-            // ========== ملخص التقرير ==========
             yPosition += 10;
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.5);
@@ -4843,8 +4826,6 @@
             yPosition += 6;
             doc.text(`Utilisateur: ${currentUserId ? 'ID-' + currentUserId.substring(0, 8) : 'Non connecté'}`, 20, yPosition);
             
-            // ========== تذييل الصفحات ==========
-            // إضافة تذييل لكل صفحة
             for (let i = 1; i <= pageNumber; i++) {
                 doc.setPage(i);
                 doc.setFontSize(7);
@@ -4852,11 +4833,8 @@
                 doc.text(`CheckFlow Pro - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
             }
             
-            // ========== حفظ الملف ==========
             const fileName = `Rapport_Cheques_Complet_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
-            
-            showNotification(`PDF généré avec succès! ${checks.length} chèques, ${pageNumber} pages`);
             
         } catch (error) {
             console.error('Erreur lors de la génération du PDF:', error);
@@ -4867,7 +4845,6 @@
     // تصدير إلى Excel بالفرنسية
     function exportToExcel() {
         try {
-            // تحضير البيانات مع أسماء الأعمدة بالفرنسية
             const wsData = [
                 [
                     FRENCH_COLUMNS.number,
@@ -4895,29 +4872,36 @@
                 ])
             ];
             
-            // إنشاء ورقة العمل
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             
-            // ضبط عرض الأعمدة
             const colWidths = [
-                { wch: 15 }, // Numéro du chèque
-                { wch: 25 }, // Nom du chèque
-                { wch: 15 }, // Montant
-                { wch: 20 }, // Banque
-                { wch: 20 }, // Bénéficiaire
-                { wch: 20 }, // Émetteur
-                { wch: 15 }, // Statut
-                { wch: 15 }, // Date d'émission
-                { wch: 15 }, // Date d'échéance
-                { wch: 30 }  // Remarques
+                { wch: 15 },
+                { wch: 25 },
+                { wch: 15 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 30 }
             ];
             ws['!cols'] = colWidths;
             
-            // إنشاء ملف Excel
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Chèques');
             
-            // إضافة ورقة للإحصائيات بالفرنسية
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const overdueCount = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                const dueDate = new Date(check.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                return dueDate < today;
+            }).length;
+            
             const statsData = [
                 ['Statistiques', ''],
                 ['Nombre total de chèques', checks.length],
@@ -4925,19 +4909,17 @@
                 ['En attente', checks.filter(c => c.status === 'pending').length],
                 ['Compensés', checks.filter(c => c.status === 'cleared').length],
                 ['Retournés', checks.filter(c => c.status === 'bounced').length],
+                ['En retard', overdueCount],
                 ['Date d\'export', new Date().toLocaleDateString('fr-FR')]
             ];
             
             const wsStats = XLSX.utils.aoa_to_sheet(statsData);
             XLSX.utils.book_append_sheet(wb, wsStats, 'Statistiques');
             
-            // اسم الملف مع التاريخ بالفرنسية
             const fileName = `Chèques_${new Date().toISOString().split('T')[0]}.xlsx`;
             
-            // حفظ الملف
             XLSX.writeFile(wb, fileName);
             
-            showNotification('تم التصدير إلى Excel بالفرنسية بنجاح');
             closeModal();
             
         } catch (error) {
@@ -4993,7 +4975,6 @@
             link.click();
             document.body.removeChild(link);
             
-            showNotification('تم التصدير إلى CSV بالفرنسية');
             closeModal();
             
         } catch (error) {
@@ -5005,11 +4986,28 @@
     // تصدير إلى JSON بالفرنسية
     function exportToJSON() {
         try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const data = {
                 version: '2.0',
                 dateExport: new Date().toISOString(),
                 titre: "Export des Chèques",
                 idUtilisateur: currentUserId,
+                statistiques: {
+                    totalChèques: checks.length,
+                    montantTotal: checks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0),
+                    enAttente: checks.filter(c => c.status === 'pending').length,
+                    compensés: checks.filter(c => c.status === 'cleared').length,
+                    retournés: checks.filter(c => c.status === 'bounced').length,
+                    enRetard: checks.filter(check => {
+                        if (check.status !== 'pending') return false;
+                        if (!check.dueDate) return false;
+                        const dueDate = new Date(check.dueDate);
+                        dueDate.setHours(0, 0, 0, 0);
+                        return dueDate < today;
+                    }).length
+                },
                 chèques: checks.map(check => ({
                     id: check.id,
                     [FRENCH_COLUMNS.number]: check.number,
@@ -5038,7 +5036,6 @@
             link.click();
             document.body.removeChild(link);
             
-            showNotification('تم التصدير إلى JSON بالفرنسية');
             closeModal();
             
         } catch (error) {
@@ -5081,14 +5078,15 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
-                showNotification('تم تصدير تقرير التكرار بالفرنسية');
             }
         }, 500);
     }
 
     function exportAllRecipientsReport() {
         const recipientsData = {};
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
         checks.forEach(check => {
             const recipient = check.recipient || 'غير محدد';
@@ -5097,7 +5095,8 @@
                     checks: [],
                     totalAmount: 0,
                     pendingCount: 0,
-                    clearedCount: 0
+                    clearedCount: 0,
+                    overdueCount: 0
                 };
             }
             
@@ -5106,6 +5105,14 @@
             
             if (check.status === 'pending') {
                 recipientsData[recipient].pendingCount++;
+                
+                if (check.dueDate) {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate < today) {
+                        recipientsData[recipient].overdueCount++;
+                    }
+                }
             } else if (check.status === 'cleared') {
                 recipientsData[recipient].clearedCount++;
             }
@@ -5121,12 +5128,16 @@
                 montantTotal: data.totalAmount,
                 enAttente: data.pendingCount,
                 compensés: data.clearedCount,
+                enRetard: data.overdueCount,
                 chèques: data.checks.map(c => ({
                     numero: c.number,
                     nom: c.name,
                     montant: c.amount,
                     statut: getStatusFrench(c.status),
-                    dateEchéance: c.dueDate
+                    dateÉchéance: c.dueDate,
+                    dateÉmission: c.issueDate,
+                    émetteur: c.issuer,
+                    banque: c.bank
                 }))
             }))
         };
@@ -5142,12 +5153,13 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        showNotification('تم تصدير تقرير جميع المستلمين بالفرنسية');
     }
 
     function exportAllIssuersReport() {
         const issuersData = {};
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
         checks.forEach(check => {
             const issuer = check.issuer || 'غير محدد';
@@ -5158,6 +5170,7 @@
                     pendingCount: 0,
                     clearedCount: 0,
                     bouncedCount: 0,
+                    overdueCount: 0,
                     uniqueRecipients: new Set()
                 };
             }
@@ -5168,6 +5181,14 @@
             
             if (check.status === 'pending') {
                 issuersData[issuer].pendingCount++;
+                
+                if (check.dueDate) {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate < today) {
+                        issuersData[issuer].overdueCount++;
+                    }
+                }
             } else if (check.status === 'cleared') {
                 issuersData[issuer].clearedCount++;
             } else if (check.status === 'bounced') {
@@ -5186,6 +5207,7 @@
                 enAttente: data.pendingCount,
                 compensés: data.clearedCount,
                 retournés: data.bouncedCount,
+                enRetard: data.overdueCount,
                 bénéficiairesUniques: data.uniqueRecipients.size,
                 montantMoyen: data.checks.length > 0 ? (data.totalAmount / data.checks.length) : 0,
                 chèques: data.checks.map(c => ({
@@ -5193,7 +5215,10 @@
                     nom: c.name,
                     montant: c.amount,
                     statut: getStatusFrench(c.status),
-                    bénéficiaire: c.recipient
+                    bénéficiaire: c.recipient,
+                    dateÉchéance: c.dueDate,
+                    dateÉmission: c.issueDate,
+                    banque: c.bank
                 }))
             }))
         };
@@ -5209,8 +5234,6 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        showNotification('تم تصدير تقرير جميع المعطيين بالفرنسية');
     }
 
     // دوال استيراد Excel
@@ -5403,9 +5426,13 @@
             return;
         }
 
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         const newChecks = [];
         const duplicateNumbers = [];
         const skippedChecks = [];
+        const invalidDueDates = [];
         
         excelData.forEach((item, index) => {
             const checkNumber = item.checkNumber || `CHK-IMPORT-${index + 1}`;
@@ -5424,11 +5451,17 @@
             let issueDate = new Date().toISOString().split('T')[0];
             let dueDate = item.dueDate || '';
             
-            if (item.dueDate) {
-                const dueDateObj = new Date(item.dueDate);
-                const today = new Date();
-                if (dueDateObj < today) {
-                    item.image = (item.image || '') + ' (تاريخ الاستحقاق تجاوز)';
+            // التحقق من تاريخ الاستحقاق
+            if (dueDate) {
+                const due = new Date(dueDate);
+                due.setHours(0, 0, 0, 0);
+                
+                if (due < today) {
+                    invalidDueDates.push({
+                        number: checkNumber,
+                        name: item.client || `شيك ${index + 1}`,
+                        dueDate: formatDate(dueDate)
+                    });
                 }
             }
 
@@ -5447,17 +5480,23 @@
                 createdAt: new Date().toISOString(),
                 important: false,
                 userId: currentUserId,
-                source: 'excel_import',
-                originalData: {
-                    client: item.client,
-                    fournisseur: item.recipient,
-                    remarque: item.issuer,
-                    banque: item.bank
-                }
+                source: 'excel_import'
             };
             
             newChecks.push(newCheck);
         });
+        
+        if (invalidDueDates.length > 0) {
+            let warningMessage = `تنبيه: تم استيراد ${invalidDueDates.length} شيك بتواريخ استحقاق في الماضي:\n\n`;
+            invalidDueDates.slice(0, 10).forEach((check, i) => {
+                warningMessage += `${i + 1}. ${check.number} - ${check.name} (${check.dueDate})\n`;
+            });
+            if (invalidDueDates.length > 10) {
+                warningMessage += `... و ${invalidDueDates.length - 10} شيك آخر\n`;
+            }
+            warningMessage += `\nيمكنك تعديل هذه التواريخ لاحقاً.`;
+            alert(warningMessage);
+        }
         
         if (skippedChecks.length > 0) {
             let skippedMessage = `تم تخطي ${skippedChecks.length} شيك مكرر:\n\n`;
@@ -5501,7 +5540,6 @@
 
         closeModal();
         updateUI();
-        showNotification(`تم استيراد ${newChecks.length} شيك بنجاح (تخطي ${skippedChecks.length} مكرر)`);
     }
 
     // دوال إضافية
@@ -5594,7 +5632,6 @@
         saveChecksLocally();
         updateUI();
         closeModal();
-        showNotification(`تم دمج ${duplicateChecks.length} شيك مكرر`);
     }
 
     function deleteDuplicates(checkNumber) {
@@ -5606,49 +5643,6 @@
         saveChecksLocally();
         updateUI();
         closeModal();
-        showNotification(`تم حذف ${duplicateChecks.length} شيك مكرر`);
-    }
-
-    function checkDueDateNotifications() {
-        if (!notificationsEnabled) return;
-        
-        const today = new Date();
-        const notifyTwoDays = document.getElementById('notifyTwoDays') ? document.getElementById('notifyTwoDays').checked : false;
-        const notifyDueDate = document.getElementById('notifyDueDate') ? document.getElementById('notifyDueDate').checked : false;
-        const notifyOverdue = document.getElementById('notifyOverdue') ? document.getElementById('notifyOverdue').checked : false;
-        
-        const notifications = [];
-        
-        checks.forEach(check => {
-            if (check.status !== 'pending' || !check.dueDate) return;
-            
-            const dueDate = new Date(check.dueDate);
-            const daysDifference = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-            
-            if (daysDifference === 2 && notifyTwoDays) {
-                notifications.push({
-                    type: 'two_days_before',
-                    check: check,
-                    message: `شيك ${check.number} مستحق بعد يومين (${formatDate(check.dueDate)})`
-                });
-            }
-            
-            if (daysDifference === 0 && notifyDueDate) {
-                notifications.push({
-                    type: 'due_today',
-                    check: check,
-                    message: `شيك ${check.number} مستحق اليوم!`
-                });
-            }
-            
-            if (daysDifference < 0 && notifyOverdue) {
-                notifications.push({
-                    type: 'overdue',
-                    check: check,
-                    message: `شيك ${check.number} تأخر ${Math.abs(daysDifference)} يوم`
-                });
-            }
-        });
     }
 
     function openDeleteAllModal() {
@@ -5721,82 +5715,18 @@
             
             closeModal();
             updateUI();
-            showNotification('تم حذف جميع الشيكات');
         }
     }
 
     // الإشعارات
     function showNotification(message) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('CheckFlow Pro', {
-                body: message,
-                icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
-            });
-        }
-        
-        const notification = document.createElement('div');
-        notification.innerHTML = `
-            <div style="position: fixed; top: 80px; left: 20px; background: var(--primary-color); color: white; padding: 12px 20px; border-radius: var(--radius-md); box-shadow: 0 4px 12px var(--shadow-color); z-index: 1001; animation: slideIn 0.3s ease;">
-                <i class="fas fa-check-circle" style="margin-left: 8px;"></i>
-                ${message}
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideIn 0.3s ease reverse';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 3000);
-    }
-
-    // دوال PWA
-    function checkPWAInstallation() {
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            isInstalled = true;
-            return;
-        }
-        
-        const hasDismissed = localStorage.getItem('installPromptDismissed');
-        if (hasDismissed) {
-            const dismissedDate = new Date(hasDismissed);
-            const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            
-            if (dismissedDate < oneWeekAgo) {
-                localStorage.removeItem('installPromptDismissed');
-            }
-        }
-    }
-
-    function hideInstallPrompt() {
-        document.getElementById('installPrompt').classList.remove('show');
-        localStorage.setItem('installPromptDismissed', new Date().toISOString());
-    }
-
-    function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('وافق المستخدم على التثبيت');
-                    isInstalled = true;
-                    document.getElementById('installPrompt').classList.remove('show');
-                } else {
-                    console.log('رفض المستخدم التثبيت');
-                }
-                deferredPrompt = null;
-            });
-        }
+        console.log('Notification:', message);
     }
 
     // دوال عرض تفاصيل المعطي
     function showIssuerDetails(issuerName) {
         currentView = 'issuerDetails';
         
-        // إنشاء نافذة منبثقة لعرض شيكات المعطي
         const issuerChecks = checks.filter(check => check.issuer === issuerName);
         
         let modalContent = `
@@ -5838,11 +5768,20 @@
                 </div>
             `;
         } else {
-            // إحصائيات سريعة
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const stats = {
                 pending: issuerChecks.filter(c => c.status === 'pending').length,
                 cleared: issuerChecks.filter(c => c.status === 'cleared').length,
                 bounced: issuerChecks.filter(c => c.status === 'bounced').length,
+                overdue: issuerChecks.filter(c => {
+                    if (c.status !== 'pending') return false;
+                    if (!c.dueDate) return false;
+                    const dueDate = new Date(c.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    return dueDate < today;
+                }).length,
                 totalAmount: issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
                 avgAmount: issuerChecks.length > 0 ? 
                     issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0) / issuerChecks.length : 0
@@ -5863,8 +5802,8 @@
                         <div class="stat-label">مرتجعة</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">${formatCurrency(stats.avgAmount)}</div>
-                        <div class="stat-label">متوسط المبلغ</div>
+                        <div class="stat-value" style="color: var(--danger-color);">${stats.overdue}</div>
+                        <div class="stat-label">متأخرة</div>
                     </div>
                 </div>
                 
@@ -5893,6 +5832,15 @@
                         '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
                         '<span class="status-badge status-bounced-badge">مرتجع</span>';
                     
+                    const dueDateClass = check.dueDate ? (() => {
+                        const due = new Date(check.dueDate);
+                        due.setHours(0, 0, 0, 0);
+                        if (due < today) return 'danger';
+                        const daysRemaining = Math.floor((due - today) / (1000 * 60 * 60 * 24));
+                        if (daysRemaining <= 3) return 'warning';
+                        return '';
+                    })() : '';
+                    
                     modalContent += `
                         <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
                             <td>${check.number}</td>
@@ -5902,7 +5850,10 @@
                             <td>${check.bank}</td>
                             <td>${statusBadge}</td>
                             <td>${formatDate(check.issueDate)}</td>
-                            <td>${check.dueDate ? formatDate(check.dueDate) : '-'}</td>
+                            <td style="${dueDateClass === 'danger' ? 'color: var(--danger-color); font-weight: bold;' : dueDateClass === 'warning' ? 'color: var(--warning-color);' : ''}">
+                                ${check.dueDate ? formatDate(check.dueDate) : '-'}
+                                ${dueDateClass === 'danger' ? ' ⚠' : dueDateClass === 'warning' ? ' ⏰' : ''}
+                            </td>
                         </tr>
                     `;
                 });
@@ -5943,7 +5894,6 @@
     function showMuslimDetails(muslimName) {
         currentView = 'muslimDetails';
         
-        // إنشاء نافذة منبثقة لعرض شيكات المسلم
         const muslimChecks = checks.filter(check => check.recipient === muslimName);
         
         let modalContent = `
@@ -5985,11 +5935,20 @@
                 </div>
             `;
         } else {
-            // إحصائيات سريعة
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const stats = {
                 pending: muslimChecks.filter(c => c.status === 'pending').length,
                 cleared: muslimChecks.filter(c => c.status === 'cleared').length,
                 bounced: muslimChecks.filter(c => c.status === 'bounced').length,
+                overdue: muslimChecks.filter(c => {
+                    if (c.status !== 'pending') return false;
+                    if (!c.dueDate) return false;
+                    const dueDate = new Date(c.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    return dueDate < today;
+                }).length,
                 totalAmount: muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
                 avgAmount: muslimChecks.length > 0 ? 
                     muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0) / muslimChecks.length : 0
@@ -6010,8 +5969,8 @@
                         <div class="stat-label">مرتجعة</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">${formatCurrency(stats.avgAmount)}</div>
-                        <div class="stat-label">متوسط المبلغ</div>
+                        <div class="stat-value" style="color: var(--danger-color);">${stats.overdue}</div>
+                        <div class="stat-label">متأخرة</div>
                     </div>
                 </div>
                 
@@ -6040,6 +5999,15 @@
                         '<span class="status-badge status-cleared-badge">تم الصرف</span>' :
                         '<span class="status-badge status-bounced-badge">مرتجع</span>';
                     
+                    const dueDateClass = check.dueDate ? (() => {
+                        const due = new Date(check.dueDate);
+                        due.setHours(0, 0, 0, 0);
+                        if (due < today) return 'danger';
+                        const daysRemaining = Math.floor((due - today) / (1000 * 60 * 60 * 24));
+                        if (daysRemaining <= 3) return 'warning';
+                        return '';
+                    })() : '';
+                    
                     modalContent += `
                         <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
                             <td>${check.number}</td>
@@ -6049,7 +6017,10 @@
                             <td>${check.bank}</td>
                             <td>${statusBadge}</td>
                             <td>${formatDate(check.issueDate)}</td>
-                            <td>${check.dueDate ? formatDate(check.dueDate) : '-'}</td>
+                            <td style="${dueDateClass === 'danger' ? 'color: var(--danger-color); font-weight: bold;' : dueDateClass === 'warning' ? 'color: var(--warning-color);' : ''}">
+                                ${check.dueDate ? formatDate(check.dueDate) : '-'}
+                                ${dueDateClass === 'danger' ? ' ⚠' : dueDateClass === 'warning' ? ' ⏰' : ''}
+                            </td>
                         </tr>
                     `;
                 });
@@ -6102,7 +6073,6 @@
             doc.setFontSize(16);
             doc.setTextColor(40, 40, 40);
             
-            // عنوان التقرير
             doc.text(`Rapport des Cheques - Bénéficiaire: ${muslimName}`, 20, 20);
             doc.setFontSize(10);
             doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
@@ -6110,10 +6080,19 @@
             let yPosition = 40;
             let pageNumber = 1;
             
-            // إحصائيات سريعة
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const totalAmount = muslimChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
             const pendingChecks = muslimChecks.filter(c => c.status === 'pending').length;
             const clearedChecks = muslimChecks.filter(c => c.status === 'cleared').length;
+            const overdueChecks = muslimChecks.filter(c => {
+                if (c.status !== 'pending') return false;
+                if (!c.dueDate) return false;
+                const dueDate = new Date(c.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                return dueDate < today;
+            }).length;
             
             doc.setFontSize(12);
             doc.text(`Total des cheques: ${muslimChecks.length}`, 20, yPosition);
@@ -6125,15 +6104,15 @@
             doc.text(`Compensés: ${clearedChecks}`, 20, yPosition);
             yPosition += 8;
             doc.text(`Retournés: ${muslimChecks.filter(c => c.status === 'bounced').length}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`En retard: ${overdueChecks}`, 20, yPosition);
             yPosition += 15;
             
-            // خط فاصل
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.5);
             doc.line(20, yPosition, 190, yPosition);
             yPosition += 10;
             
-            // عنوان القائمة
             doc.setFontSize(14);
             doc.setTextColor(15, 123, 108);
             doc.text('Liste des Cheques:', 20, yPosition);
@@ -6142,22 +6121,18 @@
             doc.setFontSize(9);
             doc.setTextColor(100, 100, 100);
             
-            // عرض البيانات مع إدارة الصفحات
             muslimChecks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
                     yPosition = 20;
                     
-                    // عنوان الصفحة الجديدة
                     doc.setFontSize(14);
                     doc.setTextColor(15, 123, 108);
                     doc.text(`Liste des Cheques - Suite (Page ${pageNumber}):`, 20, yPosition);
                     yPosition += 10;
                 }
                 
-                // رؤوس الجدول للصفحة الأولى فقط
                 if (index === 0 || (index > 0 && yPosition === 20)) {
                     doc.setFillColor(245, 245, 245);
                     doc.rect(20, yPosition, 170, 8, 'F');
@@ -6165,9 +6140,9 @@
                     doc.setTextColor(0, 0, 0);
                     doc.text('No', 25, yPosition + 6);
                     doc.text('Nom', 40, yPosition + 6);
-                    doc.text('Montant (MAD)', 110, yPosition + 6);
-                    doc.text('Statut', 150, yPosition + 6);
-                    doc.text('Date', 170, yPosition + 6);
+                    doc.text('Montant (MAD)', 100, yPosition + 6);
+                    doc.text('Statut', 140, yPosition + 6);
+                    doc.text('Date Échéance', 170, yPosition + 6);
                     
                     yPosition += 12;
                 }
@@ -6181,9 +6156,8 @@
                 
                 doc.setTextColor(30, 30, 30);
                 const formattedAmount = formatNumberForPDF(check.amount);
-                doc.text(formattedAmount, 110, yPosition);
+                doc.text(formattedAmount, 100, yPosition);
                 
-                // تلوين الحالة
                 if (check.status === 'pending') {
                     doc.setTextColor(255, 184, 0);
                 } else if (check.status === 'cleared') {
@@ -6191,14 +6165,13 @@
                 } else {
                     doc.setTextColor(209, 69, 59);
                 }
-                doc.text(getStatusFrench(check.status), 150, yPosition);
+                doc.text(getStatusFrench(check.status), 140, yPosition);
                 
                 doc.setTextColor(100, 100, 100);
-                doc.text(formatDateFrench(check.issueDate), 170, yPosition);
+                doc.text(check.dueDate ? formatDateFrench(check.dueDate) : '-', 170, yPosition);
                 
                 yPosition += 7;
                 
-                // تفاصيل إضافية
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
@@ -6213,7 +6186,6 @@
                 
                 yPosition += 5;
                 
-                // خط فاصل
                 if (index < muslimChecks.length - 1) {
                     doc.setDrawColor(230, 230, 230);
                     doc.setLineWidth(0.2);
@@ -6224,7 +6196,6 @@
                 doc.setFontSize(9);
             });
             
-            // تذييل الصفحات
             for (let i = 1; i <= pageNumber; i++) {
                 doc.setPage(i);
                 doc.setFontSize(7);
@@ -6232,11 +6203,8 @@
                 doc.text(`Bénéficiaire: ${muslimName} - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
             }
             
-            // حفظ الملف
             const fileName = `Cheques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
-            
-            showNotification(`تم تحميل PDF لـ ${muslimName} بالفرنسية`);
             
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -6260,7 +6228,6 @@
             doc.setFontSize(16);
             doc.setTextColor(40, 40, 40);
             
-            // عنوان التقرير
             doc.text(`Rapport des Cheques Émis - Émetteur: ${issuerName}`, 20, 20);
             doc.setFontSize(10);
             doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
@@ -6268,10 +6235,19 @@
             let yPosition = 40;
             let pageNumber = 1;
             
-            // إحصائيات سريعة
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const totalAmount = issuerChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
             const pendingChecks = issuerChecks.filter(c => c.status === 'pending').length;
             const clearedChecks = issuerChecks.filter(c => c.status === 'cleared').length;
+            const overdueChecks = issuerChecks.filter(c => {
+                if (c.status !== 'pending') return false;
+                if (!c.dueDate) return false;
+                const dueDate = new Date(c.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                return dueDate < today;
+            }).length;
             
             doc.setFontSize(12);
             doc.text(`Total des cheques émis: ${issuerChecks.length}`, 20, yPosition);
@@ -6283,15 +6259,15 @@
             doc.text(`Compensés: ${clearedChecks}`, 20, yPosition);
             yPosition += 8;
             doc.text(`Retournés: ${issuerChecks.filter(c => c.status === 'bounced').length}`, 20, yPosition);
+            yPosition += 8;
+            doc.text(`En retard: ${overdueChecks}`, 20, yPosition);
             yPosition += 15;
             
-            // خط فاصل
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.5);
             doc.line(20, yPosition, 190, yPosition);
             yPosition += 10;
             
-            // عنوان القائمة
             doc.setFontSize(14);
             doc.setTextColor(51, 126, 169);
             doc.text('Liste des Cheques Émis:', 20, yPosition);
@@ -6300,22 +6276,18 @@
             doc.setFontSize(9);
             doc.setTextColor(100, 100, 100);
             
-            // عرض البيانات مع إدارة الصفحات
             issuerChecks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
                     yPosition = 20;
                     
-                    // عنوان الصفحة الجديدة
                     doc.setFontSize(14);
                     doc.setTextColor(51, 126, 169);
                     doc.text(`Liste des Cheques Émis - Suite (Page ${pageNumber}):`, 20, yPosition);
                     yPosition += 10;
                 }
                 
-                // رؤوس الجدول للصفحة الأولى فقط
                 if (index === 0 || (index > 0 && yPosition === 20)) {
                     doc.setFillColor(245, 245, 245);
                     doc.rect(20, yPosition, 170, 8, 'F');
@@ -6323,9 +6295,9 @@
                     doc.setTextColor(0, 0, 0);
                     doc.text('No', 25, yPosition + 6);
                     doc.text('Nom', 40, yPosition + 6);
-                    doc.text('Montant (MAD)', 110, yPosition + 6);
-                    doc.text('Statut', 150, yPosition + 6);
-                    doc.text('Date', 170, yPosition + 6);
+                    doc.text('Montant (MAD)', 100, yPosition + 6);
+                    doc.text('Statut', 140, yPosition + 6);
+                    doc.text('Date Échéance', 170, yPosition + 6);
                     
                     yPosition += 12;
                 }
@@ -6339,9 +6311,8 @@
                 
                 doc.setTextColor(30, 30, 30);
                 const formattedAmount = formatNumberForPDF(check.amount);
-                doc.text(formattedAmount, 110, yPosition);
+                doc.text(formattedAmount, 100, yPosition);
                 
-                // تلوين الحالة
                 if (check.status === 'pending') {
                     doc.setTextColor(255, 184, 0);
                 } else if (check.status === 'cleared') {
@@ -6349,14 +6320,13 @@
                 } else {
                     doc.setTextColor(209, 69, 59);
                 }
-                doc.text(getStatusFrench(check.status), 150, yPosition);
+                doc.text(getStatusFrench(check.status), 140, yPosition);
                 
                 doc.setTextColor(100, 100, 100);
-                doc.text(formatDateFrench(check.issueDate), 170, yPosition);
+                doc.text(check.dueDate ? formatDateFrench(check.dueDate) : '-', 170, yPosition);
                 
                 yPosition += 7;
                 
-                // تفاصيل إضافية
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
@@ -6371,7 +6341,6 @@
                 
                 yPosition += 5;
                 
-                // خط فاصل
                 if (index < issuerChecks.length - 1) {
                     doc.setDrawColor(230, 230, 230);
                     doc.setLineWidth(0.2);
@@ -6382,7 +6351,6 @@
                 doc.setFontSize(9);
             });
             
-            // تذييل الصفحات
             for (let i = 1; i <= pageNumber; i++) {
                 doc.setPage(i);
                 doc.setFontSize(7);
@@ -6390,11 +6358,8 @@
                 doc.text(`Émetteur: ${issuerName} - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
             }
             
-            // حفظ الملف
             const fileName = `Cheques_Emis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
-            
-            showNotification(`تم تحميل PDF للمعطي ${issuerName} بالفرنسية`);
             
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -6406,10 +6371,13 @@
     function generateRiskReportPDF() {
         try {
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const riskChecks = checks.filter(check => {
                 if (check.status !== 'pending') return false;
                 if (!check.dueDate) return false;
                 const dueDate = new Date(check.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
                 return dueDate < today;
             });
             
@@ -6425,7 +6393,6 @@
             doc.setFontSize(18);
             doc.setTextColor(209, 69, 59);
             
-            // عنوان التقرير
             doc.text('Rapport des Risques - Cheques en Retard', 20, 20);
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 100);
@@ -6434,7 +6401,6 @@
             let yPosition = 40;
             let pageNumber = 1;
             
-            // إحصائيات سريعة
             const totalRiskAmount = riskChecks.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
             
             doc.setFontSize(12);
@@ -6444,21 +6410,23 @@
             doc.text(`Montant total à risque: ${formatNumberForPDF(totalRiskAmount)} MAD`, 20, yPosition);
             yPosition += 8;
             
-            // تحليل مستوى الخطورة
             const highRisk = riskChecks.filter(c => {
                 const dueDate = new Date(c.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
                 const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
                 return daysOverdue > 30;
             }).length;
             
             const mediumRisk = riskChecks.filter(c => {
                 const dueDate = new Date(c.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
                 const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
                 return daysOverdue > 15 && daysOverdue <= 30;
             }).length;
             
             const lowRisk = riskChecks.filter(c => {
                 const dueDate = new Date(c.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
                 const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
                 return daysOverdue <= 15;
             }).length;
@@ -6470,13 +6438,11 @@
             doc.text(`Risque faible (<15 jours): ${lowRisk}`, 20, yPosition);
             yPosition += 15;
             
-            // خط فاصل
             doc.setDrawColor(209, 69, 59);
             doc.setLineWidth(0.5);
             doc.line(20, yPosition, 190, yPosition);
             yPosition += 10;
             
-            // عنوان القائمة
             doc.setFontSize(14);
             doc.setTextColor(209, 69, 59);
             doc.text('Liste des Cheques en Retard:', 20, yPosition);
@@ -6485,8 +6451,6 @@
             doc.setFontSize(9);
             doc.setTextColor(100, 100, 100);
             
-            // عرض البيانات مع إدارة الصفحات
-            // ترتيب من الأكثر تأخراً
             riskChecks.sort((a, b) => {
                 const daysA = Math.floor((today - new Date(a.dueDate)) / (1000 * 60 * 60 * 24));
                 const daysB = Math.floor((today - new Date(b.dueDate)) / (1000 * 60 * 60 * 24));
@@ -6494,20 +6458,17 @@
             });
             
             riskChecks.forEach((check, index) => {
-                // إذا وصلنا لنهاية الصفحة، نضيف صفحة جديدة
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
                     yPosition = 20;
                     
-                    // عنوان الصفحة الجديدة
                     doc.setFontSize(14);
                     doc.setTextColor(209, 69, 59);
                     doc.text(`Liste des Cheques en Retard - Suite (Page ${pageNumber}):`, 20, yPosition);
                     yPosition += 10;
                 }
                 
-                // رؤوس الجدول للصفحة الأولى فقط
                 if (index === 0 || (index > 0 && yPosition === 20)) {
                     doc.setFillColor(255, 245, 245);
                     doc.rect(20, yPosition, 170, 8, 'F');
@@ -6523,6 +6484,7 @@
                 }
                 
                 const dueDate = new Date(check.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
                 const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
                 
                 doc.setTextColor(0, 0, 0);
@@ -6536,7 +6498,6 @@
                 const formattedAmount = formatNumberForPDF(check.amount);
                 doc.text(formattedAmount, 100, yPosition);
                 
-                // تلوين أيام التأخير
                 if (daysOverdue > 30) {
                     doc.setTextColor(209, 69, 59);
                 } else if (daysOverdue > 15) {
@@ -6551,7 +6512,6 @@
                 
                 yPosition += 7;
                 
-                // تفاصيل إضافية
                 if (yPosition > 270) {
                     doc.addPage();
                     pageNumber++;
@@ -6565,7 +6525,6 @@
                 
                 yPosition += 5;
                 
-                // خط فاصل
                 if (index < riskChecks.length - 1) {
                     doc.setDrawColor(230, 230, 230);
                     doc.setLineWidth(0.2);
@@ -6576,7 +6535,6 @@
                 doc.setFontSize(9);
             });
             
-            // تذييل الصفحات
             for (let i = 1; i <= pageNumber; i++) {
                 doc.setPage(i);
                 doc.setFontSize(7);
@@ -6584,11 +6542,8 @@
                 doc.text(`Rapport de Risque - Page ${i}/${pageNumber}`, 105, 290, { align: 'center' });
             }
             
-            // حفظ الملف
             const fileName = `Rapport_Risque_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
-            
-            showNotification('تم تحميل تقرير المخاطر بالفرنسية');
             
         } catch (error) {
             console.error('Error generating risk PDF:', error);
@@ -6636,8 +6591,6 @@
         
         const fileName = `Chèques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
         XLSX.writeFile(wb, fileName);
-        
-        showNotification(`تم تصدير Excel لـ ${muslimName} بالفرنسية`);
     }
 
     function exportIssuerChecksExcel(issuerName) {
@@ -6679,8 +6632,6 @@
         
         const fileName = `Chèques_Émis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
         XLSX.writeFile(wb, fileName);
-        
-        showNotification(`تم تصدير Excel للمعطي ${issuerName} بالفرنسية`);
     }
 
     function exportMuslimChecksJSON(muslimName) {
@@ -6691,12 +6642,27 @@
             return;
         }
         
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const overdueCount = muslimChecks.filter(check => {
+            if (check.status !== 'pending') return false;
+            if (!check.dueDate) return false;
+            const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return dueDate < today;
+        }).length;
+        
         const report = {
             dateExport: new Date().toISOString(),
             titre: "Rapport des Chèques par Bénéficiaire",
             bénéficiaire: muslimName,
             totalChèques: muslimChecks.length,
             montantTotal: muslimChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+            enAttente: muslimChecks.filter(c => c.status === 'pending').length,
+            compensés: muslimChecks.filter(c => c.status === 'cleared').length,
+            retournés: muslimChecks.filter(c => c.status === 'bounced').length,
+            enRetard: overdueCount,
             chèques: muslimChecks.map(check => ({
                 [FRENCH_COLUMNS.number]: check.number,
                 [FRENCH_COLUMNS.name]: check.name,
@@ -6721,8 +6687,6 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        showNotification(`تم تصدير JSON لـ ${muslimName} بالفرنسية`);
     }
 
     function exportIssuerChecksJSON(issuerName) {
@@ -6733,12 +6697,27 @@
             return;
         }
         
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const overdueCount = issuerChecks.filter(check => {
+            if (check.status !== 'pending') return false;
+            if (!check.dueDate) return false;
+            const dueDate = new Date(check.dueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            return dueDate < today;
+        }).length;
+        
         const report = {
             dateExport: new Date().toISOString(),
             titre: "Rapport des Chèques par Émetteur",
             émetteur: issuerName,
             totalChèques: issuerChecks.length,
             montantTotal: issuerChecks.reduce((sum, check) => sum + (check.amount || 0), 0),
+            enAttente: issuerChecks.filter(c => c.status === 'pending').length,
+            compensés: issuerChecks.filter(c => c.status === 'cleared').length,
+            retournés: issuerChecks.filter(c => c.status === 'bounced').length,
+            enRetard: overdueCount,
             chèques: issuerChecks.map(check => ({
                 [FRENCH_COLUMNS.number]: check.number,
                 [FRENCH_COLUMNS.name]: check.name,
@@ -6763,8 +6742,6 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        showNotification(`تم تصدير JSON للمعطي ${issuerName} بالفرنسية`);
     }
 
     // مستمعي الأحداث
@@ -6803,23 +6780,6 @@
             updateMonthlyChart();
         });
         
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            setTimeout(() => {
-                if (!isInstalled && !localStorage.getItem('installPromptDismissed')) {
-                    document.getElementById('installPrompt').classList.add('show');
-                }
-            }, 5000);
-        });
-        
-        window.addEventListener('appinstalled', () => {
-            isInstalled = true;
-            console.log('تم تثبيت التطبيق');
-            document.getElementById('installPrompt').classList.remove('show');
-        });
-        
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', function(e) {
                 if (e.target === this) {
@@ -6833,6 +6793,8 @@
                 closeModal();
             }
         });
+        
+        setupDueDateValidation();
     }
 
     // تسجيل Service Worker
