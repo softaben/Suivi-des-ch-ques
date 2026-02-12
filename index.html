@@ -1202,7 +1202,7 @@
             border-radius: var(--radius-md);
             padding: var(--spacing-md);
             display: flex;
-                flex-direction: column;
+            flex-direction: column;
             align-items: center;
             gap: 8px;
             cursor: pointer;
@@ -1806,6 +1806,228 @@
             align-items: center;
             gap: 4px;
         }
+
+        /* ========== نظام الإشعارات المتكامل ========== */
+        .notification-button {
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+
+        .notification-panel {
+            position: fixed;
+            top: calc(56px + var(--safe-top) + 8px);
+            left: 16px;
+            right: 16px;
+            max-width: 400px;
+            background: var(--card-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 24px var(--shadow-color);
+            z-index: 1001;
+            margin: 0 auto;
+            animation: slideDown var(--transition-normal);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .notification-panel {
+                left: auto;
+                right: 16px;
+                width: 380px;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .notification-title {
+            font-size: var(--font-size-md);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-title i {
+            color: var(--primary-color);
+        }
+
+        .notification-clear-all {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+        }
+
+        .notification-clear-all:hover {
+            background: var(--card-color);
+            color: var(--danger-color);
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition-fast);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            background: var(--surface-color);
+        }
+
+        .notification-item.unread {
+            background: rgba(51, 126, 169, 0.05);
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary-color);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.success {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+
+        .notification-icon.warning {
+            background: rgba(255, 184, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .notification-icon.danger {
+            background: rgba(209, 69, 59, 0.1);
+            color: var(--danger-color);
+        }
+
+        .notification-icon.info {
+            background: rgba(51, 126, 169, 0.1);
+            color: var(--primary-color);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-text {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .notification-desc {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .notification-time {
+            font-size: var(--font-size-xs);
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notification-remove {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition-fast);
+            opacity: 0;
+        }
+
+        .notification-item:hover .notification-remove {
+            opacity: 1;
+        }
+
+        .notification-remove:hover {
+            background: var(--surface-color);
+            color: var(--danger-color);
+        }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+
+        .notification-empty i {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .notification-empty p {
+            font-size: var(--font-size-sm);
+        }
     </style>
 </head>
 <body>
@@ -1837,6 +2059,13 @@
                 <div class="user-avatar" id="userAvatar">
                     <i class="fas fa-user"></i>
                 </div>
+                
+                <!-- زر الإشعارات مع العداد -->
+                <button class="icon-button notification-button" id="notificationButton" style="background: rgba(255,255,255,0.2); color: white; position: relative;" onclick="toggleNotificationPanel()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                </button>
+                
                 <button class="icon-button" id="syncButton" style="background: rgba(255,255,255,0.2); color: white;" onclick="syncData()">
                     <i class="fas fa-sync-alt"></i>
                 </button>
@@ -1849,6 +2078,20 @@
             </button>
         </div>
     </header>
+
+    <!-- لوحة الإشعارات -->
+    <div class="notification-panel" id="notificationPanel" style="display: none;">
+        <div class="notification-header">
+            <div class="notification-title">
+                <i class="fas fa-bell"></i>
+                الإشعارات
+            </div>
+            <button class="notification-clear-all" onclick="clearAllNotifications()">مسح الكل</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <!-- الإشعارات ستظهر هنا ديناميكياً -->
+        </div>
+    </div>
 
     <!-- المحتوى الرئيسي -->
     <main class="main-content" id="mainContent" style="display: none;">
@@ -2659,6 +2902,293 @@
 </html>
 
 <script>
+    // ========== نظام إدارة الإشعارات المتكامل ==========
+    class NotificationManager {
+        constructor() {
+            this.notifications = [];
+            this.loadNotifications();
+            this.setupAutoCheck();
+        }
+
+        // تحميل الإشعارات من localStorage
+        loadNotifications() {
+            const saved = localStorage.getItem('checkflow_notifications');
+            if (saved) {
+                try {
+                    this.notifications = JSON.parse(saved);
+                } catch (e) {
+                    this.notifications = [];
+                }
+            }
+            this.updateBadge();
+            this.renderNotifications();
+        }
+
+        // حفظ الإشعارات في localStorage
+        saveNotifications() {
+            localStorage.setItem('checkflow_notifications', JSON.stringify(this.notifications));
+            this.updateBadge();
+            this.renderNotifications();
+        }
+
+        // إضافة إشعار جديد
+        addNotification(type, icon, title, description = '') {
+            const notification = {
+                id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                type: type, // success, warning, danger, info
+                icon: icon,
+                title: title,
+                description: description,
+                time: new Date().toISOString(),
+                read: false
+            };
+
+            this.notifications.unshift(notification);
+            
+            // الاحتفاظ بآخر 50 إشعار فقط
+            if (this.notifications.length > 50) {
+                this.notifications = this.notifications.slice(0, 50);
+            }
+
+            this.saveNotifications();
+            this.showToast(notification);
+            
+            return notification.id;
+        }
+
+        // عرض إشعار toast سريع
+        showToast(notification) {
+            const syncStatus = document.getElementById('syncStatus');
+            const syncMessage = document.getElementById('syncMessage');
+            
+            let bgColor, icon;
+            switch(notification.type) {
+                case 'success':
+                    bgColor = 'var(--success-color)';
+                    icon = 'fa-check-circle';
+                    break;
+                case 'warning':
+                    bgColor = 'var(--warning-color)';
+                    icon = 'fa-exclamation-triangle';
+                    break;
+                case 'danger':
+                    bgColor = 'var(--danger-color)';
+                    icon = 'fa-times-circle';
+                    break;
+                default:
+                    bgColor = 'var(--primary-color)';
+                    icon = 'fa-info-circle';
+            }
+            
+            syncStatus.style.background = bgColor;
+            syncStatus.className = 'sync-status';
+            syncStatus.style.display = 'flex';
+            syncMessage.innerHTML = `<i class="fas ${icon}"></i> ${notification.title}`;
+            
+            setTimeout(() => {
+                syncStatus.style.display = 'none';
+            }, 3000);
+        }
+
+        // تحديث عداد الإشعارات
+        updateBadge() {
+            const badge = document.getElementById('notificationBadge');
+            const unreadCount = this.notifications.filter(n => !n.read).length;
+            
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // عرض الإشعارات في اللوحة
+        renderNotifications() {
+            const list = document.getElementById('notificationList');
+            if (!list) return;
+
+            if (this.notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>لا توجد إشعارات</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = this.notifications.map(notif => {
+                const timeAgo = this.getTimeAgo(notif.time);
+                const unreadClass = notif.read ? '' : 'unread';
+                
+                return `
+                    <div class="notification-item ${unreadClass}" onclick="markNotificationRead('${notif.id}')">
+                        <div class="notification-icon ${notif.type}">
+                            <i class="fas ${notif.icon}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-text">${notif.title}</div>
+                            ${notif.description ? `<div class="notification-desc">${notif.description}</div>` : ''}
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i>
+                                ${timeAgo}
+                            </div>
+                        </div>
+                        <button class="notification-remove" onclick="event.stopPropagation(); removeNotification('${notif.id}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // الحصول على الوقت المنقضي
+        getTimeAgo(timeString) {
+            const now = new Date();
+            const past = new Date(timeString);
+            const diffMs = now - past;
+            const diffSec = Math.floor(diffMs / 1000);
+            const diffMin = Math.floor(diffSec / 60);
+            const diffHour = Math.floor(diffMin / 60);
+            const diffDay = Math.floor(diffHour / 24);
+
+            if (diffDay > 0) {
+                return `منذ ${diffDay} يوم`;
+            } else if (diffHour > 0) {
+                return `منذ ${diffHour} ساعة`;
+            } else if (diffMin > 0) {
+                return `منذ ${diffMin} دقيقة`;
+            } else {
+                return `الآن`;
+            }
+        }
+
+        // تعليم إشعار كمقروء
+        markAsRead(notificationId) {
+            const notif = this.notifications.find(n => n.id === notificationId);
+            if (notif && !notif.read) {
+                notif.read = true;
+                this.saveNotifications();
+            }
+        }
+
+        // تعليم كل الإشعارات كمقروءة
+        markAllAsRead() {
+            this.notifications.forEach(n => n.read = true);
+            this.saveNotifications();
+        }
+
+        // حذف إشعار
+        removeNotification(notificationId) {
+            this.notifications = this.notifications.filter(n => n.id !== notificationId);
+            this.saveNotifications();
+        }
+
+        // حذف كل الإشعارات
+        clearAll() {
+            this.notifications = [];
+            this.saveNotifications();
+            this.renderNotifications();
+        }
+
+        // إعداد الفحص التلقائي
+        setupAutoCheck() {
+            // فحص الشيكات المتأخرة كل 30 دقيقة
+            setInterval(() => {
+                this.checkOverdueChecks();
+                this.checkUpcomingChecks();
+                this.checkDuplicateChecks();
+            }, 30 * 60 * 1000);
+
+            // فحص أولي بعد 5 ثواني
+            setTimeout(() => {
+                this.checkOverdueChecks();
+                this.checkUpcomingChecks();
+                this.checkDuplicateChecks();
+            }, 5000);
+        }
+
+        // فحص الشيكات المتأخرة
+        checkOverdueChecks() {
+            if (!checks || checks.length === 0) return;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const overdueChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                const dueDate = new Date(check.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                return dueDate < today;
+            });
+
+            if (overdueChecks.length > 0) {
+                const totalAmount = overdueChecks.reduce((sum, c) => sum + (c.amount || 0), 0);
+                this.addNotification(
+                    'danger',
+                    'fa-exclamation-circle',
+                    `تذكير: ${overdueChecks.length} شيك متأخر`,
+                    `إجمالي المبلغ المتأخر: ${formatCurrency(totalAmount)}`
+                );
+            }
+        }
+
+        // فحص الشيكات القريبة من الاستحقاق
+        checkUpcomingChecks() {
+            if (!checks || checks.length === 0) return;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const upcomingChecks = checks.filter(check => {
+                if (check.status !== 'pending') return false;
+                if (!check.dueDate) return false;
+                const dueDate = new Date(check.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+                return daysRemaining > 0 && daysRemaining <= 3;
+            });
+
+            if (upcomingChecks.length > 0) {
+                this.addNotification(
+                    'warning',
+                    'fa-clock',
+                    `تنبيه: ${upcomingChecks.length} شيك يقترب موعد استحقاقه`,
+                    `يستحق خلال 3 أيام أو أقل`
+                );
+            }
+        }
+
+        // فحص الشيكات المكررة
+        checkDuplicateChecks() {
+            if (!checks || checks.length === 0) return;
+            
+            const checkNumbers = {};
+            const duplicates = [];
+            
+            checks.forEach(check => {
+                if (checkNumbers[check.number]) {
+                    if (!duplicates.includes(check.number)) {
+                        duplicates.push(check.number);
+                    }
+                } else {
+                    checkNumbers[check.number] = true;
+                }
+            });
+
+            if (duplicates.length > 0) {
+                this.addNotification(
+                    'warning',
+                    'fa-copy',
+                    `تم اكتشاف ${duplicates.length} شيك مكرر`,
+                    `يرجى مراجعة قائمة الشيكات المكررة`
+                );
+            }
+        }
+    }
+
     // تهيئة Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBkOHV0LJojUSdUYUPvI3FJsLJ0Vct9HvY",
@@ -2690,6 +3220,9 @@
     let statusChart = null;
     let bankChart = null;
     let monthlyChart = null;
+    
+    // مدير الإشعارات
+    let notificationManager = null;
 
     // دوال التنسيق والتحويل للفرنسية - محسنة لـ PDF
     const FRENCH_STATUS_MAP = {
@@ -2878,7 +3411,7 @@
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        if (check.status !== 'pending' || !check.dueDate) return;
+        if (check.status !== 'pending' || !check.dueDate) return null;
         
         const dueDate = new Date(check.dueDate);
         dueDate.setHours(0, 0, 0, 0);
@@ -2895,8 +3428,81 @@
         return null;
     }
 
+    // ========== دوال الإشعارات ==========
+    
+    // تبديل عرض لوحة الإشعارات
+    function toggleNotificationPanel() {
+        const panel = document.getElementById('notificationPanel');
+        if (panel.style.display === 'block') {
+            panel.style.display = 'none';
+        } else {
+            panel.style.display = 'block';
+            if (notificationManager) {
+                notificationManager.markAllAsRead();
+            }
+        }
+    }
+
+    // إضافة إشعار جديد
+    function addNotification(type, icon, title, description = '') {
+        if (notificationManager) {
+            return notificationManager.addNotification(type, icon, title, description);
+        }
+        return null;
+    }
+
+    // تعليم إشعار كمقروء
+    function markNotificationRead(notificationId) {
+        if (notificationManager) {
+            notificationManager.markAsRead(notificationId);
+        }
+    }
+
+    // حذف إشعار
+    function removeNotification(notificationId) {
+        if (notificationManager) {
+            notificationManager.removeNotification(notificationId);
+        }
+    }
+
+    // مسح كل الإشعارات
+    function clearAllNotifications() {
+        if (notificationManager) {
+            notificationManager.clearAll();
+        }
+    }
+
+    // إشعارات وهمية للاختبار
+    function seedSampleNotifications() {
+        if (notificationManager) {
+            notificationManager.addNotification(
+                'success',
+                'fa-check-circle',
+                'تم تحميل البيانات بنجاح',
+                'جميع الشيكات محدثة حتى الآن'
+            );
+            
+            notificationManager.addNotification(
+                'info',
+                'fa-cloud-upload-alt',
+                'جاهز للاستخدام',
+                'يمكنك البدء في إضافة الشيكات'
+            );
+            
+            notificationManager.addNotification(
+                'warning',
+                'fa-exclamation-triangle',
+                'تذكير: قم بمزامنة البيانات مع السحابة',
+                'آخر مزامنة: منذ 3 ساعات'
+            );
+        }
+    }
+
     // تهيئة التطبيق
     document.addEventListener('DOMContentLoaded', async function() {
+        // تهيئة مدير الإشعارات
+        notificationManager = new NotificationManager();
+        
         // إخفاء شاشة البداية بعد 1.5 ثانية
         setTimeout(() => {
             document.getElementById('splashScreen').style.opacity = '0';
@@ -2920,6 +3526,17 @@
                             updateUI();
                             setupEventListeners();
                             setupPasswordValidation();
+                            
+                            // إضافة إشعار ترحيب
+                            addNotification(
+                                'success',
+                                'fa-check-circle',
+                                'مرحباً بعودتك',
+                                `تم تسجيل الدخول بنجاح`
+                            );
+                            
+                            // إشعارات وهمية للاختبار
+                            seedSampleNotifications();
                         } else {
                             // لا يوجد مستخدم مسجل الدخول
                             document.getElementById('loginModal').style.display = 'flex';
@@ -2930,6 +3547,15 @@
                     console.error('Error initializing Firebase:', error);
                     showSyncStatus('خطأ في الاتصال بالسحابة', 'error');
                     document.getElementById('loginModal').style.display = 'flex';
+                    
+                    if (notificationManager) {
+                        notificationManager.addNotification(
+                            'danger',
+                            'fa-times-circle',
+                            'خطأ في الاتصال',
+                            'تعذر الاتصال بخوادم Firebase'
+                        );
+                    }
                 }
             }, 300);
         }, 1500);
@@ -2939,11 +3565,29 @@
             isOnline = true;
             showSyncStatus('تم استعادة الاتصال', 'success');
             setTimeout(() => syncPendingData(), 2000);
+            
+            if (notificationManager) {
+                notificationManager.addNotification(
+                    'success',
+                    'fa-wifi',
+                    'تم استعادة الاتصال بالإنترنت',
+                    'جاري مزامنة البيانات...'
+                );
+            }
         });
 
         window.addEventListener('offline', () => {
             isOnline = false;
             showSyncStatus('أنت غير متصل - وضع العمل المحلي مفعل', 'error');
+            
+            if (notificationManager) {
+                notificationManager.addNotification(
+                    'warning',
+                    'fa-exclamation-triangle',
+                    'أنت غير متصل بالإنترنت',
+                    'التغييرات سيتم حفظها محلياً'
+                );
+            }
         });
         
         // تهيئة التواريخ
@@ -3077,6 +3721,13 @@
                 setupEventListeners();
                 setupDueDateValidation();
                 setupPasswordValidation();
+                
+                addNotification(
+                    'success',
+                    'fa-check-circle',
+                    'تم تسجيل الدخول بنجاح',
+                    `مرحباً ${email}`
+                );
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -3098,6 +3749,13 @@
                 
                 errorMessage.textContent = userMessage;
                 loginError.style.display = 'flex';
+                
+                addNotification(
+                    'danger',
+                    'fa-times-circle',
+                    'فشل تسجيل الدخول',
+                    userMessage
+                );
             });
     }
 
@@ -3141,6 +3799,13 @@
                 document.getElementById('confirmPassword').value = '';
                 document.getElementById('newPasswordStatus').textContent = '';
                 document.getElementById('confirmPasswordStatus').textContent = '';
+                
+                addNotification(
+                    'success',
+                    'fa-key',
+                    'تم تغيير كلمة المرور',
+                    'تم تحديث كلمة المرور بنجاح'
+                );
             })
             .catch((error) => {
                 console.error('Error changing password:', error);
@@ -3167,6 +3832,10 @@
                 document.getElementById('bottomNav').style.display = 'none';
                 
                 document.getElementById('loginModal').style.display = 'flex';
+                
+                if (notificationManager) {
+                    notificationManager.clearAll();
+                }
             }).catch((error) => {
                 alert('خطأ في تسجيل الخروج: ' + error.message);
             });
@@ -3230,6 +3899,13 @@
                 localStorage.setItem('checkflow_checks_' + currentUserId, JSON.stringify(checks));
                 
                 showSyncStatus('تم تحميل البيانات من السحابة', 'success');
+                
+                addNotification(
+                    'success',
+                    'fa-cloud-download-alt',
+                    'تم تحميل البيانات من السحابة',
+                    `تم تحميل ${checks.length} شيك`
+                );
             } else {
                 loadLocalData();
                 showSyncStatus('تم تحميل البيانات المحلية', 'success');
@@ -3241,9 +3917,17 @@
                     const newChecks = Object.values(data || {});
                     
                     if (JSON.stringify(checks) !== JSON.stringify(newChecks)) {
+                        const oldCount = checks.length;
                         checks = newChecks;
                         updateUI();
                         showSyncStatus('تم تحديث البيانات تلقائياً', 'success');
+                        
+                        addNotification(
+                            'info',
+                            'fa-sync-alt',
+                            'تم تحديث البيانات',
+                            `تم تحديث ${checks.length - oldCount} شيك جديد`
+                        );
                     }
                 }
             });
@@ -3252,6 +3936,13 @@
             console.error('Error loading data from Firebase:', error);
             loadLocalData();
             showSyncStatus('خطأ في التحميل، استخدام البيانات المحلية', 'error');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في تحميل البيانات',
+                error.message
+            );
         }
     }
 
@@ -3261,6 +3952,13 @@
         const savedChecks = localStorage.getItem('checkflow_checks_' + currentUserId);
         if (savedChecks) {
             checks = JSON.parse(savedChecks);
+            
+            addNotification(
+                'info',
+                'fa-database',
+                'تم تحميل البيانات المحلية',
+                `تم تحميل ${checks.length} شيك`
+            );
         }
     }
 
@@ -3322,14 +4020,35 @@
         
         if (failedSyncs.length === 0) {
             showSyncStatus('تمت المزامنة بنجاح', 'success');
+            
+            addNotification(
+                'success',
+                'fa-cloud-upload-alt',
+                'تمت المزامنة مع السحابة',
+                'تم تحديث جميع البيانات بنجاح'
+            );
         } else {
             showSyncStatus(`فشل في مزامنة ${failedSyncs.length} عنصر`, 'error');
+            
+            addNotification(
+                'warning',
+                'fa-exclamation-triangle',
+                `فشلت مزامنة ${failedSyncs.length} عنصر`,
+                'سيتم إعادة المحاولة لاحقاً'
+            );
         }
     }
 
     function syncData() {
         if (!isOnline) {
             showNotification('غير متصل بالإنترنت، لا يمكن المزامنة');
+            
+            addNotification(
+                'warning',
+                'fa-wifi-slash',
+                'غير متصل بالإنترنت',
+                'لا يمكن المزامنة حالياً'
+            );
             return;
         }
         
@@ -3346,10 +4065,24 @@
             database.ref('users/' + currentUserId + '/checks').update(updates)
                 .then(() => {
                     showSyncStatus('تمت المزامنة بنجاح', 'success');
+                    
+                    addNotification(
+                        'success',
+                        'fa-cloud-upload-alt',
+                        'تمت المزامنة مع السحابة',
+                        'تم تحديث جميع البيانات بنجاح'
+                    );
                 })
                 .catch(error => {
                     console.error('Sync error:', error);
                     showSyncStatus('خطأ في المزامنة', 'error');
+                    
+                    addNotification(
+                        'danger',
+                        'fa-times-circle',
+                        'خطأ في المزامنة',
+                        error.message
+                    );
                 });
         }
     }
@@ -3423,8 +4156,22 @@
                 
                 openDuplicateResolutionModal();
             }
+            
+            addNotification(
+                'warning',
+                'fa-copy',
+                `تم اكتشاف ${duplicateNumbers.length} شيك مكرر`,
+                'يرجى مراجعة قائمة التكرارات'
+            );
         } else {
             alert('لا توجد شيكات مكررة!');
+            
+            addNotification(
+                'success',
+                'fa-check-circle',
+                'لا توجد شيكات مكررة',
+                'جميع الشيكات فريدة'
+            );
         }
     }
 
@@ -3924,6 +4671,13 @@
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
+        
+        addNotification(
+            'success',
+            'fa-file-download',
+            'تم تصدير تقرير المخاطر',
+            `تم تصدير ${overdueChecks.length} شيك متأخر`
+        );
     }
 
     // دوال المستلمين والمعطيين
@@ -4300,8 +5054,20 @@
             if (index !== -1) {
                 checks[index] = checkData;
             }
+            addNotification(
+                'success',
+                'fa-pencil-alt',
+                'تم تعديل الشيك بنجاح',
+                `رقم الشيك: ${checkData.number}`
+            );
         } else {
             checks.unshift(checkData);
+            addNotification(
+                'success',
+                'fa-check-circle',
+                'تم إضافة شيك جديد',
+                `رقم الشيك: ${checkData.number} - ${formatCurrency(checkData.amount)}`
+            );
         }
         
         saveChecksLocally();
@@ -4326,8 +5092,19 @@
     async function deleteCheck(checkId) {
         if (!confirm('هل تريد حذف هذا الشيك؟')) return;
         
+        const check = checks.find(c => c.id === checkId);
+        
         checks = checks.filter(c => c.id !== checkId);
         saveChecksLocally();
+        
+        if (check) {
+            addNotification(
+                'warning',
+                'fa-trash',
+                'تم حذف الشيك',
+                `رقم الشيك: ${check.number}`
+            );
+        }
         
         if (isOnline && database) {
             const success = await deleteCheckFromDatabase(checkId);
@@ -4649,7 +5426,7 @@
 
     // دوال الإعدادات
     function showAbout() {
-        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
+        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
     }
 
     // دوال التصدير (بالفرنسية فقط)
@@ -4836,9 +5613,23 @@
             const fileName = `Rapport_Cheques_Complet_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
+            addNotification(
+                'success',
+                'fa-file-pdf',
+                'تم إنشاء تقرير PDF',
+                `تقرير كامل - ${checks.length} شيك`
+            );
+            
         } catch (error) {
             console.error('Erreur lors de la génération du PDF:', error);
             alert('Erreur lors de la création du fichier PDF. Veuillez réessayer.');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في إنشاء PDF',
+                error.message
+            );
         }
     }
 
@@ -4922,9 +5713,23 @@
             
             closeModal();
             
+            addNotification(
+                'success',
+                'fa-file-excel',
+                'تم تصدير Excel',
+                `تم تصدير ${checks.length} شيك`
+            );
+            
         } catch (error) {
             console.error('Error exporting Excel:', error);
             alert('حدث خطأ أثناء تصدير الملف. الرجاء المحاولة مرة أخرى.');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في تصدير Excel',
+                error.message
+            );
         }
     }
 
@@ -4977,9 +5782,23 @@
             
             closeModal();
             
+            addNotification(
+                'success',
+                'fa-file-csv',
+                'تم تصدير CSV',
+                `تم تصدير ${checks.length} شيك`
+            );
+            
         } catch (error) {
             console.error('Error exporting CSV:', error);
             alert('حدث خطأ أثناء تصدير الملف.');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في تصدير CSV',
+                error.message
+            );
         }
     }
 
@@ -5038,9 +5857,23 @@
             
             closeModal();
             
+            addNotification(
+                'success',
+                'fa-file-code',
+                'تم تصدير JSON',
+                `تم تصدير ${checks.length} شيك`
+            );
+            
         } catch (error) {
             console.error('Error exporting JSON:', error);
             alert('حدث خطأ أثناء تصدير الملف.');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في تصدير JSON',
+                error.message
+            );
         }
     }
 
@@ -5078,6 +5911,13 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                
+                addNotification(
+                    'success',
+                    'fa-file-download',
+                    'تم تصدير تقرير التكرارات',
+                    `تم تصدير ${duplicateReport.length} شيك مكرر`
+                );
             }
         }, 500);
     }
@@ -5153,6 +5993,13 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        addNotification(
+            'success',
+            'fa-file-download',
+            'تم تصدير تقرير المستلمين',
+            `تم تصدير ${Object.keys(recipientsData).length} مستلم`
+        );
     }
 
     function exportAllIssuersReport() {
@@ -5234,6 +6081,13 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        addNotification(
+            'success',
+            'fa-file-download',
+            'تم تصدير تقرير المعطيين',
+            `تم تصدير ${Object.keys(issuersData).length} معطي`
+        );
     }
 
     // دوال استيراد Excel
@@ -5303,6 +6157,13 @@
             } catch (error) {
                 console.error('Error reading Excel file:', error);
                 alert('حدث خطأ في قراءة الملف. تأكد من أن الملف صحيح.');
+                
+                addNotification(
+                    'danger',
+                    'fa-exclamation-circle',
+                    'خطأ في قراءة ملف Excel',
+                    error.message
+                );
             }
         };
 
@@ -5528,14 +6389,35 @@
             try {
                 await database.ref('users/' + currentUserId + '/checks').update(batchUpdates);
                 showSyncStatus(`تم استيراد ${newChecks.length} شيك بنجاح`, 'success');
+                
+                addNotification(
+                    'success',
+    'fas fa-upload',
+                    'تم استيراد البيانات',
+                    `تم استيراد ${newChecks.length} شيك بنجاح`
+                );
             } catch (error) {
                 console.error('Error saving imported data:', error);
                 pendingSync.push({ type: 'batch_save', data: newChecks });
                 showSyncStatus('تم الاستيراد محلياً، جاري المزامنة لاحقاً', 'syncing');
+                
+                addNotification(
+                    'warning',
+                    'fa-exclamation-triangle',
+                    'تم الاستيراد محلياً',
+                    'سيتم المزامنة مع السحابة لاحقاً'
+                );
             }
         } else {
             pendingSync.push({ type: 'batch_save', data: newChecks });
             showSyncStatus('تم الاستيراد محلياً، جاري المزامنة عند الاتصال', 'syncing');
+            
+            addNotification(
+                'info',
+                'fa-database',
+                'تم الاستيراد محلياً',
+                `تم استيراد ${newChecks.length} شيك - غير متصل`
+            );
         }
 
         closeModal();
@@ -5632,17 +6514,33 @@
         saveChecksLocally();
         updateUI();
         closeModal();
+        
+        addNotification(
+            'success',
+            'fa-compress-alt',
+            'تم دمج الشيكات المكررة',
+            `رقم الشيك: ${checkNumber} - ${duplicateChecks.length} نسخة`
+        );
     }
 
     function deleteDuplicates(checkNumber) {
         if (!confirm(`هل تريد حذف جميع الشيكات برقم ${checkNumber}؟`)) return;
         
         const duplicateChecks = checks.filter(c => c.number === checkNumber);
+        const count = duplicateChecks.length;
+        
         checks = checks.filter(c => c.number !== checkNumber);
         
         saveChecksLocally();
         updateUI();
         closeModal();
+        
+        addNotification(
+            'warning',
+            'fa-trash',
+            'تم حذف الشيكات المكررة',
+            `رقم الشيك: ${checkNumber} - ${count} نسخة`
+        );
     }
 
     function openDeleteAllModal() {
@@ -5697,6 +6595,7 @@
 
     function deleteAllChecks() {
         if (confirm('هل أنت متأكد من حذف جميع الشيكات؟ لا يمكن التراجع عن هذا الإجراء.')) {
+            const count = checks.length;
             checks = [];
             saveChecksLocally();
             
@@ -5704,13 +6603,34 @@
                 database.ref('users/' + currentUserId + '/checks').remove()
                     .then(() => {
                         showSyncStatus('تم حذف جميع الشيكات من السحابة', 'success');
+                        
+                        addNotification(
+                            'warning',
+                            'fa-trash',
+                            'تم حذف جميع الشيكات',
+                            `تم حذف ${count} شيك`
+                        );
                     })
                     .catch(error => {
                         console.error('Error deleting from Firebase:', error);
                         pendingSync.push({ type: 'delete_all' });
+                        
+                        addNotification(
+                            'warning',
+                            'fa-exclamation-triangle',
+                            'تم الحذف محلياً',
+                            'سيتم المزامنة مع السحابة لاحقاً'
+                        );
                     });
             } else {
                 pendingSync.push({ type: 'delete_all' });
+                
+                addNotification(
+                    'info',
+                    'fa-database',
+                    'تم الحذف محلياً',
+                    `تم حذف ${count} شيك - غير متصل`
+                );
             }
             
             closeModal();
@@ -6206,9 +7126,23 @@
             const fileName = `Cheques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
+            addNotification(
+                'success',
+                'fa-file-pdf',
+                'تم تصدير PDF',
+                `تقرير المستلم: ${muslimName}`
+            );
+            
         } catch (error) {
             console.error('Error generating PDF:', error);
             alert('حدث خطأ أثناء إنشاء ملف PDF.');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في إنشاء PDF',
+                error.message
+            );
         }
     }
 
@@ -6361,9 +7295,23 @@
             const fileName = `Cheques_Emis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
+            addNotification(
+                'success',
+                'fa-file-pdf',
+                'تم تصدير PDF',
+                `تقرير المعطي: ${issuerName}`
+            );
+            
         } catch (error) {
             console.error('Error generating PDF:', error);
             alert('حدث خطأ أثناء إنشاء ملف PDF.');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في إنشاء PDF',
+                error.message
+            );
         }
     }
 
@@ -6545,9 +7493,23 @@
             const fileName = `Rapport_Risque_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(fileName);
             
+            addNotification(
+                'success',
+                'fa-file-pdf',
+                'تم تصدير تقرير المخاطر',
+                `${riskChecks.length} شيك متأخر`
+            );
+            
         } catch (error) {
             console.error('Error generating risk PDF:', error);
             alert('حدث خطأ أثناء إنشاء تقرير المخاطر.');
+            
+            addNotification(
+                'danger',
+                'fa-exclamation-circle',
+                'خطأ في إنشاء تقرير المخاطر',
+                error.message
+            );
         }
     }
 
@@ -6591,6 +7553,13 @@
         
         const fileName = `Chèques_${muslimName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
         XLSX.writeFile(wb, fileName);
+        
+        addNotification(
+            'success',
+            'fa-file-excel',
+            'تم تصدير Excel',
+            `شيكات المستلم: ${muslimName}`
+        );
     }
 
     function exportIssuerChecksExcel(issuerName) {
@@ -6632,6 +7601,13 @@
         
         const fileName = `Chèques_Émis_${issuerName.replace(/[^\w]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
         XLSX.writeFile(wb, fileName);
+        
+        addNotification(
+            'success',
+            'fa-file-excel',
+            'تم تصدير Excel',
+            `شيكات المعطي: ${issuerName}`
+        );
     }
 
     function exportMuslimChecksJSON(muslimName) {
@@ -6687,6 +7663,13 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        addNotification(
+            'success',
+            'fa-file-code',
+            'تم تصدير JSON',
+            `شيكات المستلم: ${muslimName}`
+        );
     }
 
     function exportIssuerChecksJSON(issuerName) {
@@ -6742,6 +7725,13 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        addNotification(
+            'success',
+            'fa-file-code',
+            'تم تصدير JSON',
+            `شيكات المعطي: ${issuerName}`
+        );
     }
 
     // مستمعي الأحداث
@@ -6796,6 +7786,18 @@
         
         setupDueDateValidation();
     }
+
+    // إغلاق لوحة الإشعارات عند النقر خارجها
+    document.addEventListener('click', function(e) {
+        const panel = document.getElementById('notificationPanel');
+        const button = document.getElementById('notificationButton');
+        
+        if (panel && panel.style.display === 'block') {
+            if (!panel.contains(e.target) && !button.contains(e.target)) {
+                panel.style.display = 'none';
+            }
+        }
+    });
 
     // تسجيل Service Worker
     if ('serviceWorker' in navigator) {
