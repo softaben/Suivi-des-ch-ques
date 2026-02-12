@@ -57,7 +57,7 @@
             --status-cleared: #0f7b6c;
             --status-bounced: #d1453b;
             
-            --risk-issuer-badge: #8e44ad; /* لون مميز للمخاطر */
+            --risk-issuer-badge: #8e44ad;
             
             --spacing-xs: 4px;
             --spacing-sm: 8px;
@@ -2694,6 +2694,16 @@
                     </div>
                 </div>
 
+                <!-- ملخص التكرارات والمخاطر (المعطيون الذين لديهم 5+ شيكات مستقبلية) -->
+                <div class="summary-card">
+                    <div class="chart-header">
+                        <div class="chart-title">ملخص المخاطر - المعطيون ذوو 5+ شيكات مستقبلية</div>
+                    </div>
+                    <div class="summary-grid" id="issuersRiskSummary">
+                        <!-- سيتم ملؤها تلقائياً بـ: اسم المعطي، عدد الشيكات المستقبلية، إجمالي المبلغ -->
+                    </div>
+                </div>
+
                 <!-- ملخص التكرارات -->
                 <div class="summary-card">
                     <div class="chart-header">
@@ -3387,25 +3397,26 @@
                     this.checkOverdueChecks();
                     this.checkUpcomingChecks();
                     this.checkDuplicateChecks();
-                    this.checkIssuersWithFiveOrMoreFutureChecks(); // <-- الوظيفة الجديدة
+                    this.checkIssuersWithFiveOrMoreFutureChecks(); // الوظيفة الجديدة
                 }, 30 * 60 * 1000);
 
                 setTimeout(() => {
                     this.checkOverdueChecks();
                     this.checkUpcomingChecks();
                     this.checkDuplicateChecks();
-                    this.checkIssuersWithFiveOrMoreFutureChecks(); // <-- الوظيفة الجديدة
+                    this.checkIssuersWithFiveOrMoreFutureChecks(); // الوظيفة الجديدة
                 }, 5000);
             }
 
             // ========== الوظيفة الجديدة: المعطيون الذين لديهم 5 شيكات مستقبلية أو أكثر ==========
+            // يتم عرضها في الإشعارات والإحصائيات والجداول فقط، وليس على تفاصيل الشيك
             checkIssuersWithFiveOrMoreFutureChecks() {
                 if (!checks || checks.length === 0) return;
                 
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 
-                // تجميع الشيكات المستقبلية (قيد الانتظار وتاريخ الاستحقاق في المستقبل) حسب المعطي
+                // تجميع الشيكات المستقبلية (قيد الانتظار وتاريخ الاستحقاق في المستقبل أو اليوم) حسب المعطي
                 const issuerFutureChecks = {};
                 
                 checks.forEach(check => {
@@ -3442,7 +3453,7 @@
                         // حساب إجمالي المبلغ المستقبلي لهذا المعطي
                         const totalFutureAmount = futureChecksArray.reduce((sum, c) => sum + (c.amount || 0), 0);
                         
-                        // إضافة إشعار خطر
+                        // إضافة إشعار خطر (فقط مرة واحدة لكل معطي كل 24 ساعة)
                         this.addNotification(
                             'risk', // نوع خاص للمخاطر
                             'fa-exclamation-triangle',
@@ -3456,26 +3467,13 @@
                             }
                         );
                         
-                        // إضافة إشعار لكل شيك من الخمسة (اختياري: نضيف فقط ملخصاً)
-                        // يمكن إلغاء التعليق أدناه لإضافة إشعارات مفصلة
-                        /*
-                        futureChecksArray.slice(0, 3).forEach(check => {
-                            this.addNotification(
-                                'warning',
-                                'fa-clock',
-                                `شيك مستقبلي للمعطي ${issuer}`,
-                                `رقم: ${check.number} - ${formatCurrency(check.amount)}`,
-                                {
-                                    id: check.id,
-                                    number: check.number,
-                                    name: check.name,
-                                    amount: check.amount
-                                }
-                            );
-                        });
-                        */
                     }
                 });
+                
+                // تحديث ملخص المخاطر في صفحة الإحصائيات
+                if (currentView === 'analytics') {
+                    updateIssuersRiskSummary();
+                }
             }
 
             checkOverdueChecks() {
@@ -4217,15 +4215,13 @@
                 highlightSuggestionSelection(inputId);
                 
                 // إضافة إشعار بالاختيار
-                if (type === 'recipient' || type === 'issuer' || type === 'bank') {
-                    addNotification(
-                        'success',
-                        'fa-check',
-                        'تم اختيار ' + (type === 'recipient' ? 'المستلم' : type === 'issuer' ? 'المعطي' : 'البنك'),
-                        value,
-                        null
-                    );
-                }
+                addNotification(
+                    'success',
+                    'fa-check',
+                    'تم اختيار ' + (type === 'recipient' ? 'المستلم' : type === 'issuer' ? 'المعطي' : 'البنك'),
+                    value,
+                    null
+                );
             }
         }
 
@@ -5310,6 +5306,62 @@
             updateTopBanksTable();
             updateRiskReportTable();
             updateDuplicatesSummary();
+            updateIssuersRiskSummary(); // <-- تحديث ملخص مخاطر المعطيين
+        }
+
+        // دالة جديدة لعرض المعطيين الذين لديهم 5+ شيكات مستقبلية في صفحة الإحصائيات
+        function updateIssuersRiskSummary() {
+            const container = document.getElementById('issuersRiskSummary');
+            if (!container) return;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const issuerFutureChecks = {};
+            
+            checks.forEach(check => {
+                if (check.status === 'pending' && check.dueDate) {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate >= today) {
+                        const issuer = check.issuer || 'غير محدد';
+                        if (!issuerFutureChecks[issuer]) {
+                            issuerFutureChecks[issuer] = [];
+                        }
+                        issuerFutureChecks[issuer].push(check);
+                    }
+                }
+            });
+            
+            // تصفية المعطيين الذين لديهم 5 شيكات مستقبلية أو أكثر
+            const riskIssuers = Object.entries(issuerFutureChecks)
+                .filter(([issuer, futureChecksArray]) => futureChecksArray.length >= 5)
+                .map(([issuer, futureChecksArray]) => ({
+                    issuer: issuer,
+                    count: futureChecksArray.length,
+                    totalAmount: futureChecksArray.reduce((sum, c) => sum + (c.amount || 0), 0)
+                }))
+                .sort((a, b) => b.count - a.count);
+            
+            if (riskIssuers.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: var(--text-tertiary);">
+                        <i class="fas fa-check-circle" style="color: var(--success-color); font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                        لا يوجد معطيون لديهم 5 شيكات مستقبلية أو أكثر
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = riskIssuers.map(item => `
+                <div class="summary-item warning" style="cursor: pointer;" onclick="showIssuerDetails('${item.issuer.replace(/'/g, "\\'")}')">
+                    <div class="summary-value">${item.count}</div>
+                    <div class="summary-label">${truncateText(item.issuer, 30)}</div>
+                    <div style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-top: 4px;">
+                        ${formatCurrency(item.totalAmount)}
+                    </div>
+                </div>
+            `).join('');
         }
 
         function updateAnalyticsCards() {
@@ -5900,6 +5952,21 @@
             const searchTerm = document.getElementById('issuerSearch') ? document.getElementById('issuerSearch').value.toLowerCase() : '';
             
             const issuersData = {};
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // إحصاءات إضافية للمخاطر المستقبلية (5+ شيكات مستقبلية) - تظهر في الجدول
+            const issuerFutureChecksCount = {};
+            checks.forEach(check => {
+                if (check.status === 'pending' && check.dueDate) {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    if (dueDate >= today) {
+                        const issuer = check.issuer || 'غير محدد';
+                        issuerFutureChecksCount[issuer] = (issuerFutureChecksCount[issuer] || 0) + 1;
+                    }
+                }
+            });
             
             checks.forEach(check => {
                 const issuer = check.issuer || 'غير محدد';
@@ -5923,8 +5990,6 @@
                 if (check.status === 'pending') {
                     issuersData[issuer].pendingCount++;
                     
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
                     if (check.dueDate) {
                         const dueDate = new Date(check.dueDate);
                         dueDate.setHours(0, 0, 0, 0);
@@ -5947,7 +6012,8 @@
                 clearedCount: data.clearedCount,
                 bouncedCount: data.bouncedCount,
                 overdueCount: data.overdueCount,
-                recipientCount: data.uniqueRecipients.size
+                recipientCount: data.uniqueRecipients.size,
+                futureRiskCount: issuerFutureChecksCount[name] || 0
             })).sort((a, b) => b.totalAmount - a.totalAmount);
             
             if (searchTerm) {
@@ -5971,6 +6037,7 @@
             
             container.innerHTML = issuersArray.map(issuer => {
                 const hasOverdue = issuer.overdueCount > 0;
+                const hasFutureRisk = issuer.futureRiskCount >= 5;
                 
                 return `
                     <div class="check-item fade-in" onclick="showIssuerDetails('${issuer.name.replace(/'/g, "\\'")}')">
@@ -5978,7 +6045,10 @@
                             <i class="fas fa-user-tie"></i>
                         </div>
                         <div class="check-info">
-                            <div class="check-name">${issuer.name.length > 40 ? issuer.name.substring(0, 37) + '...' : issuer.name}</div>
+                            <div class="check-name">
+                                ${issuer.name.length > 40 ? issuer.name.substring(0, 37) + '...' : issuer.name}
+                                ${hasFutureRisk ? `<span style="color: #8e44ad; font-size: var(--font-size-xs); margin-right: 8px;">⚠ خطر (${issuer.futureRiskCount} مستقبلي)</span>` : ''}
+                            </div>
                             <div class="check-details">
                                 <span><i class="fas fa-receipt"></i> ${issuer.checks.length} شيك</span>
                                 <span class="check-amount">${formatCurrency(issuer.totalAmount)}</span>
@@ -6374,6 +6444,8 @@
                 
                 const dueDateAlert = showDueDateAlert(check);
                 
+                // لا نضيف شارة المخاطر هنا (الخطر يظهر فقط في الإحصائيات وجداول المعطيين)
+                
                 return `
                     <div class="check-item ${statusClass}" onclick="editCheck('${check.id}')">
                         ${dueDateAlert ? 
@@ -6456,20 +6528,7 @@
                 duplicateCounts[check.number] = (duplicateCounts[check.number] || 0) + 1;
             });
             
-            // إحصاءات المعطيين الذين لديهم 5 شيكات مستقبلية أو أكثر
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const issuerFutureChecksCount = {};
-            checks.forEach(check => {
-                if (check.status === 'pending' && check.dueDate) {
-                    const dueDate = new Date(check.dueDate);
-                    dueDate.setHours(0, 0, 0, 0);
-                    if (dueDate >= today) {
-                        const issuer = check.issuer || 'غير محدد';
-                        issuerFutureChecksCount[issuer] = (issuerFutureChecksCount[issuer] || 0) + 1;
-                    }
-                }
-            });
+            // لا نضيف شارة المخاطر (risk-issuer-badge) هنا، نكتفي بإظهارها في جدول المعطيين والإحصائيات
             
             if (filteredChecks.length === 0) {
                 container.innerHTML = `
@@ -6502,13 +6561,11 @@
                 
                 const dueDateAlert = showDueDateAlert(check);
                 
-                // إضافة شارة المخاطر للمعطي إذا كان لديه 5 شيكات مستقبلية أو أكثر
-                const issuerRisk = (check.issuer && issuerFutureChecksCount[check.issuer] >= 5) ? true : false;
+                // تم إزالة شارة المخاطر (risk-issuer-badge) بالكامل من هنا
                 
                 return `
                     <div class="check-item ${statusClass} fade-in" onclick="editCheck('${check.id}')">
                         ${isDuplicate ? '<div class="duplicate-badge">مكرر</div>' : ''}
-                        ${issuerRisk ? '<div class="risk-issuer-badge"><i class="fas fa-exclamation-triangle"></i> خطر: 5+ شيكات</div>' : ''}
                         ${dueDateAlert ? 
                             (dueDateAlert.type === 'overdue' ? 
                                 `<div class="overdue-badge">متأخر ${dueDateAlert.days} يوم</div>` : 
@@ -6525,7 +6582,6 @@
                                 <span class="check-amount">${formatCurrency(check.amount)}</span>
                                 ${statusBadge}
                                 ${check.dueDate ? `<span>استحقاق: ${formatDate(check.dueDate)}</span>` : ''}
-                                ${issuerRisk ? `<span style="color: #8e44ad; font-weight: bold;">معطي خطر</span>` : ''}
                             </div>
                         </div>
                         <button class="icon-button" onclick="event.stopPropagation(); deleteCheck('${check.id}')" 
@@ -6644,7 +6700,7 @@
         }
 
         function showAbout() {
-            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- نظام الاقتراحات الذكي أثناء الكتابة\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل مع عرض رقم الشيك واسم الشيك\n- مخاطر المعطيين: تنبيه للمعطي الذي لديه 5 شيكات مستقبلية أو أكثر\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
+            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- نظام الاقتراحات الذكي أثناء الكتابة\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل مع عرض رقم الشيك واسم الشيك\n- مخاطر المعطيين: تنبيه للمعطي الذي لديه 5 شيكات مستقبلية أو أكثر (في الإحصائيات فقط)\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
         }
 
         // Export functions
@@ -7234,6 +7290,7 @@
                         clearedCount: 0,
                         bouncedCount: 0,
                         overdueCount: 0,
+                        futureRiskCount: 0,
                         uniqueRecipients: new Set()
                     };
                 }
@@ -7250,6 +7307,9 @@
                         dueDate.setHours(0, 0, 0, 0);
                         if (dueDate < today) {
                             issuersData[issuer].overdueCount++;
+                        }
+                        if (dueDate >= today) {
+                            issuersData[issuer].futureRiskCount++;
                         }
                     }
                 } else if (check.status === 'cleared') {
@@ -7271,6 +7331,7 @@
                     compensés: data.clearedCount,
                     retournés: data.bouncedCount,
                     enRetard: data.overdueCount,
+                    chèquesFuturs: data.futureRiskCount,
                     bénéficiairesUniques: data.uniqueRecipients.size,
                     montantMoyen: data.checks.length > 0 ? (data.totalAmount / data.checks.length) : 0,
                     chèques: data.checks.map(c => ({
