@@ -746,6 +746,241 @@
             border: 1px solid rgba(209, 69, 59, 0.2);
         }
 
+        /* أنماط الاقتراحات التلقائية */
+        .suggestions-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 4px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 16px var(--shadow-color);
+            animation: slideDown var(--transition-fast);
+            display: none;
+        }
+
+        .suggestions-dropdown.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition-fast);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: var(--surface-color);
+        }
+
+        .suggestion-item.active {
+            background: rgba(51, 126, 169, 0.1);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .suggestion-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .suggestion-icon.recipient {
+            background: rgba(15, 123, 108, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .suggestion-icon.issuer {
+            background: rgba(51, 126, 169, 0.1);
+            color: var(--primary-color);
+        }
+
+        .suggestion-icon.bank {
+            background: rgba(255, 184, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .suggestion-content {
+            flex: 1;
+        }
+
+        .suggestion-title {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .suggestion-stats {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .suggestion-amount {
+            font-weight: 600;
+            color: var(--success-color);
+            font-size: var(--font-size-xs);
+        }
+
+        .suggestion-highlight {
+            background: rgba(255, 184, 0, 0.2);
+            color: var(--warning-color);
+            font-weight: 600;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .suggestion-add-new {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: var(--surface-color);
+            color: var(--primary-color);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .suggestion-add-new:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .suggestion-add-new i {
+            font-size: 14px;
+        }
+
+        /* أنماط التلميحات */
+        .hint-box {
+            background: rgba(51, 126, 169, 0.05);
+            border: 1px dashed var(--primary-color);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: fadeIn var(--transition-normal);
+        }
+
+        .hint-box i {
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .hint-content {
+            flex: 1;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .hint-content strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .hint-close {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition-fast);
+        }
+
+        .hint-close:hover {
+            background: var(--surface-color);
+            color: var(--danger-color);
+        }
+
+        /* بطاقة الإحصائيات السريعة */
+        .quick-stats-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin-bottom: var(--spacing-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .quick-stats-title {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-stats-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quick-stat-badge {
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: var(--font-size-xs);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .quick-stat-badge:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .quick-stat-badge i {
+            font-size: 10px;
+        }
+
+        .quick-stat-badge .count {
+            background: rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 2px 6px;
+            font-size: 9px;
+        }
+
+        .quick-stat-badge:hover .count {
+            background: rgba(255,255,255,0.2);
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -755,6 +990,17 @@
             from {
                 opacity: 0;
                 transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
             }
             to {
                 opacity: 1;
@@ -1803,17 +2049,6 @@
             }
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .notification-header {
             display: flex;
             align-items: center;
@@ -2016,6 +2251,41 @@
         <div class="splash-title">CheckFlow Pro</div>
         <div class="splash-subtitle">إدارة الشيكات الاحترافية</div>
     </div>
+
+    <style>
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .splash-logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .splash-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .splash-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+    </style>
 
     <!-- حالة المزامنة -->
     <div class="sync-status" id="syncStatus">
@@ -2507,7 +2777,10 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label" for="bankName">البنك *</label>
-                            <input type="text" class="form-input" id="bankName" placeholder="البنك المغربي للتجارة الخارجية" required>
+                            <div class="suggestions-container">
+                                <input type="text" class="form-input" id="bankName" placeholder="البنك المغربي للتجارة الخارجية" required autocomplete="off">
+                                <div class="suggestions-dropdown" id="bankNameSuggestions"></div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="checkStatus">الحالة</label>
@@ -2522,11 +2795,17 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label" for="recipient">المستلم *</label>
-                            <input type="text" class="form-input" id="recipient" placeholder="اسم المستلم" required>
+                            <div class="suggestions-container">
+                                <input type="text" class="form-input" id="recipient" placeholder="اسم المستلم" required autocomplete="off">
+                                <div class="suggestions-dropdown" id="recipientSuggestions"></div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="issuer">المعطي *</label>
-                            <input type="text" class="form-input" id="issuer" placeholder="اسم المعطي" required>
+                            <div class="suggestions-container">
+                                <input type="text" class="form-input" id="issuer" placeholder="اسم المعطي" required autocomplete="off">
+                                <div class="suggestions-dropdown" id="issuerSuggestions"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -2875,7 +3154,7 @@
     </div>
 
     <script>
-        // ========== نظام إدارة الإشعارات المتكامل (بدون إشعارات تجريبية) ==========
+        // ========== نظام إدارة الإشعارات المتكامل ==========
         class NotificationManager {
             constructor() {
                 this.notifications = [];
@@ -3260,6 +3539,7 @@
         let monthlyChart = null;
         
         let notificationManager = null;
+        let autoSuggestManager = null;
 
         // French translations
         const FRENCH_STATUS_MAP = {
@@ -3281,6 +3561,610 @@
             'notes': 'Remarques',
             'createdAt': 'Date de création'
         };
+
+        // ========== نظام الاقتراحات التلقائي المتقدم ==========
+        class AutoSuggestManager {
+            constructor() {
+                this.suggestionTimeouts = new Map();
+                this.activeField = null;
+                this.currentSuggestions = [];
+                this.selectedIndex = -1;
+                this.frequentData = {
+                    recipients: {},
+                    issuers: {},
+                    banks: {}
+                };
+                this.loadFrequentData();
+                this.setupInputListeners();
+            }
+
+            // تحميل وتحليل البيانات المتكررة
+            loadFrequentData() {
+                if (!checks || checks.length === 0) return;
+
+                checks.forEach(check => {
+                    // إحصاءات المستلمين
+                    if (check.recipient) {
+                        if (!this.frequentData.recipients[check.recipient]) {
+                            this.frequentData.recipients[check.recipient] = {
+                                count: 0,
+                                totalAmount: 0,
+                                lastUsed: null,
+                                banks: new Set(),
+                                issuers: new Set()
+                            };
+                        }
+                        this.frequentData.recipients[check.recipient].count++;
+                        this.frequentData.recipients[check.recipient].totalAmount += check.amount || 0;
+                        this.frequentData.recipients[check.recipient].lastUsed = check.createdAt || new Date().toISOString();
+                        if (check.bank) this.frequentData.recipients[check.recipient].banks.add(check.bank);
+                        if (check.issuer) this.frequentData.recipients[check.recipient].issuers.add(check.issuer);
+                    }
+
+                    // إحصاءات المعطيين
+                    if (check.issuer) {
+                        if (!this.frequentData.issuers[check.issuer]) {
+                            this.frequentData.issuers[check.issuer] = {
+                                count: 0,
+                                totalAmount: 0,
+                                lastUsed: null,
+                                banks: new Set(),
+                                recipients: new Set()
+                            };
+                        }
+                        this.frequentData.issuers[check.issuer].count++;
+                        this.frequentData.issuers[check.issuer].totalAmount += check.amount || 0;
+                        this.frequentData.issuers[check.issuer].lastUsed = check.createdAt || new Date().toISOString();
+                        if (check.bank) this.frequentData.issuers[check.issuer].banks.add(check.bank);
+                        if (check.recipient) this.frequentData.issuers[check.issuer].recipients.add(check.recipient);
+                    }
+
+                    // إحصاءات البنوك
+                    if (check.bank) {
+                        if (!this.frequentData.banks[check.bank]) {
+                            this.frequentData.banks[check.bank] = {
+                                count: 0,
+                                totalAmount: 0,
+                                lastUsed: null,
+                                recipients: new Set(),
+                                issuers: new Set()
+                            };
+                        }
+                        this.frequentData.banks[check.bank].count++;
+                        this.frequentData.banks[check.bank].totalAmount += check.amount || 0;
+                        this.frequentData.banks[check.bank].lastUsed = check.createdAt || new Date().toISOString();
+                        if (check.recipient) this.frequentData.banks[check.bank].recipients.add(check.recipient);
+                        if (check.issuer) this.frequentData.banks[check.bank].issuers.add(check.issuer);
+                    }
+                });
+            }
+
+            // إعداد مستمعي الإدخال
+            setupInputListeners() {
+                const fields = [
+                    { id: 'recipient', type: 'recipient', icon: 'fa-user-tie', color: 'var(--secondary-color)' },
+                    { id: 'issuer', type: 'issuer', icon: 'fa-hand-holding-usd', color: 'var(--primary-color)' },
+                    { id: 'bankName', type: 'bank', icon: 'fa-university', color: 'var(--warning-color)' }
+                ];
+
+                fields.forEach(field => {
+                    const input = document.getElementById(field.id);
+                    if (!input) return;
+
+                    // إنشاء حاوية الاقتراحات
+                    const container = document.createElement('div');
+                    container.className = 'suggestions-container';
+                    input.parentNode.insertBefore(container, input);
+                    container.appendChild(input);
+
+                    const dropdown = document.createElement('div');
+                    dropdown.className = 'suggestions-dropdown';
+                    dropdown.id = `${field.id}Suggestions`;
+                    container.appendChild(dropdown);
+
+                    // إضافة بطاقة إحصاءات سريعة
+                    if (field.id === 'recipient' || field.id === 'issuer') {
+                        this.addQuickStatsCard(input, field.type);
+                    }
+
+                    // مستمع الإدخال
+                    input.addEventListener('input', (e) => {
+                        const query = e.target.value.trim();
+                        this.debouncedSuggest(field.id, field.type, query, e.target);
+                    });
+
+                    // مستمع التركيز
+                    input.addEventListener('focus', (e) => {
+                        this.showRecentSuggestions(field.type, e.target);
+                    });
+
+                    // مستمع المفاتيح للتنقل
+                    input.addEventListener('keydown', (e) => {
+                        this.handleKeyNavigation(e, field.id, field.type);
+                    });
+
+                    // إخفاء الاقتراحات عند النقر خارجاً
+                    document.addEventListener('click', (e) => {
+                        if (!container.contains(e.target)) {
+                            dropdown.classList.remove('show');
+                        }
+                    });
+                });
+            }
+
+            // إضافة بطاقة الإحصاءات السريعة
+            addQuickStatsCard(input, type) {
+                const stats = type === 'recipient' ? 
+                    this.frequentData.recipients : 
+                    this.frequentData.issuers;
+
+                const entries = Object.entries(stats)
+                    .sort((a, b) => b[1].count - a[1].count)
+                    .slice(0, 5);
+
+                if (entries.length === 0) return;
+
+                const card = document.createElement('div');
+                card.className = 'quick-stats-card';
+                card.innerHTML = `
+                    <div class="quick-stats-title">
+                        <i class="fas fa-chart-line"></i>
+                        الأكثر استخداماً:
+                    </div>
+                    <div class="quick-stats-badges">
+                        ${entries.map(([name, data]) => `
+                            <span class="quick-stat-badge" onclick="document.getElementById('${input.id}').value = '${name.replace(/'/g, "\\'")}'; document.getElementById('${input.id}Suggestions').classList.remove('show'); highlightSuggestionSelection('${input.id}'); autoSuggestManager.showRelatedHint('${name.replace(/'/g, "\\'")}', '${type}', document.getElementById('${input.id}')); refreshSuggestions();">
+                                <i class="fas fa-${type === 'recipient' ? 'user-tie' : 'hand-holding-usd'}"></i>
+                                ${name.length > 20 ? name.substring(0, 17) + '...' : name}
+                                <span class="count">${data.count}</span>
+                            </span>
+                        `).join('')}
+                    </div>
+                `;
+
+                input.parentNode.insertBefore(card, input);
+            }
+
+            // تأخير الاقتراحات لتحسين الأداء
+            debouncedSuggest(fieldId, type, query, inputElement) {
+                if (this.suggestionTimeouts.has(fieldId)) {
+                    clearTimeout(this.suggestionTimeouts.get(fieldId));
+                }
+
+                const timeout = setTimeout(() => {
+                    this.getSuggestions(type, query, inputElement);
+                }, 150);
+
+                this.suggestionTimeouts.set(fieldId, timeout);
+            }
+
+            // الحصول على الاقتراحات
+            getSuggestions(type, query, inputElement) {
+                const dropdown = document.getElementById(`${inputElement.id}Suggestions`);
+                if (!dropdown) return;
+
+                let sourceData;
+                let iconClass;
+                let colorVar;
+
+                switch(type) {
+                    case 'recipient':
+                        sourceData = this.frequentData.recipients;
+                        iconClass = 'fa-user-tie recipient';
+                        colorVar = 'var(--secondary-color)';
+                        break;
+                    case 'issuer':
+                        sourceData = this.frequentData.issuers;
+                        iconClass = 'fa-hand-holding-usd issuer';
+                        colorVar = 'var(--primary-color)';
+                        break;
+                    case 'bank':
+                        sourceData = this.frequentData.banks;
+                        iconClass = 'fa-university bank';
+                        colorVar = 'var(--warning-color)';
+                        break;
+                    default:
+                        return;
+                }
+
+                let suggestions = [];
+                const queryLower = query.toLowerCase();
+
+                if (query.length >= 1) {
+                    // بحث في الأسماء
+                    suggestions = Object.entries(sourceData)
+                        .filter(([name]) => name.toLowerCase().includes(queryLower))
+                        .map(([name, data]) => ({
+                            name,
+                            ...data,
+                            score: this.calculateRelevanceScore(name, query, data)
+                        }))
+                        .sort((a, b) => {
+                            // ترتيب حسب: الحرف الأول > التكرار > آخر استخدام
+                            if (a.name.toLowerCase().startsWith(queryLower) && !b.name.toLowerCase().startsWith(queryLower)) return -1;
+                            if (!a.name.toLowerCase().startsWith(queryLower) && b.name.toLowerCase().startsWith(queryLower)) return 1;
+                            if (a.score !== b.score) return b.score - a.score;
+                            return b.count - a.count;
+                        })
+                        .slice(0, 8);
+                }
+
+                this.currentSuggestions = suggestions;
+                this.selectedIndex = -1;
+                this.renderSuggestions(dropdown, suggestions, query, type, inputElement);
+            }
+
+            // حساب درجة الصلة
+            calculateRelevanceScore(name, query, data) {
+                let score = 0;
+                const nameLower = name.toLowerCase();
+                const queryLower = query.toLowerCase();
+
+                // تطابق تام
+                if (nameLower === queryLower) score += 100;
+                // يبدأ بـ
+                else if (nameLower.startsWith(queryLower)) score += 80;
+                // يحتوي على
+                else if (nameLower.includes(queryLower)) score += 50;
+
+                // مكافأة للاستخدام المتكرر
+                score += Math.min(data.count * 5, 30);
+                
+                // مكافأة للاستخدام الحديث
+                if (data.lastUsed) {
+                    const daysSince = (new Date() - new Date(data.lastUsed)) / (1000 * 60 * 60 * 24);
+                    if (daysSince < 7) score += 20;
+                    else if (daysSince < 30) score += 10;
+                }
+
+                // مكافأة للمبالغ الكبيرة
+                if (data.totalAmount > 100000) score += 15;
+                else if (data.totalAmount > 50000) score += 10;
+                else if (data.totalAmount > 10000) score += 5;
+
+                return score;
+            }
+
+            // عرض الاقتراحات
+            renderSuggestions(dropdown, suggestions, query, type, inputElement) {
+                if (suggestions.length === 0) {
+                    if (query.length >= 2) {
+                        dropdown.innerHTML = `
+                            <div class="suggestion-add-new" onclick="addNewItem('${type}', '${query.replace(/'/g, "\\'")}', '${inputElement.id}')">
+                                <i class="fas fa-plus-circle"></i>
+                                إضافة "${query.length > 20 ? query.substring(0, 17) + '...' : query}" جديد
+                            </div>
+                        `;
+                        dropdown.classList.add('show');
+                    } else {
+                        dropdown.classList.remove('show');
+                    }
+                    return;
+                }
+
+                const typeNames = {
+                    recipient: 'المستلم',
+                    issuer: 'المعطي',
+                    bank: 'البنك'
+                };
+
+                dropdown.innerHTML = suggestions.map((suggestion, index) => {
+                    const highlightedName = this.highlightText(suggestion.name, query);
+                    const totalAmount = suggestion.totalAmount || 0;
+                    const banksCount = suggestion.banks?.size || 0;
+                    const recipientsCount = suggestion.recipients?.size || 0;
+                    const issuersCount = suggestion.issuers?.size || 0;
+
+                    return `
+                        <div class="suggestion-item ${index === this.selectedIndex ? 'active' : ''}" 
+                             onclick="selectSuggestion('${suggestion.name.replace(/'/g, "\\'")}', '${inputElement.id}', '${type}')"
+                             onmouseenter="this.classList.add('active')"
+                             onmouseleave="this.classList.remove('active')">
+                            <div class="suggestion-icon ${type}">
+                                <i class="fas ${type === 'recipient' ? 'fa-user-tie' : type === 'issuer' ? 'fa-hand-holding-usd' : 'fa-university'}"></i>
+                            </div>
+                            <div class="suggestion-content">
+                                <div class="suggestion-title">
+                                    ${highlightedName}
+                                    <span style="color: var(--text-tertiary); font-size: var(--font-size-xs); margin-right: 8px;">
+                                        ${suggestion.count} شيك
+                                    </span>
+                                </div>
+                                <div class="suggestion-stats">
+                                    <span><i class="fas fa-coins"></i> ${formatCurrency(totalAmount)}</span>
+                                    ${type === 'recipient' && banksCount > 0 ? `<span><i class="fas fa-university"></i> ${banksCount} بنك</span>` : ''}
+                                    ${type === 'recipient' && issuersCount > 0 ? `<span><i class="fas fa-hand-holding-usd"></i> ${issuersCount} معطي</span>` : ''}
+                                    ${type === 'issuer' && banksCount > 0 ? `<span><i class="fas fa-university"></i> ${banksCount} بنك</span>` : ''}
+                                    ${type === 'issuer' && recipientsCount > 0 ? `<span><i class="fas fa-users"></i> ${recipientsCount} مستلم</span>` : ''}
+                                    ${type === 'bank' ? `<span><i class="fas fa-users"></i> ${recipientsCount || 0} مستلم</span>` : ''}
+                                    ${type === 'bank' && issuersCount > 0 ? `<span><i class="fas fa-hand-holding-usd"></i> ${issuersCount} معطي</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="suggestion-amount">
+                                <span style="font-size: var(--font-size-xs);">${suggestion.count}x</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // إضافة خيار إضافة جديد في الأسفل
+                if (query.length >= 2) {
+                    dropdown.innerHTML += `
+                        <div class="suggestion-add-new" onclick="addNewItem('${type}', '${query.replace(/'/g, "\\'")}', '${inputElement.id}')">
+                            <i class="fas fa-plus-circle"></i>
+                            إضافة "${query.length > 20 ? query.substring(0, 17) + '...' : query}" جديد
+                        </div>
+                    `;
+                }
+
+                dropdown.classList.add('show');
+            }
+
+            // تمييز النص المطابق
+            highlightText(text, query) {
+                if (!query) return text;
+                const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                return text.replace(regex, '<span class="suggestion-highlight">$1</span>');
+            }
+
+            // عرض الاقتراحات الحديثة
+            showRecentSuggestions(type, inputElement) {
+                if (inputElement.value.trim()) return;
+
+                let sourceData;
+                switch(type) {
+                    case 'recipient': sourceData = this.frequentData.recipients; break;
+                    case 'issuer': sourceData = this.frequentData.issuers; break;
+                    case 'bank': sourceData = this.frequentData.banks; break;
+                    default: return;
+                }
+
+                const recent = Object.entries(sourceData)
+                    .sort((a, b) => {
+                        // ترتيب حسب: آخر استخدام > التكرار
+                        if (a[1].lastUsed && b[1].lastUsed) {
+                            return new Date(b[1].lastUsed) - new Date(a[1].lastUsed);
+                        }
+                        return b[1].count - a[1].count;
+                    })
+                    .slice(0, 5);
+
+                if (recent.length > 0) {
+                    this.currentSuggestions = recent.map(([name, data]) => ({ name, ...data }));
+                    this.selectedIndex = -1;
+                    this.renderSuggestions(
+                        document.getElementById(`${inputElement.id}Suggestions`),
+                        this.currentSuggestions,
+                        '',
+                        type,
+                        inputElement
+                    );
+                }
+            }
+
+            // معالجة التنقل بلوحة المفاتيح
+            handleKeyNavigation(e, fieldId, type) {
+                const dropdown = document.getElementById(`${fieldId}Suggestions`);
+                if (!dropdown || !dropdown.classList.contains('show')) return;
+
+                const items = dropdown.querySelectorAll('.suggestion-item');
+                if (items.length === 0) return;
+
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
+                        this.updateActiveItem(items);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+                        this.updateActiveItem(items);
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
+                            items[this.selectedIndex].click();
+                        }
+                        break;
+                    case 'Escape':
+                        dropdown.classList.remove('show');
+                        this.selectedIndex = -1;
+                        break;
+                }
+            }
+
+            // تحديث العنصر النشط
+            updateActiveItem(items) {
+                items.forEach((item, index) => {
+                    if (index === this.selectedIndex) {
+                        item.classList.add('active');
+                        item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+
+            // عرض تلميح البيانات المرتبطة
+            showRelatedHint(value, type, input) {
+                // إزالة التلميحات السابقة
+                const oldHint = input.parentNode.querySelector('.hint-box');
+                if (oldHint) oldHint.remove();
+
+                let relatedData = null;
+                let hintMessage = '';
+
+                if (type === 'recipient' && this.frequentData.recipients[value]) {
+                    const data = this.frequentData.recipients[value];
+                    const banks = Array.from(data.banks || []).slice(0, 3);
+                    const issuers = Array.from(data.issuers || []).slice(0, 3);
+                    
+                    if (banks.length > 0 || issuers.length > 0) {
+                        hintMessage = `
+                            <strong>${value.length > 30 ? value.substring(0, 27) + '...' : value}</strong>:
+                            ${banks.length > 0 ? `🏦 البنوك: ${banks.join('، ')}` : ''}
+                            ${banks.length > 0 && issuers.length > 0 ? ' | ' : ''}
+                            ${issuers.length > 0 ? `✍️ المعطيون: ${issuers.join('، ')}` : ''}
+                        `;
+                    }
+                } else if (type === 'issuer' && this.frequentData.issuers[value]) {
+                    const data = this.frequentData.issuers[value];
+                    const recipients = Array.from(data.recipients || []).slice(0, 3);
+                    const banks = Array.from(data.banks || []).slice(0, 3);
+                    
+                    if (recipients.length > 0 || banks.length > 0) {
+                        hintMessage = `
+                            <strong>${value.length > 30 ? value.substring(0, 27) + '...' : value}</strong>:
+                            ${recipients.length > 0 ? `👥 المستلمون: ${recipients.join('، ')}` : ''}
+                            ${recipients.length > 0 && banks.length > 0 ? ' | ' : ''}
+                            ${banks.length > 0 ? `🏦 البنوك: ${banks.join('، ')}` : ''}
+                        `;
+                    }
+                } else if (type === 'bank' && this.frequentData.banks[value]) {
+                    const data = this.frequentData.banks[value];
+                    const recipients = Array.from(data.recipients || []).slice(0, 3);
+                    const issuers = Array.from(data.issuers || []).slice(0, 3);
+                    
+                    if (recipients.length > 0 || issuers.length > 0) {
+                        hintMessage = `
+                            <strong>${value.length > 30 ? value.substring(0, 27) + '...' : value}</strong>:
+                            ${recipients.length > 0 ? `👥 المستلمون: ${recipients.join('، ')}` : ''}
+                            ${recipients.length > 0 && issuers.length > 0 ? ' | ' : ''}
+                            ${issuers.length > 0 ? `✍️ المعطيون: ${issuers.join('، ')}` : ''}
+                        `;
+                    }
+                }
+
+                if (hintMessage) {
+                    const hintBox = document.createElement('div');
+                    hintBox.className = 'hint-box';
+                    hintBox.innerHTML = `
+                        <i class="fas fa-lightbulb"></i>
+                        <div class="hint-content">
+                            ${hintMessage}
+                        </div>
+                        <button class="hint-close" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    input.parentNode.insertBefore(hintBox, input.nextSibling);
+                }
+            }
+
+            // تحديث البيانات
+            refreshData() {
+                this.frequentData = {
+                    recipients: {},
+                    issuers: {},
+                    banks: {}
+                };
+                this.loadFrequentData();
+                
+                // تحديث بطاقات الإحصاءات السريعة
+                const fields = [
+                    { id: 'recipient', type: 'recipient' },
+                    { id: 'issuer', type: 'issuer' }
+                ];
+
+                fields.forEach(field => {
+                    const input = document.getElementById(field.id);
+                    if (!input) return;
+                    
+                    const container = input.parentNode;
+                    const oldCard = container.querySelector('.quick-stats-card');
+                    if (oldCard) oldCard.remove();
+                    
+                    this.addQuickStatsCard(input, field.type);
+                });
+            }
+        }
+
+        // ========== التوابع العامة للاقتراحات ==========
+        function initAutoSuggest() {
+            autoSuggestManager = new AutoSuggestManager();
+        }
+
+        function refreshSuggestions() {
+            if (autoSuggestManager) {
+                autoSuggestManager.refreshData();
+            }
+        }
+
+        function selectSuggestion(value, inputId, type) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = value;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.focus();
+                
+                // إغلاق القائمة المنسدلة
+                const dropdown = document.getElementById(`${inputId}Suggestions`);
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+
+                // عرض تلميح إذا كان هناك بيانات مرتبطة
+                if (autoSuggestManager) {
+                    autoSuggestManager.showRelatedHint(value, type, input);
+                }
+                
+                // تمييز التحديد
+                highlightSuggestionSelection(inputId);
+                
+                // إضافة إشعار بالاختيار
+                if (type === 'recipient' || type === 'issuer' || type === 'bank') {
+                    addNotification(
+                        'success',
+                        'fa-check',
+                        'تم اختيار ' + (type === 'recipient' ? 'المستلم' : type === 'issuer' ? 'المعطي' : 'البنك'),
+                        value,
+                        null
+                    );
+                }
+            }
+        }
+
+        function addNewItem(type, value, inputId) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = value;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.focus();
+                
+                // إغلاق القائمة المنسدلة
+                const dropdown = document.getElementById(`${inputId}Suggestions`);
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+
+                // إضافة إشعار
+                addNotification(
+                    'info',
+                    'fa-plus-circle',
+                    `سيتم إضافة ${type === 'recipient' ? 'مستلم' : type === 'issuer' ? 'معطي' : 'بنك'} جديد`,
+                    value
+                );
+                
+                // تمييز التحديد
+                highlightSuggestionSelection(inputId);
+            }
+        }
+
+        function highlightSuggestionSelection(inputId) {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.style.borderColor = 'var(--success-color)';
+                input.style.backgroundColor = 'rgba(39, 174, 96, 0.05)';
+                
+                setTimeout(() => {
+                    input.style.borderColor = 'var(--border-color)';
+                    input.style.backgroundColor = '';
+                }, 500);
+            }
+        }
+
+        // ========== نهاية نظام الاقتراحات ==========
 
         // Utility functions
         function formatNumberForPDF(num) {
@@ -3566,35 +4450,37 @@
             const newPasswordStatus = document.getElementById('newPasswordStatus');
             const confirmPasswordStatus = document.getElementById('confirmPasswordStatus');
             
-            newPassword.addEventListener('input', function() {
-                if (this.value.length < 6) {
-                    newPasswordStatus.textContent = 'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
-                    newPasswordStatus.className = 'password-status invalid';
-                } else {
-                    newPasswordStatus.textContent = 'كلمة المرور صالحة';
-                    newPasswordStatus.className = 'password-status valid';
-                }
+            if (newPassword && confirmPassword) {
+                newPassword.addEventListener('input', function() {
+                    if (this.value.length < 6) {
+                        newPasswordStatus.textContent = 'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
+                        newPasswordStatus.className = 'password-status invalid';
+                    } else {
+                        newPasswordStatus.textContent = 'كلمة المرور صالحة';
+                        newPasswordStatus.className = 'password-status valid';
+                    }
+                    
+                    if (confirmPassword.value) {
+                        if (this.value !== confirmPassword.value) {
+                            confirmPasswordStatus.textContent = 'كلمتا المرور غير متطابقتين';
+                            confirmPasswordStatus.className = 'password-status invalid';
+                        } else {
+                            confirmPasswordStatus.textContent = 'كلمتا المرور متطابقتين';
+                            confirmPasswordStatus.className = 'password-status valid';
+                        }
+                    }
+                });
                 
-                if (confirmPassword.value) {
-                    if (this.value !== confirmPassword.value) {
+                confirmPassword.addEventListener('input', function() {
+                    if (newPassword.value !== this.value) {
                         confirmPasswordStatus.textContent = 'كلمتا المرور غير متطابقتين';
                         confirmPasswordStatus.className = 'password-status invalid';
                     } else {
                         confirmPasswordStatus.textContent = 'كلمتا المرور متطابقتين';
                         confirmPasswordStatus.className = 'password-status valid';
                     }
-                }
-            });
-            
-            confirmPassword.addEventListener('input', function() {
-                if (newPassword.value !== this.value) {
-                    confirmPasswordStatus.textContent = 'كلمتا المرور غير متطابقتين';
-                    confirmPasswordStatus.className = 'password-status invalid';
-                } else {
-                    confirmPasswordStatus.textContent = 'كلمتا المرور متطابقتين';
-                    confirmPasswordStatus.className = 'password-status valid';
-                }
-            });
+                });
+            }
         }
 
         function setupDueDateValidation() {
@@ -3603,9 +4489,11 @@
             const dueDateAlert = document.getElementById('dueDateAlert');
             const dueDateAlertMessage = document.getElementById('dueDateAlertMessage');
             
+            if (!issueDate || !dueDate) return;
+            
             function validateDates() {
                 if (!dueDate.value || !issueDate.value) {
-                    dueDateAlert.style.display = 'none';
+                    if (dueDateAlert) dueDateAlert.style.display = 'none';
                     return;
                 }
                 
@@ -3791,6 +4679,10 @@
                     if (notificationManager) {
                         notificationManager.clearAll();
                     }
+                    
+                    if (autoSuggestManager) {
+                        autoSuggestManager = null;
+                    }
                 }).catch((error) => {
                     alert('خطأ في تسجيل الخروج: ' + error.message);
                 });
@@ -3813,11 +4705,13 @@
 
         function initApp() {
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('issueDate').value = today;
+            const issueDate = document.getElementById('issueDate');
+            if (issueDate) issueDate.value = today;
             
             const nextMonth = new Date();
             nextMonth.setMonth(nextMonth.getMonth() + 1);
-            document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
+            const dueDate = document.getElementById('dueDate');
+            if (dueDate) dueDate.value = nextMonth.toISOString().split('T')[0];
             
             loadSettings();
             
@@ -3857,6 +4751,15 @@
                         'تم تحميل البيانات من السحابة',
                         `تم تحميل ${checks.length} شيك`
                     );
+                    
+                    // تهيئة نظام الاقتراحات بعد تحميل البيانات
+                    setTimeout(() => {
+                        if (autoSuggestManager) {
+                            autoSuggestManager.refreshData();
+                        } else {
+                            initAutoSuggest();
+                        }
+                    }, 500);
                 } else {
                     loadLocalData();
                     showSyncStatus('تم تحميل البيانات المحلية', 'success');
@@ -3879,6 +4782,11 @@
                                 'تم تحديث البيانات',
                                 `تم تحديث ${checks.length - oldCount} شيك جديد`
                             );
+                            
+                            // تحديث نظام الاقتراحات
+                            if (autoSuggestManager) {
+                                autoSuggestManager.refreshData();
+                            }
                         }
                     }
                 });
@@ -3894,6 +4802,14 @@
                     'خطأ في تحميل البيانات',
                     error.message
                 );
+                
+                setTimeout(() => {
+                    if (autoSuggestManager) {
+                        autoSuggestManager.refreshData();
+                    } else {
+                        initAutoSuggest();
+                    }
+                }, 500);
             }
         }
 
@@ -3910,6 +4826,14 @@
                     'تم تحميل البيانات المحلية',
                     `تم تحميل ${checks.length} شيك`
                 );
+                
+                setTimeout(() => {
+                    if (autoSuggestManager) {
+                        autoSuggestManager.refreshData();
+                    } else {
+                        initAutoSuggest();
+                    }
+                }, 500);
             }
         }
 
@@ -4023,6 +4947,10 @@
                             'تمت المزامنة مع السحابة',
                             'تم تحديث جميع البيانات بنجاح'
                         );
+                        
+                        if (autoSuggestManager) {
+                            autoSuggestManager.refreshData();
+                        }
                     })
                     .catch(error => {
                         console.error('Sync error:', error);
@@ -4228,6 +5156,8 @@
                     amount: mergedCheck.amount
                 }
             );
+            
+            refreshSuggestions();
         }
 
         function deleteDuplicates(checkNumber) {
@@ -4253,6 +5183,8 @@
                     amount: duplicateChecks[0]?.amount || 0
                 }
             );
+            
+            refreshSuggestions();
         }
 
         // Analytics functions
@@ -4300,6 +5232,8 @@
 
         function updateChangeIndicator(elementId, change) {
             const element = document.getElementById(elementId);
+            if (!element) return;
+            
             if (change > 0) {
                 element.className = 'stat-change';
                 element.innerHTML = `<i class="fas fa-arrow-up"></i><span>${Math.abs(change)}%</span>`;
@@ -4834,7 +5768,7 @@
                             <i class="fas fa-user-tie"></i>
                         </div>
                         <div class="check-info">
-                            <div class="check-name">${recipient.name}</div>
+                            <div class="check-name">${recipient.name.length > 40 ? recipient.name.substring(0, 37) + '...' : recipient.name}</div>
                             <div class="check-details">
                                 <span><i class="fas fa-receipt"></i> ${recipient.checks.length} شيك</span>
                                 <span class="check-amount">${formatCurrency(recipient.totalAmount)}</span>
@@ -4940,7 +5874,7 @@
                             <i class="fas fa-user-tie"></i>
                         </div>
                         <div class="check-info">
-                            <div class="check-name">${issuer.name}</div>
+                            <div class="check-name">${issuer.name.length > 40 ? issuer.name.substring(0, 37) + '...' : issuer.name}</div>
                             <div class="check-details">
                                 <span><i class="fas fa-receipt"></i> ${issuer.checks.length} شيك</span>
                                 <span class="check-amount">${formatCurrency(issuer.totalAmount)}</span>
@@ -4989,8 +5923,11 @@
 
         function showPendingChecks() {
             showAllChecks();
-            document.getElementById('searchInput').value = 'قيد الانتظار';
-            document.getElementById('searchInput').dispatchEvent(new Event('input'));
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = 'قيد الانتظار';
+                searchInput.dispatchEvent(new Event('input'));
+            }
         }
 
         function showSettings() {
@@ -5005,23 +5942,38 @@
             
             const navIndex = ['home', 'checks', 'recipients', 'issuers', 'stats', 'settings'].indexOf(active);
             if (navIndex >= 0) {
-                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems[navIndex]) {
+                    navItems[navIndex].classList.add('active');
+                }
             }
         }
 
         // Check management
         function openNewCheckModal() {
-            document.getElementById('checkForm').reset();
-            document.getElementById('checkId').value = '';
-            document.getElementById('duplicateAlert').style.display = 'none';
-            document.getElementById('dueDateAlert').style.display = 'none';
+            const checkForm = document.getElementById('checkForm');
+            if (checkForm) checkForm.reset();
+            
+            const checkId = document.getElementById('checkId');
+            if (checkId) checkId.value = '';
+            
+            const duplicateAlert = document.getElementById('duplicateAlert');
+            if (duplicateAlert) duplicateAlert.style.display = 'none';
+            
+            const dueDateAlert = document.getElementById('dueDateAlert');
+            if (dueDateAlert) dueDateAlert.style.display = 'none';
             
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('issueDate').value = today;
+            const issueDate = document.getElementById('issueDate');
+            if (issueDate) issueDate.value = today;
             
             const nextMonth = new Date();
             nextMonth.setMonth(nextMonth.getMonth() + 1);
-            document.getElementById('dueDate').value = nextMonth.toISOString().split('T')[0];
+            const dueDate = document.getElementById('dueDate');
+            if (dueDate) dueDate.value = nextMonth.toISOString().split('T')[0];
+            
+            // إزالة التلميحات القديمة
+            document.querySelectorAll('.hint-box').forEach(hint => hint.remove());
             
             openModal('addCheckModal');
             setupDueDateValidation();
@@ -5031,17 +5983,41 @@
             const check = checks.find(c => c.id === checkId);
             if (!check) return;
             
-            document.getElementById('checkId').value = check.id;
-            document.getElementById('checkName').value = check.name;
-            document.getElementById('checkAmount').value = check.amount;
-            document.getElementById('checkNumber').value = check.number;
-            document.getElementById('bankName').value = check.bank;
-            document.getElementById('recipient').value = check.recipient;
-            document.getElementById('issuer').value = check.issuer;
-            document.getElementById('checkStatus').value = check.status;
-            document.getElementById('issueDate').value = check.issueDate;
-            document.getElementById('dueDate').value = check.dueDate || '';
-            document.getElementById('notes').value = check.notes || '';
+            const checkIdInput = document.getElementById('checkId');
+            if (checkIdInput) checkIdInput.value = check.id;
+            
+            const checkName = document.getElementById('checkName');
+            if (checkName) checkName.value = check.name;
+            
+            const checkAmount = document.getElementById('checkAmount');
+            if (checkAmount) checkAmount.value = check.amount;
+            
+            const checkNumber = document.getElementById('checkNumber');
+            if (checkNumber) checkNumber.value = check.number;
+            
+            const bankName = document.getElementById('bankName');
+            if (bankName) bankName.value = check.bank;
+            
+            const recipient = document.getElementById('recipient');
+            if (recipient) recipient.value = check.recipient;
+            
+            const issuer = document.getElementById('issuer');
+            if (issuer) issuer.value = check.issuer;
+            
+            const checkStatus = document.getElementById('checkStatus');
+            if (checkStatus) checkStatus.value = check.status;
+            
+            const issueDate = document.getElementById('issueDate');
+            if (issueDate) issueDate.value = check.issueDate;
+            
+            const dueDate = document.getElementById('dueDate');
+            if (dueDate) dueDate.value = check.dueDate || '';
+            
+            const notes = document.getElementById('notes');
+            if (notes) notes.value = check.notes || '';
+            
+            // إزالة التلميحات القديمة
+            document.querySelectorAll('.hint-box').forEach(hint => hint.remove());
             
             openModal('addCheckModal');
             setupDueDateValidation();
@@ -5049,7 +6025,7 @@
             const dueDateAlert = document.getElementById('dueDateAlert');
             const dueDateAlertMessage = document.getElementById('dueDateAlertMessage');
             
-            if (check.dueDate && check.status === 'pending') {
+            if (check.dueDate && check.status === 'pending' && dueDateAlert && dueDateAlertMessage) {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 const dueDate = new Date(check.dueDate);
@@ -5085,19 +6061,24 @@
                 if (!dueDateValidation.isValid) {
                     const dueDateAlert = document.getElementById('dueDateAlert');
                     const dueDateAlertMessage = document.getElementById('dueDateAlertMessage');
-                    dueDateAlertMessage.textContent = dueDateValidation.message;
-                    dueDateAlert.className = 'alert alert-danger';
-                    dueDateAlert.style.display = 'flex';
+                    if (dueDateAlert && dueDateAlertMessage) {
+                        dueDateAlertMessage.textContent = dueDateValidation.message;
+                        dueDateAlert.className = 'alert alert-danger';
+                        dueDateAlert.style.display = 'flex';
+                    }
                     return;
                 }
             }
             
             if (isCheckDuplicate(checkNumber, checkId)) {
-                document.getElementById('duplicateAlert').style.display = 'flex';
-                document.getElementById('duplicateAlert').innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>رقم الشيك "${checkNumber}" مُسجل مسبقاً! الرجاء استخدام رقم مختلف.</span>
-                `;
+                const duplicateAlert = document.getElementById('duplicateAlert');
+                if (duplicateAlert) {
+                    duplicateAlert.style.display = 'flex';
+                    duplicateAlert.innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>رقم الشيك "${checkNumber}" مُسجل مسبقاً! الرجاء استخدام رقم مختلف.</span>
+                    `;
+                }
                 return;
             }
             
@@ -5169,6 +6150,7 @@
             
             closeModal();
             updateUI();
+            refreshSuggestions();
         }
 
         async function deleteCheck(checkId) {
@@ -5206,6 +6188,7 @@
             }
             
             updateUI();
+            refreshSuggestions();
         }
 
         function saveChecksLocally() {
@@ -5239,14 +6222,23 @@
             const pending = checks.filter(c => c.status === 'pending').length;
             const cleared = checks.filter(c => c.status === 'cleared').length;
             
-            document.getElementById('totalChecks').textContent = total;
-            document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
-            document.getElementById('pendingChecks').textContent = pending;
-            document.getElementById('clearedChecks').textContent = cleared;
+            const totalElement = document.getElementById('totalChecks');
+            if (totalElement) totalElement.textContent = total;
+            
+            const totalAmountElement = document.getElementById('totalAmount');
+            if (totalAmountElement) totalAmountElement.textContent = formatCurrency(totalAmount);
+            
+            const pendingElement = document.getElementById('pendingChecks');
+            if (pendingElement) pendingElement.textContent = pending;
+            
+            const clearedElement = document.getElementById('clearedChecks');
+            if (clearedElement) clearedElement.textContent = cleared;
         }
 
         function updateRecentChecks() {
             const container = document.getElementById('recentChecksList');
+            if (!container) return;
+            
             const recentChecks = checks.slice(0, 5);
             
             if (recentChecks.length === 0) {
@@ -5289,7 +6281,7 @@
                             <i class="fas fa-${statusIcon}"></i>
                         </div>
                         <div class="check-info">
-                            <div class="check-name">${check.name}</div>
+                            <div class="check-name">${check.name.length > 40 ? check.name.substring(0, 37) + '...' : check.name}</div>
                             <div class="check-details">
                                 <span style="color: var(--primary-color); font-weight: 600;">${check.number}</span>
                                 <span class="check-amount">${formatCurrency(check.amount)}</span>
@@ -5304,17 +6296,19 @@
 
         function updateAllChecks() {
             const container = document.getElementById('allChecksList');
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (!container) return;
+            
+            const searchTerm = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
             
             let filteredChecks = checks.filter(check => {
                 if (!searchTerm) return true;
                 
-                return check.name.toLowerCase().includes(searchTerm) ||
-                       check.number.toLowerCase().includes(searchTerm) ||
-                       check.recipient.toLowerCase().includes(searchTerm) ||
-                       check.issuer.toLowerCase().includes(searchTerm) ||
-                       check.bank.toLowerCase().includes(searchTerm) ||
-                       check.status.toLowerCase().includes(searchTerm);
+                return (check.name && check.name.toLowerCase().includes(searchTerm)) ||
+                       (check.number && check.number.toLowerCase().includes(searchTerm)) ||
+                       (check.recipient && check.recipient.toLowerCase().includes(searchTerm)) ||
+                       (check.issuer && check.issuer.toLowerCase().includes(searchTerm)) ||
+                       (check.bank && check.bank.toLowerCase().includes(searchTerm)) ||
+                       (check.status && check.status.toLowerCase().includes(searchTerm));
             });
             
             if (Object.keys(activeFilters).length > 0) {
@@ -5402,7 +6396,7 @@
                         </div>
                         <div class="check-info">
                             <div class="check-name">
-                                <span style="color: var(--primary-color);">${check.number}</span> - ${check.name}
+                                <span style="color: var(--primary-color);">${check.number}</span> - ${check.name.length > 40 ? check.name.substring(0, 37) + '...' : check.name}
                             </div>
                             <div class="check-details">
                                 <span class="check-amount">${formatCurrency(check.amount)}</span>
@@ -5433,17 +6427,20 @@
             
             const badge = document.getElementById('checksBadge');
             
-            if (overdueCount > 0) {
-                badge.textContent = overdueCount;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
+            if (badge) {
+                if (overdueCount > 0) {
+                    badge.textContent = overdueCount > 9 ? '9+' : overdueCount;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
             }
         }
 
         function loadSettings() {
             const theme = localStorage.getItem('theme') || 'auto';
-            document.getElementById('themeSelect').value = theme;
+            const themeSelect = document.getElementById('themeSelect');
+            if (themeSelect) themeSelect.value = theme;
             applyTheme(theme);
         }
 
@@ -5457,7 +6454,10 @@
 
         // Modal functions
         function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+            }
         }
 
         function closeModal() {
@@ -5473,13 +6473,15 @@
         function openFilterModal() {
             const banks = [...new Set(checks.map(check => check.bank).filter(b => b))];
             const bankSelect = document.getElementById('filterBank');
-            bankSelect.innerHTML = '<option value="all">جميع البنوك</option>';
-            banks.forEach(bank => {
-                const option = document.createElement('option');
-                option.value = bank;
-                option.textContent = bank;
-                bankSelect.appendChild(option);
-            });
+            if (bankSelect) {
+                bankSelect.innerHTML = '<option value="all">جميع البنوك</option>';
+                banks.forEach(bank => {
+                    const option = document.createElement('option');
+                    option.value = bank;
+                    option.textContent = bank;
+                    bankSelect.appendChild(option);
+                });
+            }
             
             openModal('filterModal');
         }
@@ -5500,19 +6502,25 @@
 
         function clearFilters() {
             activeFilters = {};
-            document.getElementById('filterStatus').value = 'all';
-            document.getElementById('filterBank').value = 'all';
-            document.getElementById('filterFromDate').value = '';
-            document.getElementById('filterToDate').value = '';
-            document.getElementById('filterMinAmount').value = '';
-            document.getElementById('filterMaxAmount').value = '';
+            const filterStatus = document.getElementById('filterStatus');
+            if (filterStatus) filterStatus.value = 'all';
+            const filterBank = document.getElementById('filterBank');
+            if (filterBank) filterBank.value = 'all';
+            const filterFromDate = document.getElementById('filterFromDate');
+            if (filterFromDate) filterFromDate.value = '';
+            const filterToDate = document.getElementById('filterToDate');
+            if (filterToDate) filterToDate.value = '';
+            const filterMinAmount = document.getElementById('filterMinAmount');
+            if (filterMinAmount) filterMinAmount.value = '';
+            const filterMaxAmount = document.getElementById('filterMaxAmount');
+            if (filterMaxAmount) filterMaxAmount.value = '';
             
             closeModal();
             updateAllChecks();
         }
 
         function showAbout() {
-            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل مع عرض رقم الشيك واسم الشيك\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
+            alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- نظام الاقتراحات الذكي أثناء الكتابة\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل مع عرض رقم الشيك واسم الشيك\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
         }
 
         // Export functions
@@ -6176,11 +7184,21 @@
 
         // Excel Import functions
         function openImportExcelModal() {
-            document.getElementById('excelFile').value = '';
-            document.getElementById('importPreview').style.display = 'none';
-            document.getElementById('skipFirstRow').checked = true;
-            document.getElementById('overwriteData').checked = false;
-            document.getElementById('skipDuplicates').checked = true;
+            const excelFile = document.getElementById('excelFile');
+            if (excelFile) excelFile.value = '';
+            
+            const importPreview = document.getElementById('importPreview');
+            if (importPreview) importPreview.style.display = 'none';
+            
+            const skipFirstRow = document.getElementById('skipFirstRow');
+            if (skipFirstRow) skipFirstRow.checked = true;
+            
+            const overwriteData = document.getElementById('overwriteData');
+            if (overwriteData) overwriteData.checked = false;
+            
+            const skipDuplicates = document.getElementById('skipDuplicates');
+            if (skipDuplicates) skipDuplicates.checked = true;
+            
             openModal('importExcelModal');
         }
 
@@ -6190,7 +7208,7 @@
             const previewDiv = document.getElementById('importPreview');
             const previewContent = document.getElementById('previewContent');
 
-            if (!fileInput.files.length) {
+            if (!fileInput || !fileInput.files.length) {
                 alert('الرجاء اختيار ملف Excel أولاً');
                 return;
             }
@@ -6210,33 +7228,35 @@
                     
                     excelData = parseExcelData(jsonData, skipFirstRow);
                     
-                    previewContent.innerHTML = `
-                        <div style="margin-bottom: 8px; color: var(--primary-color);">
-                            <i class="fas fa-check-circle"></i>
-                            تم تحليل الملف بنجاح
-                        </div>
-                        <div style="margin-bottom: 4px;">
-                            <strong>عدد الصفوف:</strong> ${excelData.length}
-                        </div>
-                    `;
-                    
-                    const sampleRows = excelData.slice(0, 3);
-                    sampleRows.forEach((row, index) => {
-                        previewContent.innerHTML += `
-                            <div style="padding: 8px; margin-top: 4px; background: var(--card-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-sm);">
-                                <div><strong>الصف ${index + 1}:</strong></div>
-                                <div><strong>اسم الشيك:</strong> ${row.client || 'غير محدد'}</div>
-                                <div><strong>المبلغ:</strong> ${row.amount || 'غير محدد'}</div>
-                                <div><strong>رقم الشيك:</strong> ${row.checkNumber || 'غير محدد'}</div>
-                                <div><strong>المستلم:</strong> ${row.recipient || 'غير محدد'}</div>
-                                <div><strong>المعطي:</strong> ${row.issuer || 'غير محدد'}</div>
-                                <div><strong>تاريخ الاستحقاق:</strong> ${row.dueDate || 'غير محدد'}</div>
-                                <div><strong>البنك:</strong> ${row.bank || 'غير محدد'}</div>
+                    if (previewContent) {
+                        previewContent.innerHTML = `
+                            <div style="margin-bottom: 8px; color: var(--primary-color);">
+                                <i class="fas fa-check-circle"></i>
+                                تم تحليل الملف بنجاح
+                            </div>
+                            <div style="margin-bottom: 4px;">
+                                <strong>عدد الصفوف:</strong> ${excelData.length}
                             </div>
                         `;
-                    });
+                        
+                        const sampleRows = excelData.slice(0, 3);
+                        sampleRows.forEach((row, index) => {
+                            previewContent.innerHTML += `
+                                <div style="padding: 8px; margin-top: 4px; background: var(--card-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-sm);">
+                                    <div><strong>الصف ${index + 1}:</strong></div>
+                                    <div><strong>اسم الشيك:</strong> ${row.client || 'غير محدد'}</div>
+                                    <div><strong>المبلغ:</strong> ${row.amount || 'غير محدد'}</div>
+                                    <div><strong>رقم الشيك:</strong> ${row.checkNumber || 'غير محدد'}</div>
+                                    <div><strong>المستلم:</strong> ${row.recipient || 'غير محدد'}</div>
+                                    <div><strong>المعطي:</strong> ${row.issuer || 'غير محدد'}</div>
+                                    <div><strong>تاريخ الاستحقاق:</strong> ${row.dueDate || 'غير محدد'}</div>
+                                    <div><strong>البنك:</strong> ${row.bank || 'غير محدد'}</div>
+                                </div>
+                            `;
+                        });
+                    }
                     
-                    previewDiv.style.display = 'block';
+                    if (previewDiv) previewDiv.style.display = 'block';
                     
                 } catch (error) {
                     console.error('Error reading Excel file:', error);
@@ -6505,6 +7525,7 @@
 
             closeModal();
             updateUI();
+            refreshSuggestions();
         }
 
         // Delete all checks
@@ -6600,6 +7621,7 @@
                 
                 closeModal();
                 updateUI();
+                refreshSuggestions();
             }
         }
 
@@ -6729,10 +7751,10 @@
                         modalContent += `
                             <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
                                 <td><span style="color: var(--primary-color); font-weight: 600;">${check.number}</span></td>
-                                <td>${check.name}</td>
+                                <td>${check.name.length > 40 ? check.name.substring(0, 37) + '...' : check.name}</td>
                                 <td>${formatCurrency(check.amount)}</td>
-                                <td>${check.recipient}</td>
-                                <td>${check.bank}</td>
+                                <td>${check.recipient.length > 30 ? check.recipient.substring(0, 27) + '...' : check.recipient}</td>
+                                <td>${check.bank.length > 20 ? check.bank.substring(0, 17) + '...' : check.bank}</td>
                                 <td>${statusBadge}</td>
                                 <td>${formatDate(check.issueDate)}</td>
                                 <td style="${dueDateClass === 'danger' ? 'color: var(--danger-color); font-weight: bold;' : dueDateClass === 'warning' ? 'color: var(--warning-color);' : ''}">
@@ -6895,10 +7917,10 @@
                         modalContent += `
                             <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
                                 <td><span style="color: var(--primary-color); font-weight: 600;">${check.number}</span></td>
-                                <td>${check.name}</td>
+                                <td>${check.name.length > 40 ? check.name.substring(0, 37) + '...' : check.name}</td>
                                 <td>${formatCurrency(check.amount)}</td>
-                                <td>${check.issuer}</td>
-                                <td>${check.bank}</td>
+                                <td>${check.issuer.length > 30 ? check.issuer.substring(0, 27) + '...' : check.issuer}</td>
+                                <td>${check.bank.length > 20 ? check.bank.substring(0, 17) + '...' : check.bank}</td>
                                 <td>${statusBadge}</td>
                                 <td>${formatDate(check.issueDate)}</td>
                                 <td style="${dueDateClass === 'danger' ? 'color: var(--danger-color); font-weight: bold;' : dueDateClass === 'warning' ? 'color: var(--warning-color);' : ''}">
@@ -7714,39 +8736,48 @@
 
         // Event listeners
         function setupEventListeners() {
-            document.getElementById('searchInput').addEventListener('input', updateAllChecks);
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.addEventListener('input', updateAllChecks);
             
-            document.getElementById('recipientSearch').addEventListener('input', updateRecipientsList);
+            const recipientSearch = document.getElementById('recipientSearch');
+            if (recipientSearch) recipientSearch.addEventListener('input', updateRecipientsList);
             
-            document.getElementById('issuerSearch').addEventListener('input', updateIssuersList);
+            const issuerSearch = document.getElementById('issuerSearch');
+            if (issuerSearch) issuerSearch.addEventListener('input', updateIssuersList);
             
-            document.getElementById('themeSelect').addEventListener('change', function() {
-                localStorage.setItem('theme', this.value);
-                applyTheme(this.value);
-            });
+            const themeSelect = document.getElementById('themeSelect');
+            if (themeSelect) {
+                themeSelect.addEventListener('change', function() {
+                    localStorage.setItem('theme', this.value);
+                    applyTheme(this.value);
+                });
+            }
             
-            document.getElementById('checkNumber').addEventListener('blur', function() {
-                const checkId = document.getElementById('checkId').value;
-                const checkNumber = this.value;
-                
-                if (checkNumber && isCheckDuplicate(checkNumber, checkId)) {
-                    document.getElementById('duplicateAlert').style.display = 'flex';
-                } else {
-                    document.getElementById('duplicateAlert').style.display = 'none';
-                }
-            });
+            const checkNumber = document.getElementById('checkNumber');
+            if (checkNumber) {
+                checkNumber.addEventListener('blur', function() {
+                    const checkId = document.getElementById('checkId').value;
+                    const checkNumber = this.value;
+                    
+                    const duplicateAlert = document.getElementById('duplicateAlert');
+                    if (duplicateAlert) {
+                        if (checkNumber && isCheckDuplicate(checkNumber, checkId)) {
+                            duplicateAlert.style.display = 'flex';
+                        } else {
+                            duplicateAlert.style.display = 'none';
+                        }
+                    }
+                });
+            }
             
-            document.getElementById('analyticsPeriod').addEventListener('change', function() {
-                updateMonthlyChart();
-            });
+            const analyticsPeriod = document.getElementById('analyticsPeriod');
+            if (analyticsPeriod) analyticsPeriod.addEventListener('change', updateMonthlyChart);
             
-            document.getElementById('bankChartType').addEventListener('change', function() {
-                updateBankChart();
-            });
+            const bankChartType = document.getElementById('bankChartType');
+            if (bankChartType) bankChartType.addEventListener('change', updateBankChart);
             
-            document.getElementById('monthlyChartType').addEventListener('change', function() {
-                updateMonthlyChart();
-            });
+            const monthlyChartType = document.getElementById('monthlyChartType');
+            if (monthlyChartType) monthlyChartType.addEventListener('change', updateMonthlyChart);
             
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 overlay.addEventListener('click', function(e) {
@@ -7814,7 +8845,7 @@
             const manifest = {
                 "name": "CheckFlow Pro",
                 "short_name": "CheckFlow",
-                "description": "إدارة الشيكات الاحترافية",
+                "description": "إدارة الشيكات الاحترافية مع الاقتراحات الذكية",
                 "start_url": "/",
                 "display": "standalone",
                 "background_color": "#337ea9",
