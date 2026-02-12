@@ -1807,7 +1807,7 @@
             gap: 4px;
         }
 
-        /* ========== نظام الإشعارات المتكامل ========== */
+        /* ========== نظام الإشعارات المتكامل مع دعم Numéro chèque و Nom ========== */
         .notification-button {
             position: relative;
         }
@@ -1983,6 +1983,8 @@
             font-size: var(--font-size-xs);
             color: var(--text-secondary);
             margin-bottom: 4px;
+            white-space: normal;
+            word-break: break-word;
         }
 
         .notification-time {
@@ -2027,6 +2029,34 @@
 
         .notification-empty p {
             font-size: var(--font-size-sm);
+        }
+
+        /* تنسيق خاص للإشعارات مع رقم الشيك واسم الشيك */
+        .notification-check-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            font-size: var(--font-size-xs);
+            background: var(--surface-color);
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .notification-check-number {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .notification-check-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .notification-check-amount {
+            font-size: 10px;
+            color: var(--text-secondary);
         }
     </style>
 </head>
@@ -2079,17 +2109,18 @@
         </div>
     </header>
 
-    <!-- لوحة الإشعارات -->
+    <!-- لوحة الإشعارات مع دعم عرض رقم الشيك واسم الشيك -->
     <div class="notification-panel" id="notificationPanel" style="display: none;">
         <div class="notification-header">
             <div class="notification-title">
                 <i class="fas fa-bell"></i>
                 الإشعارات
+                <span style="font-size: var(--font-size-xs); background: var(--primary-color); color: white; padding: 2px 6px; border-radius: 12px; margin-right: 8px;" id="notificationTotalCount">0</span>
             </div>
             <button class="notification-clear-all" onclick="clearAllNotifications()">مسح الكل</button>
         </div>
         <div class="notification-list" id="notificationList">
-            <!-- الإشعارات ستظهر هنا ديناميكياً -->
+            <!-- الإشعارات ستظهر هنا ديناميكياً مع عرض رقم الشيك واسم الشيك -->
         </div>
     </div>
 
@@ -2389,7 +2420,7 @@
                     </div>
                 </div>
 
-                <!-- تقرير المخاطر - الشيكات المتأخرة -->
+                <!-- تقرير المخاطر - الشيكات المتأخرة مع عرض رقم الشيك واسم الشيك -->
                 <div class="table-card">
                     <div class="chart-header">
                         <div class="chart-title">تقرير المخاطر - الشيكات المتأخرة</div>
@@ -2902,7 +2933,7 @@
 </html>
 
 <script>
-    // ========== نظام إدارة الإشعارات المتكامل ==========
+    // ========== نظام إدارة الإشعارات المتكامل مع دعم Numéro chèque و Nom ==========
     class NotificationManager {
         constructor() {
             this.notifications = [];
@@ -2931,14 +2962,15 @@
             this.renderNotifications();
         }
 
-        // إضافة إشعار جديد
-        addNotification(type, icon, title, description = '') {
+        // إضافة إشعار جديد مع دعم رقم الشيك واسم الشيك
+        addNotification(type, icon, title, description = '', checkInfo = null) {
             const notification = {
                 id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
                 type: type, // success, warning, danger, info
                 icon: icon,
                 title: title,
                 description: description,
+                checkInfo: checkInfo, // { number: '', name: '', amount: 0, dueDate: '' }
                 time: new Date().toISOString(),
                 read: false
             };
@@ -2983,7 +3015,19 @@
             syncStatus.style.background = bgColor;
             syncStatus.className = 'sync-status';
             syncStatus.style.display = 'flex';
-            syncMessage.innerHTML = `<i class="fas ${icon}"></i> ${notification.title}`;
+            
+            // إضافة رقم الشيك واسم الشيك في الـ Toast إذا وجد
+            let message = notification.title;
+            if (notification.checkInfo) {
+                if (notification.checkInfo.number) {
+                    message += ` - N°: ${notification.checkInfo.number}`;
+                }
+                if (notification.checkInfo.name) {
+                    message += ` (${notification.checkInfo.name})`;
+                }
+            }
+            
+            syncMessage.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
             
             setTimeout(() => {
                 syncStatus.style.display = 'none';
@@ -2993,17 +3037,20 @@
         // تحديث عداد الإشعارات
         updateBadge() {
             const badge = document.getElementById('notificationBadge');
+            const totalCount = document.getElementById('notificationTotalCount');
             const unreadCount = this.notifications.filter(n => !n.read).length;
             
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
                 badge.style.display = 'flex';
+                if (totalCount) totalCount.textContent = this.notifications.length;
             } else {
                 badge.style.display = 'none';
+                if (totalCount) totalCount.textContent = this.notifications.length;
             }
         }
 
-        // عرض الإشعارات في اللوحة
+        // عرض الإشعارات في اللوحة مع عرض رقم الشيك واسم الشيك
         renderNotifications() {
             const list = document.getElementById('notificationList');
             if (!list) return;
@@ -3022,6 +3069,18 @@
                 const timeAgo = this.getTimeAgo(notif.time);
                 const unreadClass = notif.read ? '' : 'unread';
                 
+                let checkInfoHtml = '';
+                if (notif.checkInfo) {
+                    checkInfoHtml = `
+                        <div class="notification-check-info" onclick="event.stopPropagation(); editCheck('${notif.checkInfo.id || ''}')">
+                            <i class="fas fa-money-check-alt" style="color: var(--primary-color); font-size: 12px;"></i>
+                            <span class="notification-check-number">${notif.checkInfo.number || ''}</span>
+                            <span class="notification-check-name">${notif.checkInfo.name || ''}</span>
+                            ${notif.checkInfo.amount ? `<span class="notification-check-amount">${formatCurrency(notif.checkInfo.amount)}</span>` : ''}
+                        </div>
+                    `;
+                }
+                
                 return `
                     <div class="notification-item ${unreadClass}" onclick="markNotificationRead('${notif.id}')">
                         <div class="notification-icon ${notif.type}">
@@ -3030,6 +3089,7 @@
                         <div class="notification-content">
                             <div class="notification-text">${notif.title}</div>
                             ${notif.description ? `<div class="notification-desc">${notif.description}</div>` : ''}
+                            ${checkInfoHtml}
                             <div class="notification-time">
                                 <i class="fas fa-clock"></i>
                                 ${timeAgo}
@@ -3092,7 +3152,7 @@
             this.renderNotifications();
         }
 
-        // إعداد الفحص التلقائي
+        // إعداد الفحص التلقائي مع دعم رقم الشيك واسم الشيك
         setupAutoCheck() {
             // فحص الشيكات المتأخرة كل 30 دقيقة
             setInterval(() => {
@@ -3109,7 +3169,7 @@
             }, 5000);
         }
 
-        // فحص الشيكات المتأخرة
+        // فحص الشيكات المتأخرة مع عرض رقم الشيك واسم الشيك
         checkOverdueChecks() {
             if (!checks || checks.length === 0) return;
             
@@ -3125,17 +3185,40 @@
             });
 
             if (overdueChecks.length > 0) {
+                // إضافة إشعار واحد للمجموعة
                 const totalAmount = overdueChecks.reduce((sum, c) => sum + (c.amount || 0), 0);
+                
                 this.addNotification(
                     'danger',
                     'fa-exclamation-circle',
                     `تذكير: ${overdueChecks.length} شيك متأخر`,
                     `إجمالي المبلغ المتأخر: ${formatCurrency(totalAmount)}`
                 );
+                
+                // إضافة إشعارات منفصلة لأول 3 شيكات متأخرة فقط (لتجنب الازدحام)
+                overdueChecks.slice(0, 3).forEach(check => {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+                    
+                    this.addNotification(
+                        'danger',
+                'fa-exclamation-circle',
+                        `شيك متأخر ${daysOverdue} يوم`,
+                        `تاريخ الاستحقاق: ${formatDate(check.dueDate)}`,
+                        {
+                            id: check.id,
+                            number: check.number,
+                            name: check.name,
+                            amount: check.amount,
+                            dueDate: check.dueDate
+                        }
+                    );
+                });
             }
         }
 
-        // فحص الشيكات القريبة من الاستحقاق
+        // فحص الشيكات القريبة من الاستحقاق مع عرض رقم الشيك واسم الشيك
         checkUpcomingChecks() {
             if (!checks || checks.length === 0) return;
             
@@ -3158,31 +3241,68 @@
                     `تنبيه: ${upcomingChecks.length} شيك يقترب موعد استحقاقه`,
                     `يستحق خلال 3 أيام أو أقل`
                 );
+                
+                // إضافة إشعارات منفصلة لأول 3 شيكات قريبة فقط
+                upcomingChecks.slice(0, 3).forEach(check => {
+                    const dueDate = new Date(check.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    this.addNotification(
+                        'warning',
+                        'fa-clock',
+                        `شيك يستحق بعد ${daysRemaining} يوم`,
+                        `تاريخ الاستحقاق: ${formatDate(check.dueDate)}`,
+                        {
+                            id: check.id,
+                            number: check.number,
+                            name: check.name,
+                            amount: check.amount,
+                            dueDate: check.dueDate
+                        }
+                    );
+                });
             }
         }
 
-        // فحص الشيكات المكررة
+        // فحص الشيكات المكررة مع عرض رقم الشيك المكرر
         checkDuplicateChecks() {
             if (!checks || checks.length === 0) return;
             
             const checkNumbers = {};
-            const duplicates = [];
+            const duplicateList = [];
             
             checks.forEach(check => {
                 if (checkNumbers[check.number]) {
-                    if (!duplicates.includes(check.number)) {
-                        duplicates.push(check.number);
+                    if (!duplicateList.includes(check.number)) {
+                        duplicateList.push(check.number);
+                        // إضافة إشعار لكل رقم شيك مكرر مع عرض أول نسخة منه
+                        const firstDuplicate = checks.find(c => c.number === check.number);
+                        if (firstDuplicate) {
+                            this.addNotification(
+                                'warning',
+                                'fa-copy',
+                                `شيك مكرر - رقم: ${check.number}`,
+                                `يوجد ${checks.filter(c => c.number === check.number).length} نسخة من هذا الشيك`,
+                                {
+                                    id: firstDuplicate.id,
+                                    number: firstDuplicate.number,
+                                    name: firstDuplicate.name,
+                                    amount: firstDuplicate.amount
+                                }
+                            );
+                        }
                     }
                 } else {
                     checkNumbers[check.number] = true;
                 }
             });
 
-            if (duplicates.length > 0) {
+            if (duplicateList.length > 0) {
                 this.addNotification(
                     'warning',
-                    'fa-copy',
-                    `تم اكتشاف ${duplicates.length} شيك مكرر`,
+                'fa-copy',
+                    `تم اكتشاف ${duplicateList.length} شيك مكرر`,
                     `يرجى مراجعة قائمة الشيكات المكررة`
                 );
             }
@@ -3443,10 +3563,10 @@
         }
     }
 
-    // إضافة إشعار جديد
-    function addNotification(type, icon, title, description = '') {
+    // إضافة إشعار جديد مع دعم رقم الشيك واسم الشيك
+    function addNotification(type, icon, title, description = '', checkInfo = null) {
         if (notificationManager) {
-            return notificationManager.addNotification(type, icon, title, description);
+            return notificationManager.addNotification(type, icon, title, description, checkInfo);
         }
         return null;
     }
@@ -3472,29 +3592,25 @@
         }
     }
 
-    // إشعارات وهمية للاختبار
+    // إشعارات وهمية للاختبار مع عرض رقم الشيك واسم الشيك
     function seedSampleNotifications() {
-        if (notificationManager) {
-            notificationManager.addNotification(
-                'success',
-                'fa-check-circle',
-                'تم تحميل البيانات بنجاح',
-                'جميع الشيكات محدثة حتى الآن'
-            );
-            
-            notificationManager.addNotification(
-                'info',
-                'fa-cloud-upload-alt',
-                'جاهز للاستخدام',
-                'يمكنك البدء في إضافة الشيكات'
-            );
-            
-            notificationManager.addNotification(
-                'warning',
-                'fa-exclamation-triangle',
-                'تذكير: قم بمزامنة البيانات مع السحابة',
-                'آخر مزامنة: منذ 3 ساعات'
-            );
+        if (notificationManager && checks.length > 0) {
+            // إضافة بعض الإشعارات التجريبية مع شيكات حقيقية
+            const sampleChecks = checks.slice(0, 3);
+            sampleChecks.forEach((check, index) => {
+                notificationManager.addNotification(
+                    index === 0 ? 'info' : index === 1 ? 'warning' : 'success',
+                    index === 0 ? 'fa-cloud-upload-alt' : index === 1 ? 'fa-clock' : 'fa-check-circle',
+                    index === 0 ? 'جاهز للاستخدام' : index === 1 ? 'موعد استحقاق قريب' : 'تمت المعالجة',
+                    index === 0 ? 'يمكنك البدء في إضافة الشيكات' : index === 1 ? 'يستحق خلال 3 أيام' : 'تم صرف الشيك بنجاح',
+                    {
+                        id: check.id,
+                        number: check.number,
+                        name: check.name,
+                        amount: check.amount
+                    }
+                );
+            });
         }
     }
 
@@ -3535,8 +3651,11 @@
                                 `تم تسجيل الدخول بنجاح`
                             );
                             
-                            // إشعارات وهمية للاختبار
-                            seedSampleNotifications();
+                            // بعد تحميل البيانات، إضافة الإشعارات التجريبية
+                            setTimeout(() => {
+                                seedSampleNotifications();
+                            }, 2000);
+                            
                         } else {
                             // لا يوجد مستخدم مسجل الدخول
                             document.getElementById('loginModal').style.display = 'flex';
@@ -4540,7 +4659,7 @@
             
             tableHTML += `
                 <tr>
-                    <td>${check.number}</td>
+                    <td><span style="font-weight: 600; color: var(--primary-color);">${check.number}</span></td>
                     <td>${check.name}</td>
                     <td>${formatCurrency(check.amount)}</td>
                     <td>
@@ -5058,7 +5177,13 @@
                 'success',
                 'fa-pencil-alt',
                 'تم تعديل الشيك بنجاح',
-                `رقم الشيك: ${checkData.number}`
+                `رقم الشيك: ${checkData.number}`,
+                {
+                    id: checkData.id,
+                    number: checkData.number,
+                    name: checkData.name,
+                    amount: checkData.amount
+                }
             );
         } else {
             checks.unshift(checkData);
@@ -5066,7 +5191,13 @@
                 'success',
                 'fa-check-circle',
                 'تم إضافة شيك جديد',
-                `رقم الشيك: ${checkData.number} - ${formatCurrency(checkData.amount)}`
+                `رقم الشيك: ${checkData.number}`,
+                {
+                    id: checkData.id,
+                    number: checkData.number,
+                    name: checkData.name,
+                    amount: checkData.amount
+                }
             );
         }
         
@@ -5102,7 +5233,13 @@
                 'warning',
                 'fa-trash',
                 'تم حذف الشيك',
-                `رقم الشيك: ${check.number}`
+                `رقم الشيك: ${check.number}`,
+                {
+                    id: check.id,
+                    number: check.number,
+                    name: check.name,
+                    amount: check.amount
+                }
             );
         }
         
@@ -5198,7 +5335,7 @@
                     <div class="check-info">
                         <div class="check-name">${check.name}</div>
                         <div class="check-details">
-                            <span>${check.number}</span>
+                            <span style="color: var(--primary-color); font-weight: 600;">${check.number}</span>
                             <span class="check-amount">${formatCurrency(check.amount)}</span>
                             <span>${formatDate(check.issueDate)}</span>
                             ${check.dueDate ? `<span>استحقاق: ${formatDate(check.dueDate)}</span>` : ''}
@@ -5308,9 +5445,10 @@
                         <i class="fas fa-${check.important ? 'star' : 'money-check'}"></i>
                     </div>
                     <div class="check-info">
-                        <div class="check-name">${check.name}</div>
+                        <div class="check-name">
+                            <span style="color: var(--primary-color);">${check.number}</span> - ${check.name}
+                        </div>
                         <div class="check-details">
-                            <span>${check.number}</span>
                             <span class="check-amount">${formatCurrency(check.amount)}</span>
                             ${statusBadge}
                             ${check.dueDate ? `<span>استحقاق: ${formatDate(check.dueDate)}</span>` : ''}
@@ -5426,7 +5564,7 @@
 
     // دوال الإعدادات
     function showAbout() {
-        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
+        alert('CheckFlow Pro الإصدار 2.0.0\nتطبيق إدارة الشيكات مع تخزين سحابي\nجميع الملفات المنزلة تكون باللغة الفرنسية\nميزات جديدة:\n- التحقق من تاريخ الاستحقاق\n- منع الشيكات المكررة\n- استيراد Excel متقدم\n- إحصائيات ومخططات متقدمة\n- فحص ومعالجة التكرارات\n- إدارة المستلمين والمعطيين\n- حذف جميع الشيكات\n- تغيير كلمة المرور\n- نظام إشعارات متكامل مع عرض رقم الشيك واسم الشيك\n© 2026 جميع الحقوق محفوظة\nتطوير بواسطة abentaoufik');
     }
 
     // دوال التصدير (بالفرنسية فقط)
@@ -5539,9 +5677,12 @@
                 doc.setTextColor(0, 0, 0);
                 doc.text(`${index + 1}.`, 25, yPosition);
                 
-                doc.setTextColor(60, 60, 60);
+                doc.setTextColor(51, 126, 169);
+                doc.setFontSize(10);
                 doc.text(check.number || 'N/A', 35, yPosition);
                 
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(9);
                 const frenchName = convertToFrenchForExport(truncateText(check.name, 30));
                 doc.text(frenchName, 65, yPosition);
                 
@@ -6392,7 +6533,7 @@
                 
                 addNotification(
                     'success',
-    'fas fa-upload',
+                    'fas fa-upload',
                     'تم استيراد البيانات',
                     `تم استيراد ${newChecks.length} شيك بنجاح`
                 );
@@ -6519,7 +6660,13 @@
             'success',
             'fa-compress-alt',
             'تم دمج الشيكات المكررة',
-            `رقم الشيك: ${checkNumber} - ${duplicateChecks.length} نسخة`
+            `رقم الشيك: ${checkNumber} - ${duplicateChecks.length} نسخة`,
+            {
+                id: mergedCheck.id,
+                number: mergedCheck.number,
+                name: mergedCheck.name,
+                amount: mergedCheck.amount
+            }
         );
     }
 
@@ -6539,7 +6686,12 @@
             'warning',
             'fa-trash',
             'تم حذف الشيكات المكررة',
-            `رقم الشيك: ${checkNumber} - ${count} نسخة`
+            `رقم الشيك: ${checkNumber} - ${count} نسخة`,
+            {
+                number: checkNumber,
+                name: duplicateChecks[0]?.name || 'شيك مكرر',
+                amount: duplicateChecks[0]?.amount || 0
+            }
         );
     }
 
@@ -6763,7 +6915,7 @@
                     
                     modalContent += `
                         <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
-                            <td>${check.number}</td>
+                            <td><span style="color: var(--primary-color); font-weight: 600;">${check.number}</span></td>
                             <td>${check.name}</td>
                             <td>${formatCurrency(check.amount)}</td>
                             <td>${check.recipient}</td>
@@ -6930,7 +7082,7 @@
                     
                     modalContent += `
                         <tr onclick="editCheck('${check.id}')" style="cursor: pointer;">
-                            <td>${check.number}</td>
+                            <td><span style="color: var(--primary-color); font-weight: 600;">${check.number}</span></td>
                             <td>${check.name}</td>
                             <td>${formatCurrency(check.amount)}</td>
                             <td>${check.issuer}</td>
@@ -7059,9 +7211,10 @@
                     doc.setFontSize(10);
                     doc.setTextColor(0, 0, 0);
                     doc.text('No', 25, yPosition + 6);
-                    doc.text('Nom', 40, yPosition + 6);
-                    doc.text('Montant (MAD)', 100, yPosition + 6);
-                    doc.text('Statut', 140, yPosition + 6);
+                    doc.text('Numéro', 40, yPosition + 6);
+                    doc.text('Nom', 70, yPosition + 6);
+                    doc.text('Montant (MAD)', 120, yPosition + 6);
+                    doc.text('Statut', 150, yPosition + 6);
                     doc.text('Date Échéance', 170, yPosition + 6);
                     
                     yPosition += 12;
@@ -7070,13 +7223,18 @@
                 doc.setTextColor(0, 0, 0);
                 doc.text(`${index + 1}.`, 25, yPosition);
                 
+                doc.setTextColor(51, 126, 169);
+                doc.setFontSize(10);
+                doc.text(check.number || '', 40, yPosition);
+                
                 doc.setTextColor(60, 60, 60);
+                doc.setFontSize(9);
                 const checkName = convertToFrenchForExport(truncateText(check.name, 25));
-                doc.text(checkName, 40, yPosition);
+                doc.text(checkName, 70, yPosition);
                 
                 doc.setTextColor(30, 30, 30);
                 const formattedAmount = formatNumberForPDF(check.amount);
-                doc.text(formattedAmount, 100, yPosition);
+                doc.text(formattedAmount, 120, yPosition);
                 
                 if (check.status === 'pending') {
                     doc.setTextColor(255, 184, 0);
@@ -7085,7 +7243,7 @@
                 } else {
                     doc.setTextColor(209, 69, 59);
                 }
-                doc.text(getStatusFrench(check.status), 140, yPosition);
+                doc.text(getStatusFrench(check.status), 150, yPosition);
                 
                 doc.setTextColor(100, 100, 100);
                 doc.text(check.dueDate ? formatDateFrench(check.dueDate) : '-', 170, yPosition);
@@ -7100,7 +7258,7 @@
                 
                 doc.setFontSize(8);
                 doc.setTextColor(120, 120, 120);
-                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${check.issuer || 'Non spécifié'}`;
+                const details = `${check.bank || 'Banque non specifiée'} | ${check.issuer || 'Non spécifié'}`;
                 const truncatedDetails = truncateText(details, 50);
                 doc.text(truncatedDetails, 40, yPosition);
                 
@@ -7228,9 +7386,10 @@
                     doc.setFontSize(10);
                     doc.setTextColor(0, 0, 0);
                     doc.text('No', 25, yPosition + 6);
-                    doc.text('Nom', 40, yPosition + 6);
-                    doc.text('Montant (MAD)', 100, yPosition + 6);
-                    doc.text('Statut', 140, yPosition + 6);
+                    doc.text('Numéro', 40, yPosition + 6);
+                    doc.text('Nom', 70, yPosition + 6);
+                    doc.text('Montant (MAD)', 120, yPosition + 6);
+                    doc.text('Statut', 150, yPosition + 6);
                     doc.text('Date Échéance', 170, yPosition + 6);
                     
                     yPosition += 12;
@@ -7239,13 +7398,18 @@
                 doc.setTextColor(0, 0, 0);
                 doc.text(`${index + 1}.`, 25, yPosition);
                 
+                doc.setTextColor(51, 126, 169);
+                doc.setFontSize(10);
+                doc.text(check.number || '', 40, yPosition);
+                
                 doc.setTextColor(60, 60, 60);
+                doc.setFontSize(9);
                 const checkName = convertToFrenchForExport(truncateText(check.name, 25));
-                doc.text(checkName, 40, yPosition);
+                doc.text(checkName, 70, yPosition);
                 
                 doc.setTextColor(30, 30, 30);
                 const formattedAmount = formatNumberForPDF(check.amount);
-                doc.text(formattedAmount, 100, yPosition);
+                doc.text(formattedAmount, 120, yPosition);
                 
                 if (check.status === 'pending') {
                     doc.setTextColor(255, 184, 0);
@@ -7254,7 +7418,7 @@
                 } else {
                     doc.setTextColor(209, 69, 59);
                 }
-                doc.text(getStatusFrench(check.status), 140, yPosition);
+                doc.text(getStatusFrench(check.status), 150, yPosition);
                 
                 doc.setTextColor(100, 100, 100);
                 doc.text(check.dueDate ? formatDateFrench(check.dueDate) : '-', 170, yPosition);
@@ -7269,7 +7433,7 @@
                 
                 doc.setFontSize(8);
                 doc.setTextColor(120, 120, 120);
-                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${check.recipient || 'Non spécifié'}`;
+                const details = `${check.bank || 'Banque non specifiée'} | ${check.recipient || 'Non spécifié'}`;
                 const truncatedDetails = truncateText(details, 50);
                 doc.text(truncatedDetails, 40, yPosition);
                 
@@ -7423,10 +7587,11 @@
                     doc.setFontSize(10);
                     doc.setTextColor(0, 0, 0);
                     doc.text('No', 25, yPosition + 6);
-                    doc.text('Nom', 40, yPosition + 6);
-                    doc.text('Montant', 100, yPosition + 6);
-                    doc.text('Jours Retard', 130, yPosition + 6);
-                    doc.text('Date Échéance', 160, yPosition + 6);
+                    doc.text('Numéro', 40, yPosition + 6);
+                    doc.text('Nom', 70, yPosition + 6);
+                    doc.text('Montant', 120, yPosition + 6);
+                    doc.text('Jours Retard', 150, yPosition + 6);
+                    doc.text('Date Échéance', 170, yPosition + 6);
                     
                     yPosition += 12;
                 }
@@ -7438,13 +7603,18 @@
                 doc.setTextColor(0, 0, 0);
                 doc.text(`${index + 1}.`, 25, yPosition);
                 
+                doc.setTextColor(51, 126, 169);
+                doc.setFontSize(10);
+                doc.text(check.number || '', 40, yPosition);
+                
                 doc.setTextColor(60, 60, 60);
+                doc.setFontSize(9);
                 const checkName = convertToFrenchForExport(truncateText(check.name, 25));
-                doc.text(checkName, 40, yPosition);
+                doc.text(checkName, 70, yPosition);
                 
                 doc.setTextColor(30, 30, 30);
                 const formattedAmount = formatNumberForPDF(check.amount);
-                doc.text(formattedAmount, 100, yPosition);
+                doc.text(formattedAmount, 120, yPosition);
                 
                 if (daysOverdue > 30) {
                     doc.setTextColor(209, 69, 59);
@@ -7453,10 +7623,10 @@
                 } else {
                     doc.setTextColor(100, 100, 100);
                 }
-                doc.text(`${daysOverdue} jours`, 130, yPosition);
+                doc.text(`${daysOverdue} jours`, 150, yPosition);
                 
                 doc.setTextColor(80, 80, 80);
-                doc.text(formatDateFrench(check.dueDate), 160, yPosition);
+                doc.text(formatDateFrench(check.dueDate), 170, yPosition);
                 
                 yPosition += 7;
                 
@@ -7468,7 +7638,7 @@
                 
                 doc.setFontSize(8);
                 doc.setTextColor(120, 120, 120);
-                const details = `${check.number} | ${check.bank || 'Banque non specifiée'} | ${check.recipient || 'Non spécifié'}`;
+                const details = `${check.recipient || 'Non spécifié'} | ${check.bank || 'Banque non specifiée'}`;
                 doc.text(details, 40, yPosition);
                 
                 yPosition += 5;
